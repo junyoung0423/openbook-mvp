@@ -1,0 +1,39 @@
+# --- 비밀·개인정보 ---
+.env
+.env.*
+!.env.example
+data/private/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# --- 벡터DB·모델 캐시 ---
+chroma_db/
+.chroma/
+models/
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- OS·에디터 ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+~$*
