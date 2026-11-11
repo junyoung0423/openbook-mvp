@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "Term": {
+      "description": "조건 한 항목 (terms 테이블 한 행).",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/TermKey"
+        },
+        "value": {
+          "default": null,
+          "description": "key별 형식. TermKey 주석과 _VALUE_TYPES 참고",
+          "title": "Value"
+        },
+        "status": {
+          "$ref": "#/$defs/TermStatus"
+        },
+        "source_clause_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "근거 조항 id",
+          "title": "Source Clause Id"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "근거 조항 원문 인용 (그대로)",
+          "title": "Quote"
+        },
+        "confirmed": {
+          "default": false,
+          "title": "Confirmed",
+          "type": "boolean"
+        },
+        "confirmed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed At"
+        }
+      },
+      "required": [
+        "key",
+        "status"
+      ],
+      "title": "Term",
+      "type": "object"
+    },
+    "TermKey": {
+      "enum": [
+        "mg_amount",
+        "mg_pay_date",
+        "mg_recoup",
+        "mg_carryover",
+        "rs_rate",
+        "revenue_base",
+        "deductions",
+        "settlement_cycle",
+        "payment_day"
+      ],
+      "title": "TermKey",
+      "type": "string"
+    },
+    "TermStatus": {
+      "enum": [
+        "extracted",
+        "not_found",
+        "user_input"
+      ],
+      "title": "TermStatus",
+      "type": "string"
+    }
+  },
+  "description": "GET, PUT /contracts/{id}/terms 본문. 같은 key는 한 번만 둔다.",
+  "properties": {
+    "contract_id": {
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "terms": {
+      "items": {
+        "$ref": "#/$defs/Term"
+      },
+      "title": "Terms",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract_id",
+    "terms"
+  ],
+  "title": "TermSet",
+  "type": "object"
+}

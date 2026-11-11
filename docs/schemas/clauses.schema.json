@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "Clause": {
+      "description": "계약서 조항 하나.",
+      "properties": {
+        "id": {
+          "description": "조항 고유 id. 예: 'c-07'. 조건(terms)의 source_clause_id가 가리킨다.",
+          "title": "Id",
+          "type": "string"
+        },
+        "no": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "계약서에 적힌 조항 번호 표기 그대로. 예: '제7조'. 번호가 없으면 null.",
+          "title": "No"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "조항 제목. 없으면 null.",
+          "title": "Title"
+        },
+        "text": {
+          "description": "조항 원문. 요약·수정 없이 그대로.",
+          "title": "Text",
+          "type": "string"
+        },
+        "type_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "조항유형 id (clause_types.yaml 기준). 분류하지 못했으면 null.",
+          "title": "Type Id"
+        },
+        "std_clause_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "매칭된 표준계약서 조항 id. 매칭이 없으면 null (표준과 같다는 뜻이 아님).",
+          "title": "Std Clause Id"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Clause",
+      "type": "object"
+    }
+  },
+  "description": "GET /contracts/{id}/clauses 응답 본문.",
+  "properties": {
+    "contract_id": {
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "clauses": {
+      "items": {
+        "$ref": "#/$defs/Clause"
+      },
+      "title": "Clauses",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract_id",
+    "clauses"
+  ],
+  "title": "ClauseSplitResult",
+  "type": "object"
+}
