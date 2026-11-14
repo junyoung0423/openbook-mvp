@@ -219,3 +219,98 @@ def test_amount_written_in_man_won_is_supported():
     items = [_item("mg_amount", "5000000", "c-01", "갑은 을에게 선급금 500만원을 지급한다.")]
     res = extract_terms("k2", clauses, FakeLLM(items))
     assert term(res, TermKey.MG_AMOUNT).value == Decimal(5_000_000)
+
+
+# ---- 실제 Upstage 호출에서 나온 모양 (값 정리)
+
+
+def test_json_string_wrapped_rs_rate_with_single_open_tier_becomes_plain_rate():
+    wrapped = json.dumps([{"from_amount": "0", "to_amount": "", "rate": "0.6"}])
+    t = term(run(modified("rs_rate", value=wrapped)), TermKey.RS_RATE)
+    assert t.status is TermStatus.EXTRACTED and t.value == Decimal("0.6")
+
+
+def test_multi_tier_rs_rate_stays_a_tier_list():
+    clauses = split_clauses(
+        "제1조 (수익배분)\n구간별 배분: 100만원 이하 50%, 100만원 초과 70%로 한다.\n제2조 (기간)\n1년으로 한다.\n"
+    ).clauses
+    tiers = [
+        {"from_amount": "0", "to_amount": "1000000", "rate": "0.5"},
+        {"from_amount": "1000000", "to_amount": None, "rate": "0.7"},
+    ]
+    items = [_item("rs_rate", tiers, "c-01", "100만원 이하 50%, 100만원 초과 70%로 한다.")]
+    t = term(extract_terms("k3", clauses, FakeLLM(items)), TermKey.RS_RATE)
+    assert t.status is TermStatus.EXTRACTED and len(t.value) == 2
+
+
+DEDUCTION_QUOTE = "결제 수수료: 총매출의 10%\n2. 마케팅 비용: 을이 사전에 서면으로 동의한 금액"
+
+
+def test_unquantified_deduction_is_dropped_with_a_warning_for_the_user():
+    value = [{"name": "결제 수수료", "rate": "0.1"}, {"name": "마케팅 비용", "amount": None}]
+    res = run(modified("deductions", value=value, quote=DEDUCTION_QUOTE))
+    t = term(res, TermKey.DEDUCTIONS)
+    assert t.status is TermStatus.EXTRACTED
+    assert [d.name for d in t.value] == ["결제 수수료"]
+    assert any("마케팅 비용" in w and "직접 입력" in w for w in res.warnings)
+
+
+def test_all_deductions_unquantified_means_not_found():
+    value = [{"name": "마케팅 비용", "amount": None}]
+    res = run(modified("deductions", value=value, quote=DEDUCTION_QUOTE))
+    assert term(res, TermKey.DEDUCTIONS).status is TermStatus.NOT_FOUND
+    assert any("마케팅 비용" in w for w in res.warnings)
+
+
+def test_json_string_wrapped_deductions():
+    wrapped = json.dumps([{"name": "결제 수수료", "rate": "0.1"}], ensure_ascii=False)
+    t = term(run(modified("deductions", value=wrapped)), TermKey.DEDUCTIONS)
+    assert t.status is TermStatus.EXTRACTED and t.value[0].rate == Decimal("0.1")
+
+
+# ---- 구간표 검증 (실제 호출에서 없는 구간표를 만든 사례)
+
+SAMPLE_B_QUOTE = "인세율은 매출의 70%로 한다.\n5.2 단, 해외 판매분은 매출의 50%로 한다."
+
+
+def _b_clauses():
+    raw = (SAMPLE_A.parent / "sample_b.txt").read_text(encoding="utf-8")
+    return split_clauses(raw).clauses
+
+
+def test_invented_overlapping_tiers_are_rejected():
+    tiers = [
+        {"from_amount": "0", "to_amount": "1000000", "rate": "0.7"},
+        {"from_amount": "0", "to_amount": "1000000", "rate": "0.5"},
+    ]
+    items = [_item("rs_rate", tiers, "c-05", SAMPLE_B_QUOTE)]
+    t = term(extract_terms("kb", _b_clauses(), FakeLLM(items)), TermKey.RS_RATE)
+    assert t.status is TermStatus.NOT_FOUND
+
+
+def test_tier_boundary_not_in_quote_is_rejected():
+    clauses = split_clauses(
+        "제1조 (수익배분)\n구간별 배분: 100만원 이하 50%, 100만원 초과 70%로 한다.\n제2조 (기간)\n1년으로 한다.\n"
+    ).clauses
+    tiers = [
+        {"from_amount": "0", "to_amount": "2000000", "rate": "0.5"},
+        {"from_amount": "2000000", "to_amount": None, "rate": "0.7"},
+    ]
+    items = [_item("rs_rate", tiers, "c-01", "100만원 이하 50%, 100만원 초과 70%로 한다.")]
+    t = term(extract_terms("k4", clauses, FakeLLM(items)), TermKey.RS_RATE)
+    assert t.status is TermStatus.NOT_FOUND
+
+
+def test_tiers_with_a_gap_are_rejected():
+    clauses = split_clauses(
+        "제1조 (수익배분)\n100만원 이하 50%, 300만원 초과 70%로 한다.\n제2조 (기간)\n1년으로 한다.\n"
+    ).clauses
+    tiers = [
+        {"from_amount": "0", "to_amount": "1000000", "rate": "0.5"},
+        {"from_amount": "3000000", "to_amount": None, "rate": "0.7"},
+    ]
+    items = [_item("rs_rate", tiers, "c-01", "100만원 이하 50%, 300만원 초과 70%로 한다.")]
+    assert (
+        term(extract_terms("k5", clauses, FakeLLM(items)), TermKey.RS_RATE).status
+        is TermStatus.NOT_FOUND
+    )

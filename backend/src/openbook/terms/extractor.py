@@ -12,9 +12,10 @@ LLM이 낸 값은 그대로 쓰지 않고 코드가 아래 순서로 다시 검�
 
 from __future__ import annotations
 
+import itertools
 import json
 import re
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
@@ -123,10 +124,15 @@ def _verify(
             )
         clause = hits[0]
 
+    value, notes = _normalize_value(key, item["value"])
+    warnings.extend(f"{key.value}: {n}" for n in notes)
+    if _is_empty(value) or value == []:
+        return _not_found(key, warnings, "정량화된 값이 없어 쓰지 않았습니다.")
+
     try:
         term = Term(
             key=key,
-            value=item["value"],
+            value=value,
             status=TermStatus.EXTRACTED,
             source_clause_id=clause.id,
             quote=quote.strip(),
@@ -139,6 +145,87 @@ def _verify(
     return term
 
 
+def _is_empty(x: Any) -> bool:
+    return x is None or (isinstance(x, str) and not x.strip())
+
+
+def _normalize_value(key: TermKey, value: Any) -> tuple[Any, list[str]]:
+    """LLM이 자주 내는 모양을 스키마가 받는 모양으로 정리한다. 의미를 바꾸지는 않는다.
+
+    - 값이 JSON 문자열로 한 번 더 감싸져 오면("[{...}]") 풀어 준다.
+    - 구간이 하나뿐이고 0원부터 끝없이 이어지는 RS 구간표는 단일 비율로 바꾼다.
+    - 비율도 금액도 없는 공제 항목(예: "을이 동의한 금액")은 계산에 쓸 수 없으므로 빼고,
+      어떤 항목을 뺐는지 알려 사용자가 확인하게 한다.
+    """
+    notes: list[str] = []
+    if (
+        key in (TermKey.RS_RATE, TermKey.DEDUCTIONS)
+        and isinstance(value, str)
+        and value.strip()[:1] in ("[", "{")
+    ):
+        try:
+            value = json.loads(value)
+        except json.JSONDecodeError:
+            return value, notes  # 스키마 검증에서 걸러진다
+
+    if key is TermKey.RS_RATE and isinstance(value, list):
+        if not all(isinstance(t, dict) for t in value):
+            return value, notes
+        tiers = []
+        for t in value:
+            t = dict(t)
+            t["from_amount"] = "0" if _is_empty(t.get("from_amount")) else t["from_amount"]
+            t["to_amount"] = None if _is_empty(t.get("to_amount")) else t["to_amount"]
+            tiers.append(t)
+        if len(tiers) == 1 and tiers[0]["to_amount"] is None:
+            try:
+                if Decimal(str(tiers[0]["from_amount"])) == 0:
+                    return tiers[0].get("rate"), notes
+            except InvalidOperation:
+                pass
+        return tiers, notes
+
+    if key is TermKey.DEDUCTIONS and isinstance(value, list):
+        if not all(isinstance(d, dict) for d in value):
+            return value, notes
+        kept, dropped = [], []
+        for d in value:
+            rate = None if _is_empty(d.get("rate")) else d["rate"]
+            amount = None if _is_empty(d.get("amount")) else d["amount"]
+            if rate is None and amount is None:
+                dropped.append(str(d.get("name") or "이름 없음"))
+            else:
+                kept.append({"name": d.get("name"), "rate": rate, "amount": amount})
+        if dropped:
+            notes.append(
+                "비율·금액이 정해지지 않은 공제 항목은 계산에 쓸 수 없어 뺐습니다. "
+                f"계약서를 확인해 직접 입력하세요: {', '.join(dropped)}"
+            )
+        return kept, notes
+
+    return value, notes
+
+
+def _tiers_supported(tiers: list[Any], amounts: set[Decimal], rates: set[Decimal]) -> bool:
+    """구간별 RS: 구간이 0원부터 겹침·빈틈 없이 이어지고, 비율과 경계 금액이 모두 인용문에 있어야 한다."""
+    if not tiers or not all(isinstance(t, RsTier) for t in tiers):
+        return False
+    ordered = sorted(tiers, key=lambda t: t.from_amount)
+    if ordered[0].from_amount != 0:
+        return False
+    for prev, cur in itertools.pairwise(ordered):
+        if prev.to_amount is None or prev.to_amount != cur.from_amount:
+            return False
+    for t in ordered:
+        if t.rate not in rates:
+            return False
+        if t.from_amount != 0 and t.from_amount not in amounts:
+            return False
+        if t.to_amount is not None and t.to_amount not in amounts:
+            return False
+    return True
+
+
 def _supported_by_quote(term: Term, quote: str) -> bool:
     """금액·비율 값이 인용문에 실제로 적혀 있는지 본다. 숫자가 없는 항목은 인용문 존재로 충분하다."""
     amounts, rates = find_amounts(quote), find_rates(quote)
@@ -148,7 +235,7 @@ def _supported_by_quote(term: Term, quote: str) -> bool:
     if term.key is TermKey.RS_RATE:
         if isinstance(v, Decimal):
             return v in rates
-        return all(isinstance(t, RsTier) and t.rate in rates for t in v)
+        return _tiers_supported(v, amounts, rates)
     if term.key is TermKey.DEDUCTIONS:
         return all(
             isinstance(d, Deduction)
