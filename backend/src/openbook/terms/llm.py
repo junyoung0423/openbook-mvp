@@ -20,6 +20,10 @@ DEFAULT_MODEL = "solar-pro4"
 DEFAULT_BASE_URL = "https://api.upstage.ai/v1"
 
 
+class LLMError(RuntimeError):
+    """LLM 호출 실패 (연결·HTTP 오류·응답 형식 오류). 메시지에 계약서 원문을 넣지 않는다."""
+
+
 class LLMClient(Protocol):
     def complete(self, system: str, user: str) -> str:
         """시스템·사용자 프롬프트를 보내고 모델의 텍스트 답을 돌려준다."""
@@ -51,20 +55,26 @@ class UpstageClient:
         )
 
     def complete(self, system: str, user: str) -> str:
-        resp = httpx.post(
-            self._url,
-            headers={"Authorization": f"Bearer {self._api_key}"},
-            json={
-                "model": self.model,
-                "temperature": 0,
-                "messages": [
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": user},
-                ],
-            },
-            timeout=self._timeout,
-        )
+        try:
+            resp = httpx.post(
+                self._url,
+                headers={"Authorization": f"Bearer {self._api_key}"},
+                json={
+                    "model": self.model,
+                    "temperature": 0,
+                    "messages": [
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": user},
+                    ],
+                },
+                timeout=self._timeout,
+            )
+        except httpx.HTTPError as exc:
+            raise LLMError(f"Upstage 연결 실패 ({type(exc).__name__})") from exc
         if resp.status_code != 200:
             # 요청 본문(계약서)은 오류에 넣지 않는다. 응답 앞부분만 남긴다.
-            raise RuntimeError(f"Upstage 호출 실패: HTTP {resp.status_code} {resp.text[:200]}")
-        return resp.json()["choices"][0]["message"]["content"]
+            raise LLMError(f"Upstage 호출 실패: HTTP {resp.status_code} {resp.text[:200]}")
+        try:
+            return resp.json()["choices"][0]["message"]["content"]
+        except (ValueError, KeyError, IndexError, TypeError) as exc:
+            raise LLMError("Upstage 응답 형식이 예상과 다릅니다.") from exc
