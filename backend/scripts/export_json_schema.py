@@ -7,17 +7,22 @@
 import json
 from pathlib import Path
 
-from openbook.schemas import ClauseSplitResult, TermSet
+from openbook.schemas import ClauseSplitResult, termset_json_schema
 
 OUT = Path(__file__).resolve().parents[2] / "docs" / "schemas"
 
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, model in {"clauses": ClauseSplitResult, "terms": TermSet}.items():
+    schemas = {
+        "clauses": ClauseSplitResult.model_json_schema(),
+        # Term.value의 key별 형식·선택값을 oneOf로 포함 (프론트 타입 생성용)
+        "terms": termset_json_schema(),
+    }
+    for name, schema in schemas.items():
         path = OUT / f"{name}.schema.json"
         path.write_text(
-            json.dumps(model.model_json_schema(), ensure_ascii=False, indent=2) + "\n",
+            json.dumps(schema, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
         print("wrote", path)
