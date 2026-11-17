@@ -1,10 +1,20 @@
+import json
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from openbook.schemas import Clause, ClauseSplitResult, Term, TermKey, TermSet, TermStatus
+from openbook.schemas import (
+    Clause,
+    ClauseSplitResult,
+    Term,
+    TermKey,
+    TermSet,
+    TermStatus,
+    termset_json_schema,
+)
 
 
 def extracted(key, value, **kw):
@@ -136,3 +146,28 @@ def test_json_roundtrip_serializes_decimal_as_string():
     dumped = t.model_dump(mode="json")
     assert dumped["value"] == "0.6"
     assert Term.model_validate(dumped).value == Decimal("0.6")
+
+
+# ---- JSON Schema (프론트 타입 생성용)
+
+
+def test_json_schema_lists_value_type_per_key():
+    schema = termset_json_schema()
+    variants = {
+        v["properties"]["key"]["const"]: v["properties"]["value"]
+        for v in schema["$defs"]["Term"]["oneOf"]
+    }
+    assert set(variants) == {k.value for k in TermKey}
+    assert {"$ref": "#/$defs/RevenueBase"} in variants["revenue_base"]["anyOf"]
+    assert schema["$defs"]["RevenueBase"]["enum"] == ["gross", "net", "other"]
+    rs_types = [s.get("type") for s in variants["rs_rate"]["anyOf"]]
+    assert rs_types == ["string", "array", "null"]  # 비율 문자열 | 구간 목록 | 찾지 못함
+    assert schema["$defs"]["Deduction"]["properties"]["amount"]["anyOf"][0]["type"] == "string"
+
+
+def test_committed_json_schema_is_up_to_date():
+    path = Path(__file__).resolve().parents[2] / "docs" / "schemas" / "terms.schema.json"
+    committed = json.loads(path.read_text(encoding="utf-8"))
+    assert committed == termset_json_schema(), (
+        "스키마를 바꿨으면 python backend/scripts/export_json_schema.py를 실행해 커밋하세요."
+    )

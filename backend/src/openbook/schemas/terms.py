@@ -114,7 +114,9 @@ class Term(BaseModel):
     """조건 한 항목 (terms 테이블 한 행)."""
 
     key: TermKey
-    value: Any = Field(default=None, description="key별 형식. TermKey 주석과 _VALUE_TYPES 참고")
+    value: Any = Field(
+        default=None, description="key별 형식. JSON Schema에서는 Term의 oneOf에 key별로 적혀 있다."
+    )
     status: TermStatus
     source_clause_id: str | None = Field(default=None, description="근거 조항 id")
     quote: str | None = Field(default=None, description="근거 조항 원문 인용 (그대로)")
@@ -161,3 +163,30 @@ class TermSet(BaseModel):
     def all_confirmed(self) -> bool:
         """계산·대조는 모든 필요한 조건이 확정된 뒤에만 실행한다."""
         return bool(self.terms) and all(t.confirmed for t in self.terms)
+
+
+# ---------------------------------------------------------------- JSON Schema
+
+
+def termset_json_schema() -> dict[str, Any]:
+    """TermSet의 JSON Schema. Term.value의 key별 형식과 선택값을 oneOf로 드러낸다.
+
+    런타임 검증은 Term._check가 하고, 이 함수는 프론트엔드 타입 생성용 문서만 만든다.
+    금액·비율은 응답과 같은 모양(문자열)으로 적는다 (serialization 모드).
+    """
+    schema = TermSet.model_json_schema(mode="serialization")
+    defs = schema.setdefault("$defs", {})
+    variants = []
+    for key, value_type in _VALUE_TYPES.items():
+        value_schema = TypeAdapter(value_type | None).json_schema(
+            mode="serialization", ref_template="#/$defs/{model}"
+        )
+        defs.update(value_schema.pop("$defs", {}))
+        variants.append(
+            {
+                "properties": {"key": {"const": key.value}, "value": value_schema},
+                "required": ["key"],
+            }
+        )
+    defs["Term"]["oneOf"] = variants
+    return schema

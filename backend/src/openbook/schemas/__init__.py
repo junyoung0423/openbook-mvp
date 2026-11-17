@@ -12,6 +12,7 @@ from openbook.schemas.terms import (
     TermKey,
     TermSet,
     TermStatus,
+    termset_json_schema,
 )
 
 __all__ = [
@@ -27,4 +28,5 @@ __all__ = [
     "TermKey",
     "TermSet",
     "TermStatus",
+    "termset_json_schema",
 ]
