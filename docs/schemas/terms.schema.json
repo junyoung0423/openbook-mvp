@@ -8,7 +8,7 @@
         },
         "value": {
           "default": null,
-          "description": "key별 형식. TermKey 주석과 _VALUE_TYPES 참고",
+          "description": "key별 형식. JSON Schema에서는 Term의 oneOf에 key별로 적혀 있다.",
           "title": "Value"
         },
         "status": {
@@ -64,7 +64,200 @@
         "status"
       ],
       "title": "Term",
-      "type": "object"
+      "type": "object",
+      "oneOf": [
+        {
+          "properties": {
+            "key": {
+              "const": "mg_amount"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "description": "원 단위 금액",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "mg_pay_date"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "mg_recoup"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/MgRecoup"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "mg_carryover"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/MgCarryover"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "rs_rate"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "description": "비율. 0.6 = 60%",
+                  "type": "string"
+                },
+                {
+                  "items": {
+                    "$ref": "#/$defs/RsTier"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "revenue_base"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/RevenueBase"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "deductions"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/$defs/Deduction"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "settlement_cycle"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/SettlementCycle"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        },
+        {
+          "properties": {
+            "key": {
+              "const": "payment_day"
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "key"
+          ]
+        }
+      ]
     },
     "TermKey": {
       "enum": [
@@ -88,6 +281,118 @@
         "user_input"
       ],
       "title": "TermStatus",
+      "type": "string"
+    },
+    "MgRecoup": {
+      "enum": [
+        "from_rs",
+        "separate",
+        "unknown"
+      ],
+      "title": "MgRecoup",
+      "type": "string"
+    },
+    "MgCarryover": {
+      "enum": [
+        "carry_over",
+        "refund",
+        "forgiven",
+        "unknown"
+      ],
+      "title": "MgCarryover",
+      "type": "string"
+    },
+    "RsTier": {
+      "description": "구간별 RS. MVP 계산은 지원하지 않지만 스키마에는 둔다 (명세서 M5).",
+      "properties": {
+        "from_amount": {
+          "default": "0",
+          "description": "원 단위 금액",
+          "title": "From Amount",
+          "type": "string"
+        },
+        "to_amount": {
+          "anyOf": [
+            {
+              "description": "원 단위 금액",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "null이면 상한 없음",
+          "title": "To Amount"
+        },
+        "rate": {
+          "description": "비율. 0.6 = 60%",
+          "title": "Rate",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rate"
+      ],
+      "title": "RsTier",
+      "type": "object"
+    },
+    "RevenueBase": {
+      "enum": [
+        "gross",
+        "net",
+        "other"
+      ],
+      "title": "RevenueBase",
+      "type": "string"
+    },
+    "Deduction": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "rate": {
+          "anyOf": [
+            {
+              "description": "비율. 0.6 = 60%",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rate"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "description": "원 단위 금액",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Deduction",
+      "type": "object"
+    },
+    "SettlementCycle": {
+      "enum": [
+        "monthly",
+        "quarterly",
+        "semiannual",
+        "other"
+      ],
+      "title": "SettlementCycle",
       "type": "string"
     }
   },
