@@ -1,0 +1,183 @@
+{
+  "contract_id": "sample-a",
+  "clause_style": "article",
+  "clause_review_needed": false,
+  "clauses": [
+    {
+      "id": "c-01",
+      "no": "제1조",
+      "title": "목적",
+      "text": "이 계약은 을이 창작한 작품을 갑이 플랫폼에 연재·유통하는 데 필요한 권리와 의무를 정함을 목적으로 한다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-02",
+      "no": "제2조",
+      "title": "정의",
+      "text": "① \"총매출\"이란 플랫폼이 작품 유료 이용으로 얻은 매출의 합계를 말한다.\n② \"순매출\"이란 총매출에서 플랫폼 수수료와 결제 수수료를 뺀 금액을 말한다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-03",
+      "no": "제3조",
+      "title": "계약기간",
+      "text": "① 계약기간은 2027년 1월 1일부터 2년으로 한다.\n② 기간 만료 3개월 전까지 양 당사자가 서면으로 이의하지 않으면 1년씩 자동 연장된다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-04",
+      "no": "제4조",
+      "title": "선급금",
+      "text": "① 갑은 을에게 선급금(이하 \"MG\") 5,000,000원을 계약 체결일로부터 30일 이내에 지급한다.\n② MG는 제5조에 따른 을의 수익배분금에서 우선 차감하여 회수한다.\n③ 계약기간 종료 시 회수되지 않은 MG는 갑이 을에게 반환을 요구하지 않는다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-05",
+      "no": "제5조",
+      "title": "수익배분",
+      "text": "① 을의 수익배분율은 순매출의 60%로 한다.\n② 갑의 수익배분율은 순매출의 40%로 한다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-06",
+      "no": "제6조",
+      "title": "공제",
+      "text": "갑은 다음 각 호의 비용을 정산 전에 총매출에서 공제할 수 있다.\n1. 결제 수수료: 총매출의 10%\n2. 마케팅 비용: 을이 사전에 서면으로 동의한 금액",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-07",
+      "no": "제7조",
+      "title": "정산 및 지급",
+      "text": "① 갑은 매월 말일에 정산하고, 정산서를 다음 달 10일까지 을에게 제공한다.\n② 갑은 정산서 제공일로부터 15일 이내에 정산금을 지급한다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-08",
+      "no": "제8조",
+      "title": "저작권",
+      "text": "작품의 저작권은 을에게 귀속한다. 갑은 계약기간 동안 작품을 연재·유통하기 위한 범위에서 이용할 수 있다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-09",
+      "no": "제9조",
+      "title": "비밀유지",
+      "text": "양 당사자는 이 계약과 관련하여 알게 된 상대방의 비밀을 제3자에게 누설하지 않는다.",
+      "type_id": null,
+      "std_clause_id": null
+    },
+    {
+      "id": "c-10",
+      "no": "제10조",
+      "title": "계약의 해지",
+      "text": "① 당사자 일방이 이 계약을 위반하고 30일 이내에 시정하지 않으면 상대방은 계약을 해지할 수 있다.\n② 해지 시 갑은 해지일까지 발생한 정산금을 지급한다.",
+      "type_id": null,
+      "std_clause_id": null
+    }
+  ],
+  "terms": {
+    "contract_id": "sample-a",
+    "terms": [
+      {
+        "key": "mg_amount",
+        "value": "5000000",
+        "status": "extracted",
+        "source_clause_id": "c-04",
+        "quote": "갑은 을에게 선급금(이하 \"MG\") 5,000,000원을 계약 체결일로부터 30일 이내에 지급한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "mg_pay_date",
+        "value": "계약 체결일로부터 30일 이내",
+        "status": "extracted",
+        "source_clause_id": "c-04",
+        "quote": "갑은 을에게 선급금(이하 \"MG\") 5,000,000원을 계약 체결일로부터 30일 이내에 지급한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "mg_recoup",
+        "value": "from_rs",
+        "status": "extracted",
+        "source_clause_id": "c-04",
+        "quote": "MG는 제5조에 따른 을의 수익배분금에서 우선 차감하여 회수한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "mg_carryover",
+        "value": "forgiven",
+        "status": "extracted",
+        "source_clause_id": "c-04",
+        "quote": "계약기간 종료 시 회수되지 않은 MG는 갑이 을에게 반환을 요구하지 않는다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "rs_rate",
+        "value": "0.6",
+        "status": "extracted",
+        "source_clause_id": "c-05",
+        "quote": "을의 수익배분율은 순매출의 60%로 한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "revenue_base",
+        "value": "net",
+        "status": "extracted",
+        "source_clause_id": "c-05",
+        "quote": "을의 수익배분율은 순매출의 60%로 한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "deductions",
+        "value": [
+          {
+            "name": "결제 수수료",
+            "rate": "0.1",
+            "amount": null
+          }
+        ],
+        "status": "extracted",
+        "source_clause_id": "c-06",
+        "quote": "갑은 다음 각 호의 비용을 정산 전에 총매출에서 공제할 수 있다.\n1. 결제 수수료: 총매출의 10%\n2. 마케팅 비용: 을이 사전에 서면으로 동의한 금액",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "settlement_cycle",
+        "value": "monthly",
+        "status": "extracted",
+        "source_clause_id": "c-07",
+        "quote": "갑은 매월 말일에 정산하고, 정산서를 다음 달 10일까지 을에게 제공한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      },
+      {
+        "key": "payment_day",
+        "value": "정산서 제공일로부터 15일 이내",
+        "status": "extracted",
+        "source_clause_id": "c-07",
+        "quote": "갑은 정산서 제공일로부터 15일 이내에 정산금을 지급한다.",
+        "confirmed": false,
+        "confirmed_at": null
+      }
+    ]
+  },
+  "warnings": [
+    "공제 항목: 비율·금액이 정해지지 않은 공제 항목은 계산에 쓸 수 없어 뺐습니다. 계약서를 확인해 직접 입력하세요: 마케팅 비용"
+  ],
+  "error": null
+}
