@@ -154,7 +154,8 @@ def test_missing_standard_clause_becomes_needs_check():
     r = run(GOOD[:2])
     assert len(r.items) == 3
     assert r.items[2].status == "needs_check"
-    assert any("s-03" in w for w in r.warnings)
+    assert any("표준 제3조 자료 제공" in w for w in r.warnings)
+    assert all("s-0" not in w for w in r.warnings)
 
 
 def test_unknown_status_becomes_needs_check():

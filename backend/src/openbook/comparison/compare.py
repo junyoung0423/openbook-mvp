@@ -78,6 +78,12 @@ def _norm(s: str) -> str:
 # ---------------------------------------------------------------- per-clause
 
 
+def _label(s: StandardClause) -> str:
+    """경고 문구에 쓰는 표준 조항 이름 (내부 id 대신 '표준 제3조 자료 제공')."""
+    name = " ".join(x for x in (s.no, s.title) if x)
+    return f"표준 {name}" if name else f"표준 조항 {s.id}"
+
+
 def _make(s: StandardClause, status: Status, **kw: Any) -> ComparisonItem:
     notice = None if status == "different" else DISCLAIMER
     return ComparisonItem(
@@ -98,21 +104,23 @@ def _item(
     warnings: list[str],
 ) -> ComparisonItem:
     if row is None:
-        warnings.append(f"{s.id}: LLM 답에 이 표준 조항의 결과가 없어 '확인 필요'로 두었습니다.")
+        warnings.append(
+            f"{_label(s)}: LLM 답에 이 표준 조항의 결과가 없어 '확인 필요'로 두었습니다."
+        )
         return _make(s, "needs_check")
 
     status = row.get("status")
     if status == "not_found":
         return _make(s, "not_found")
     if status not in ("different", "none_detected"):
-        warnings.append(f"{s.id}: 알 수 없는 status {status!r}라서 '확인 필요'로 두었습니다.")
+        warnings.append(f"{_label(s)}: 알 수 없는 status {status!r}라서 '확인 필요'로 두었습니다.")
         return _make(s, "needs_check")
 
     uid = row.get("user_clause_id")
     clause = by_id.get(uid) if isinstance(uid, str) else None
     if clause is None:
         warnings.append(
-            f"{s.id}: 대응 조항 id {uid!r}가 사용자 계약서에 없어 '확인 필요'로 두었습니다."
+            f"{_label(s)}: 대응 조항 id {uid!r}가 사용자 계약서에 없어 '확인 필요'로 두었습니다."
         )
         return _make(s, "needs_check")
 
@@ -122,17 +130,19 @@ def _item(
     uq, sq = row.get("user_quote"), row.get("standard_quote")
     if not (isinstance(uq, str) and isinstance(sq, str) and _norm(uq) and _norm(sq)):
         warnings.append(
-            f"{s.id}: 인용문이 없어 '다른 지점'을 보여 주지 않고 '확인 필요'로 두었습니다."
+            f"{_label(s)}: 인용문이 없어 '다른 지점'을 보여 주지 않고 '확인 필요'로 두었습니다."
         )
         return _make(s, "needs_check", user_clause_id=clause.id)
     if _norm(uq) not in _norm(clause.text) or _norm(sq) not in _norm(s.text):
-        warnings.append(f"{s.id}: 인용문이 원문에서 확인되지 않아 '확인 필요'로 두었습니다.")
+        warnings.append(f"{_label(s)}: 인용문이 원문에서 확인되지 않아 '확인 필요'로 두었습니다.")
         return _make(s, "needs_check", user_clause_id=clause.id)
 
     diff = row.get("difference")
     if not isinstance(diff, str) or not diff.strip() or not is_clean(diff):
         if isinstance(diff, str) and diff.strip():
-            warnings.append(f"{s.id}: 설명 문장에 금지 표현이 있어 템플릿 문장으로 바꿨습니다.")
+            warnings.append(
+                f"{_label(s)}: 설명 문장에 금지 표현이 있어 템플릿 문장으로 바꿨습니다."
+            )
         diff = TEMPLATE_DIFFERENCE
     return _make(
         s,
