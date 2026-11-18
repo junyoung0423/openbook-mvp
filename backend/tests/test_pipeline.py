@@ -89,7 +89,7 @@ def test_warnings_from_split_and_extraction_are_merged():
     )
     res = process_contract("k5", SAMPLE_A, FakeLLM(answer=bad_quote))
     assert term(res, TermKey.RS_RATE).status is TermStatus.NOT_FOUND
-    assert any("rs_rate" in w for w in res.warnings)
+    assert any("RS 배분율" in w for w in res.warnings)
 
 
 def test_result_serializes_to_plain_json():
