@@ -30,7 +30,31 @@ const termLabels: Record<string, string> = {
 const field = "block w-full rounded-lg border border-stone-300 bg-white p-2";
 const button =
   "rounded-lg bg-teal-900 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50";
-function formatTermValue(key: string, value: string) {
+const optionLabels: Record<string, Record<string, string>> = {
+  mg_recoup: {
+    from_rs: "RS에서 차감",
+    separate: "별도 처리",
+    unknown: "확인 필요",
+  },
+  mg_carryover: {
+    carry_over: "이월",
+    refund: "반환",
+    forgiven: "반환 요구 없음",
+    unknown: "확인 필요",
+  },
+  revenue_base: {
+    gross: "총매출",
+    net: "순매출",
+    other: "기타",
+  },
+  settlement_cycle: {
+    monthly: "월별",
+    quarterly: "분기별",
+    semiannual: "반기별",
+    other: "기타",
+  },
+};
+  function formatTermValue(key: string, value: string) {
   if (key === "mg_amount" && /^\d+$/.test(value)) {
     return `${value.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}원`;
   }
@@ -43,7 +67,7 @@ function formatTermValue(key: string, value: string) {
     return `${digits}${remaining ? `.${remaining}` : ""}%`;
   }
 
-  return value;
+  return optionLabels[key]?.[value] ?? value;
 }
 export default function Home() {
   const [scenario, setScenario] = useState<Scenario>("정상 · 경고 있음");
@@ -202,7 +226,11 @@ export default function Home() {
                       {term.key === "deductions" && Array.isArray(term.value) && (
                         <ul className="list-inside list-disc">
                           {term.value.map((item, index) => (
-                            <li key={index}>{item.name}</li>
+                            <li key={index}>
+                              {item.name}
+                              {typeof item.rate === "string" && ` · ${formatTermValue("rs_rate", item.rate)}`}
+                              {typeof item.amount === "string" && ` · ${formatTermValue("mg_amount", item.amount)}`}
+                            </li>
                           ))}
                         </ul>
                       )}
