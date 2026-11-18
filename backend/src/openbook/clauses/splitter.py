@@ -12,8 +12,10 @@
 - 제목 줄은 줄 맨 앞에서 시작해야 하고, 번호가 1부터 차례로 이어져야 한다.
   본문 속 "제5조에 따라" 같은 인용이나 호(1. 2.) 목록을 제목으로 오인하지 않기 위해서다.
 - 조 표기 형식에서 차례를 벗어난 제목 후보가 있으면 조항을 놓쳤을 수 있으므로 LLM 보완 대상으로 둔다.
-- 조항 원문(text)은 요약·수정 없이 원문 줄을 그대로 이어 붙인다. 마지막 조항 뒤에 오는
-  작성일·서명 블록은 조항 본문이 아니므로 잘라 낸다.
+- 조항 원문(text)은 요약·수정 없이 원문 줄을 그대로 이어 붙인다. 제목 줄(``제7조 (제목)``,
+  ``7. 제목``)은 no·title에 따로 담기므로 text에 넣지 않는다. 단 ``제7조(제목) 본문…``처럼
+  제목 줄에 본문이 이어지면 그 본문은 text에 남긴다.
+- 마지막 조항 뒤에 오는 작성일·서명 블록은 조항 본문이 아니므로 잘라 낸다.
 """
 
 from __future__ import annotations
@@ -37,6 +39,8 @@ _DATE_LINE = re.compile(r"^\d{4}\s*년\s*\d{1,2}\s*월\s*\d{1,2}\s*일\s*$")
 
 # numbered 형식의 제목은 짧은 명사구여야 한다 (문장 목록 항목과 구별)
 _MAX_NUMBERED_TITLE = 40
+# 괄호 없는 조 제목이 이보다 길거나 마침표로 끝나면 제목이 아니라 본문으로 본다
+_MAX_ARTICLE_TITLE = 30
 
 
 class SplitOutcome(BaseModel):
@@ -54,6 +58,7 @@ class _Heading:
     no: str
     title: str | None
     order: tuple[int, int]  # (조 번호, 가지 번호), 가지 없으면 0
+    body: str = ""  # 제목 줄에서 제목 뒤에 이어진 본문
 
 
 def split_clauses(text: str, *, id_prefix: str = "c") -> SplitOutcome:
@@ -96,7 +101,8 @@ def _find_article_headings(lines: list[str]) -> tuple[list[_Heading], list[str]]
             rejected.append(raw.strip()[:30])
             continue
         no = f"제{n}조" + (f"의{sub}" if sub else "")
-        found.append(_Heading(i, no, _article_title(m.group(3)), order))
+        title, body = _article_title(m.group(3))
+        found.append(_Heading(i, no, title, order, body))
     return found, rejected
 
 
@@ -110,14 +116,17 @@ def _is_next(prev: tuple[int, int] | None, cur: tuple[int, int]) -> bool:
     return n == pn and s > ps  # 제7조의2, 제7조의3 ...
 
 
-def _article_title(rest: str) -> str | None:
+def _article_title(rest: str) -> tuple[str | None, str]:
+    """제목 줄의 나머지에서 (제목, 이어진 본문)을 나눈다."""
     rest = rest.strip()
     if not rest:
-        return None
+        return None, ""
     m = _PAREN_TITLE.match(rest)
     if m:
-        return m.group(1) or None
-    return rest
+        return m.group(1) or None, rest[m.end() :].strip()
+    if len(rest) > _MAX_ARTICLE_TITLE or rest.endswith("."):
+        return None, rest  # "제5조 을의 수익배분율은 …한다." 같은 본문
+    return rest, ""
 
 
 def _find_numbered_headings(lines: list[str]) -> list[_Heading]:
@@ -149,7 +158,9 @@ def _build(
     clauses: list[Clause] = []
     for k, h in enumerate(headings):
         end = headings[k + 1].line_idx if k + 1 < len(headings) else len(lines)
-        body = _clause_lines(lines[h.line_idx : end], last=k + 1 == len(headings))
+        # 제목 줄은 빼고, 제목 뒤에 이어진 본문만 남긴다
+        chunk = [h.body, *lines[h.line_idx + 1 : end]]
+        body = _clause_lines(chunk, last=k + 1 == len(headings))
         clauses.append(
             Clause(
                 id=f"{id_prefix}-{k + 1:0{width}d}",

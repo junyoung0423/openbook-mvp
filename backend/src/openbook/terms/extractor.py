@@ -25,6 +25,19 @@ from openbook.terms.llm import LLMClient
 from openbook.terms.numbers import find_amounts, find_rates
 from openbook.terms.prompt import SYSTEM_PROMPT, build_user_prompt
 
+# 사용자에게 보이는 경고 문구에 쓰는 항목 이름 (내부 key를 그대로 보이지 않게)
+TERM_LABELS: dict[TermKey, str] = {
+    TermKey.MG_AMOUNT: "MG 금액",
+    TermKey.MG_PAY_DATE: "MG 지급 시점",
+    TermKey.MG_RECOUP: "MG 회수 방식",
+    TermKey.MG_CARRYOVER: "미회수 MG 처리",
+    TermKey.RS_RATE: "RS 배분율",
+    TermKey.REVENUE_BASE: "정산 기준 매출",
+    TermKey.DEDUCTIONS: "공제 항목",
+    TermKey.SETTLEMENT_CYCLE: "정산 주기",
+    TermKey.PAYMENT_DAY: "정산금 지급 시점",
+}
+
 
 class ExtractionResult(BaseModel):
     terms: TermSet
@@ -74,7 +87,7 @@ def _parse_items(raw: str, warnings: list[str]) -> dict[str, dict[str, Any]]:
             continue
         key = it.get("key")
         if key not in valid_keys:
-            warnings.append(f"알 수 없는 항목 key를 무시했습니다: {key!r}")
+            warnings.append(f"알 수 없는 항목을 무시했습니다: {key!r}")
             continue
         items.setdefault(key, it)  # 같은 key가 여러 번 오면 첫 번째만 쓴다
     return items
@@ -90,7 +103,7 @@ def _norm(s: str) -> str:
 
 def _not_found(key: TermKey, warnings: list[str], reason: str | None = None) -> Term:
     if reason:
-        warnings.append(f"{key.value}: {reason}")
+        warnings.append(f"{TERM_LABELS[key]}: {reason}")
     return Term(key=key, status=TermStatus.NOT_FOUND)
 
 
@@ -106,7 +119,7 @@ def _verify(
 
     quote = item.get("quote")
     if not isinstance(quote, str) or not _norm(quote):
-        return _not_found(key, warnings, "근거 인용(quote)이 없어 값을 쓰지 않았습니다.")
+        return _not_found(key, warnings, "근거 인용이 없어 값을 쓰지 않았습니다.")
     q = _norm(quote)
 
     clause_id = item.get("clause_id")
@@ -120,12 +133,13 @@ def _verify(
             )
         if clause is not None or clause_id:
             warnings.append(
-                f"{key.value}: 근거 조항 번호를 {clause_id!r}에서 {hits[0].id!r}로 바로잡았습니다."
+                f"{TERM_LABELS[key]}: 근거 조항을 인용문이 있는 "
+                f"{hits[0].no or hits[0].id}로 바로잡았습니다."
             )
         clause = hits[0]
 
     value, notes = _normalize_value(key, item["value"])
-    warnings.extend(f"{key.value}: {n}" for n in notes)
+    warnings.extend(f"{TERM_LABELS[key]}: {n}" for n in notes)
     if _is_empty(value) or value == []:
         return _not_found(key, warnings, "정량화된 값이 없어 쓰지 않았습니다.")
 
