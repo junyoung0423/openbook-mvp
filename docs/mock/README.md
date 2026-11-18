@@ -16,14 +16,14 @@
 |---|---|
 | `clause_style` | `article`(제N조) / `numbered`(N.) / `none`(규칙 실패) |
 | `clause_review_needed` | `true`면 조항 분할이 불확실하니 사용자가 확인·수정하게 한다 |
-| `clauses[]` | `id`, `no`, `title`, `text`(원문 그대로), `type_id`, `std_clause_id` (현재 `null`) |
+| `clauses[]` | `id`, `no`, `title`, `text`(조항 본문 원문 그대로. 제목 줄 `제4조 (선급금)`은 `no`·`title`에 있으므로 빠져 있음), `type_id`, `std_clause_id` (현재 `null`) |
 | `terms` | `null`이면 조건 추출을 못 한 상태. 아니면 `terms.terms[]` 9개 항목 |
 | `terms.terms[].key` | `mg_amount`, `mg_pay_date`, `mg_recoup`, `mg_carryover`, `rs_rate`, `revenue_base`, `deductions`, `settlement_cycle`, `payment_day` |
 | `terms.terms[].status` | `extracted` / `not_found` / `user_input` |
 | `terms.terms[].value` | 항목별 형식. 금액·비율은 **문자열**, 선택값은 영문 값, 공제·구간은 목록 |
 | `terms.terms[].source_clause_id`, `quote` | 근거 조항 id와 원문 인용. 화면에서 조항 원문과 함께 보여 준다 |
 | `terms.terms[].confirmed` | 항상 `false`로 나온다. **확정은 사용자만** 한다 |
-| `warnings[]` | 사용자가 확인해야 할 점. 화면에 그대로 보여 준다 |
+| `warnings[]` | 사용자가 확인해야 할 점. 화면에 그대로 보여 준다 (앞부분은 항목 이름. 예: `공제 항목: …`) |
 | `error` | 조건 추출 호출 실패 사유 |
 
 ## 항목별 `value` 형식
