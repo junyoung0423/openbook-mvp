@@ -34,7 +34,9 @@ def test_clause_text_is_verbatim_and_complete():
     assert all(c.text in raw for c in out.clauses)
     mg = next(c for c in out.clauses if c.no == "제4조")
     assert "5,000,000원" in mg.text
-    assert mg.text.startswith("제4조 (선급금)")
+    # 제목 줄은 no·title에 있으므로 text는 본문부터 시작한다
+    assert mg.text.startswith("① 갑은 을에게 선급금")
+    assert all(not c.text.startswith(c.no) for c in out.clauses)
 
 
 def test_signature_block_trimmed_from_last_clause():
@@ -109,6 +111,19 @@ def test_preamble_before_first_clause_is_not_a_clause():
     )
     assert out.clauses[0].no == "제1조"
     assert "웹툰 계약서" not in out.clauses[0].text
+
+
+def test_body_on_heading_line_is_kept():
+    out = split_clauses("제1조(목적) 이 계약은 목적을 정한다.\n제2조 갑은 을에게 지급한다.\n나\n")
+    assert out.clauses[0].title == "목적"
+    assert out.clauses[0].text == "이 계약은 목적을 정한다."
+    assert out.clauses[1].title is None
+    assert out.clauses[1].text == "갑은 을에게 지급한다.\n나"
+
+
+def test_numbered_heading_line_not_in_text():
+    out = split_clauses("1. 목적\n가\n2. 지급\n나\n")
+    assert [c.text for c in out.clauses] == ["가", "나"]
 
 
 def test_numbered_list_items_inside_numbered_style_are_not_split():

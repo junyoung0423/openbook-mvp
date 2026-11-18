@@ -129,13 +129,13 @@ def test_invented_quote_is_rejected():
     res = run(modified("rs_rate", quote="을의 수익배분율은 순매출의 70%로 한다."))
     t = term(res, TermKey.RS_RATE)
     assert t.status is TermStatus.NOT_FOUND and t.value is None
-    assert any("rs_rate" in w and "원문" in w for w in res.warnings)
+    assert any("RS 배분율" in w and "원문" in w for w in res.warnings)
 
 
 def test_amount_not_in_quote_is_rejected():
     res = run(modified("mg_amount", value="6000000"))
     assert term(res, TermKey.MG_AMOUNT).status is TermStatus.NOT_FOUND
-    assert any("mg_amount" in w for w in res.warnings)
+    assert any("MG 금액" in w for w in res.warnings)
 
 
 def test_rate_not_in_quote_is_rejected():
@@ -165,7 +165,7 @@ def test_invalid_enum_value_is_rejected():
 def test_missing_quote_is_rejected():
     res = run(modified("mg_recoup", quote=None))
     assert term(res, TermKey.MG_RECOUP).status is TermStatus.NOT_FOUND
-    assert any("quote" in w for w in res.warnings)
+    assert any("근거 인용" in w for w in res.warnings)
 
 
 def test_null_value_is_plain_not_found_without_warning():
@@ -314,3 +314,10 @@ def test_tiers_with_a_gap_are_rejected():
         term(extract_terms("k5", clauses, FakeLLM(items)), TermKey.RS_RATE).status
         is TermStatus.NOT_FOUND
     )
+
+
+def test_warnings_use_labels_not_internal_keys():
+    items = copy.deepcopy(GOOD)
+    items[4]["quote"] = "을의 수익배분율은 총매출의 70%로 한다."  # 원문에 없음
+    res = run(items)
+    assert res.warnings and all(k.value not in w for w in res.warnings for k in TermKey)
