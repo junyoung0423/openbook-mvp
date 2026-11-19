@@ -30,3 +30,10 @@ def load_standard(
     if len(ids) != len(set(ids)):
         raise ValueError("표준계약서 조항 id가 중복되었습니다.")
     return [c for c in clauses if c.core] if core_only else clauses
+
+
+def standard_basis(path: str | Path = DEFAULT_STANDARD) -> str | None:
+    """표준계약서의 기준 표기 (예: '문화체육관광부고시 제2024-32호 (...)'). 없으면 None."""
+    data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    src = data.get("source") if isinstance(data, dict) else None
+    return src.get("notice") if isinstance(src, dict) else None

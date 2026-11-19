@@ -7,7 +7,7 @@ from openbook.comparison.models import (
     ComparisonResult,
     StandardClause,
 )
-from openbook.comparison.standard import load_standard
+from openbook.comparison.standard import load_standard, standard_basis
 
 __all__ = [
     "DISCLAIMER",
@@ -16,4 +16,5 @@ __all__ = [
     "StandardClause",
     "compare_with_standard",
     "load_standard",
+    "standard_basis",
 ]
