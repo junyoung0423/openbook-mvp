@@ -35,7 +35,7 @@
           "title": "Title"
         },
         "text": {
-          "description": "조항 원문. 요약·수정 없이 그대로.",
+          "description": "조항 본문 원문. 제목 줄(예: '제4조 (선급금)')은 no·title에 있으므로 빼고, 그 아래 본문을 요약·수정 없이 그대로.",
           "title": "Text",
           "type": "string"
         },
