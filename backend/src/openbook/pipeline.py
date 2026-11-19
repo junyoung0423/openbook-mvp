@@ -55,7 +55,9 @@ def process_contract(contract_id: str, text: str, llm: LLMClient) -> ProcessResu
     try:
         extraction = extract_terms(contract_id, split.clauses, llm)
     except (LLMError, httpx.HTTPError) as exc:
-        result.error = f"조건 추출 호출에 실패했습니다: {exc}"
+        # LLMError 문구만 화면에 보인다 (계약서 원문·응답 본문이 없는 고정 문구).
+        reason = str(exc) if isinstance(exc, LLMError) else type(exc).__name__
+        result.error = f"조건 추출 호출에 실패했습니다: {reason}"
         return result
 
     result.terms = extraction.terms
