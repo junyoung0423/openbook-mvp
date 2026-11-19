@@ -72,8 +72,8 @@ class UpstageClient:
         except httpx.HTTPError as exc:
             raise LLMError(f"Upstage 연결 실패 ({type(exc).__name__})") from exc
         if resp.status_code != 200:
-            # 요청 본문(계약서)은 오류에 넣지 않는다. 응답 앞부분만 남긴다.
-            raise LLMError(f"Upstage 호출 실패: HTTP {resp.status_code} {resp.text[:200]}")
+            # 오류 응답이 요청 내용(계약서)을 되돌려 줄 수 있으므로 응답 본문은 넣지 않는다.
+            raise LLMError(f"Upstage 호출 실패: HTTP {resp.status_code}")
         try:
             return resp.json()["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError) as exc:

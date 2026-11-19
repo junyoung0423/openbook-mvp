@@ -7,12 +7,12 @@
           "$ref": "#/$defs/TermKey"
         },
         "value": {
-          "default": null,
           "description": "key별 형식. JSON Schema에서는 Term의 oneOf에 key별로 적혀 있다.",
           "title": "Value"
         },
         "status": {
-          "$ref": "#/$defs/TermStatus"
+          "$ref": "#/$defs/TermStatus",
+          "description": "extracted=추출됨, not_found=찾지 못함(표준·일반 조건과 같다는 뜻이 아님), user_input=직접 입력"
         },
         "source_clause_id": {
           "anyOf": [
@@ -75,6 +75,7 @@
               "anyOf": [
                 {
                   "description": "원 단위 금액",
+                  "pattern": "^\\d+(\\.\\d+)?$",
                   "type": "string"
                 },
                 {
@@ -155,7 +156,8 @@
             "value": {
               "anyOf": [
                 {
-                  "description": "비율. 0.6 = 60%",
+                  "description": "비율. \"0.6\" = 60%",
+                  "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
                   "type": "string"
                 },
                 {
@@ -308,6 +310,7 @@
         "from_amount": {
           "default": "0",
           "description": "원 단위 금액",
+          "pattern": "^\\d+(\\.\\d+)?$",
           "title": "From Amount",
           "type": "string"
         },
@@ -315,6 +318,7 @@
           "anyOf": [
             {
               "description": "원 단위 금액",
+              "pattern": "^\\d+(\\.\\d+)?$",
               "type": "string"
             },
             {
@@ -326,7 +330,8 @@
           "title": "To Amount"
         },
         "rate": {
-          "description": "비율. 0.6 = 60%",
+          "description": "비율. \"0.6\" = 60%",
+          "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
           "title": "Rate",
           "type": "string"
         }
@@ -355,7 +360,8 @@
         "rate": {
           "anyOf": [
             {
-              "description": "비율. 0.6 = 60%",
+              "description": "비율. \"0.6\" = 60%",
+              "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
               "type": "string"
             },
             {
@@ -369,6 +375,7 @@
           "anyOf": [
             {
               "description": "원 단위 금액",
+              "pattern": "^\\d+(\\.\\d+)?$",
               "type": "string"
             },
             {
