@@ -26,7 +26,10 @@ class StandardClause(BaseModel):
     no: str | None = Field(default=None, description="표준계약서의 조항 번호 표기")
     title: str | None = None
     text: str = Field(description="표준계약서 원문")
-    core: bool = Field(default=False, description="해설집이 '핵심'으로 표시한 조항")
+    core: bool = Field(
+        default=False,
+        description="MVP에서 비교하는 정산 관련 조항 (오픈북 팀이 고름. 해설집의 '핵심' 표시가 아님)",
+    )
 
 
 class ComparisonItem(BaseModel):

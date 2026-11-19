@@ -191,6 +191,8 @@ def test_load_standard_yaml(tmp_path):
     )
     [c] = load_standard(p)
     assert c.id == "s-01" and c.core is True and c.text.strip() == "원문입니다."
+    # 따옴표 없는 no: 키는 YAML 1.1에서 False가 되지만 조항 번호는 지켜진다
+    assert c.no == "제1조"
 
 
 def test_load_standard_rejects_duplicate_ids(tmp_path):
@@ -198,3 +200,67 @@ def test_load_standard_rejects_duplicate_ids(tmp_path):
     p.write_text('[{"id": "s-01", "text": "a"}, {"id": "s-01", "text": "b"}]', encoding="utf-8")
     with pytest.raises(ValueError):
         load_standard(p)
+
+
+# ---- 실제 표준계약서 데이터 (data/standard/webtoon_serial_2024.yaml)
+
+
+def test_default_standard_has_all_32_articles():
+    std = load_standard()
+    assert [c.no for c in std] == [f"제{i}조" for i in range(1, 33)]
+    assert all(c.title and c.text.strip() for c in std)
+    # 작성 안내(※, •)와 서명란은 조항 원문에 넣지 않았다
+    assert not any("※" in c.text or "•" in c.text or "기 명 날 인" in c.text for c in std)
+
+
+def test_core_only_returns_settlement_articles():
+    core = load_standard(core_only=True)
+    assert [c.no for c in core] == ["제2조", "제3조", "제9조", "제10조", "제12조", "제22조"]
+    rs = next(c for c in core if c.no == "제10조")
+    assert "순 매출액을 나누어 갖는다" in rs.text
+
+
+def test_compare_runs_on_real_standard():
+    core = load_standard(core_only=True)
+    rs = next(c for c in core if c.no == "제10조")
+    rows = [
+        {
+            "standard_id": rs.id,
+            "status": "different",
+            "user_clause_id": "c-01",
+            "difference": "배분 기준 매출이 다르게 적혀 있습니다.",
+            "user_quote": "이 계약의 기간은 계약 체결일로부터 7년으로 한다.",
+            "standard_quote": "순 매출액을 나누어 갖는다",
+        }
+    ]
+    out = compare_with_standard("k1", CLAUSES, core, FakeLLM(rows))
+    item = next(i for i in out.items if i.standard_id == rs.id)
+    assert item.status == "different" and item.standard_no == "제10조"
+    assert len(out.items) == len(core)
+
+
+# ---- 인용문 검증 보강
+
+
+def test_quote_with_ellipsis_passes_only_when_pieces_are_verbatim_and_in_order():
+    from openbook.comparison.compare import _quoted_in
+
+    text = "갑은 을에게 매월 말일까지 정산서를 제공한다. 정산서에는 총매출과 공제 내역을 적는다."
+    assert _quoted_in("갑은 을에게 매월 … 정산서를 제공한다.", text)
+    assert _quoted_in("갑은 을에게...총매출과 공제 내역을 적는다.", text)
+    assert not _quoted_in("정산서를 제공한다 … 갑은 을에게", text)  # 순서가 다름
+    assert not _quoted_in("갑은 을에게 … 분기마다 제공한다", text)  # 없는 조각
+    assert not _quoted_in("갑은 … 을", text)  # 조각이 너무 짧음
+
+
+def test_none_detected_without_user_clause_becomes_not_found():
+    rows = [
+        {"standard_id": "s-01", "status": "none_detected", "user_clause_id": None},
+        {"standard_id": "s-02", "status": "different", "user_clause_id": None},
+        {"standard_id": "s-03", "status": "not_found", "user_clause_id": None},
+    ]
+    out = run(rows)
+    by = {i.standard_id: i for i in out.items}
+    assert by["s-01"].status == "not_found" and by["s-01"].notice == DISCLAIMER
+    assert by["s-02"].status == "needs_check"
+    assert not any("None" in w for w in out.warnings)
