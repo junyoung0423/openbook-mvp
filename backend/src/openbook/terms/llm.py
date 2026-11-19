@@ -65,6 +65,9 @@ class UpstageClient:
             timeout=self._timeout,
         )
         if resp.status_code != 200:
-            # 요청 본문(계약서)은 오류에 넣지 않는다. 응답 앞부분만 남긴다.
-            raise RuntimeError(f"Upstage 호출 실패: HTTP {resp.status_code} {resp.text[:200]}")
-        return resp.json()["choices"][0]["message"]["content"]
+            # 오류 응답이 요청 내용(계약서)을 되돌려 줄 수 있으므로 응답 본문은 넣지 않는다.
+            raise RuntimeError(f"Upstage 호출 실패: HTTP {resp.status_code}")
+        try:
+            return resp.json()["choices"][0]["message"]["content"]
+        except (ValueError, KeyError, IndexError, TypeError):
+            raise RuntimeError("Upstage 응답 형식을 읽지 못했습니다.") from None
