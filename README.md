@@ -21,6 +21,7 @@
 │   │   ├── engine/          # M5 계산 엔진 — LLM 사용 금지     (박다연)
 │   │   ├── reconcile/       # M6 대조·설명                    (박다연 로직, 정준영 문장)
 │   │   ├── qa/              # M7 조항 Q&A                     (정준영)
+│   │   ├── statements/      # 정산서 붙여넣기 정규화           (정준영)
 │   │   └── alerts/          # M8 알림 (P2)                    (박다연)
 │   └── tests/
 ├── frontend/                # Next.js + TypeScript + Tailwind (신민주)
