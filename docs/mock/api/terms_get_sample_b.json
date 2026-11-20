@@ -1,0 +1,95 @@
+{
+  "contract_id": "sample-b",
+  "terms": [
+    {
+      "key": "mg_amount",
+      "value": "3000000",
+      "status": "extracted",
+      "source_clause_id": "c-04",
+      "quote": "회사는 작가에게 계약금 3,000,000원을 지급한다.",
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "mg_pay_date",
+      "value": "작가가 최초 원고를 전달한 날로부터 14일 이내",
+      "status": "extracted",
+      "source_clause_id": "c-04",
+      "quote": "지급 시기는 작가가 최초 원고를 전달한 날로부터 14일 이내로 한다.",
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "mg_recoup",
+      "value": "separate",
+      "status": "extracted",
+      "source_clause_id": "c-04",
+      "quote": "계약금은 작가의 인세에서 차감하지 않는다.",
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "mg_carryover",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "rs_rate",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "revenue_base",
+      "value": "net",
+      "status": "extracted",
+      "source_clause_id": "c-02",
+      "quote": "\"매출\"이란 회사가 저작물 판매로 실제 수령한 금액에서 부가가치세와 플랫폼 수수료를 제외한 금액을 말한다.",
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "deductions",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "settlement_cycle",
+      "value": "quarterly",
+      "status": "extracted",
+      "source_clause_id": "c-02",
+      "quote": "\"정산기간\"이란 매 분기를 말한다.",
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "payment_day",
+      "value": "정산서 제공 후 일주일 안",
+      "status": "extracted",
+      "source_clause_id": "c-06",
+      "quote": "회사는 정산서 제공 후 일주일 안에 인세를 지급한다.",
+      "confirmed": false,
+      "confirmed_at": null
+    }
+  ],
+  "missing_keys": [],
+  "unconfirmed_required": [
+    "mg_amount",
+    "mg_recoup",
+    "rs_rate",
+    "revenue_base",
+    "deductions"
+  ],
+  "all_confirmed": false
+}

@@ -5,6 +5,8 @@ PR #24 엔드포인트의 **실제 응답**입니다. 가상 샘플 `data/sample
 | 파일 | 요청 | 화면 |
 |---|---|---|
 | `terms_get_sample_a.json` | `GET /contracts/{id}/terms` | 조건 확인·수정 화면 첫 상태. `unconfirmed_required`에 든 항목에 "확인해 주세요" 표시 |
+| `terms_get_sample_b.json` | `GET` (샘플 B) | 필수 조건 일부가 `not_found` (RS율·공제). 해당 칸에 직접 입력 칸을 보여 준다 |
+| `terms_get_extraction_failed.json` | `GET` (조건 추출 호출 실패) | 9개 모두 `not_found`. 조항 목록은 있으니 "다시 시도" 또는 전부 직접 입력 |
 | `terms_put_confirm_sample_a.json` | `PUT /contracts/{id}/terms` (필수 5개 확정) | `all_confirmed: true`면 정산서 입력으로 넘어가는 버튼을 연다 |
 | `terms_put_invalid.json` | `PUT` 잘못된 값 (비율을 숫자 0.7로 보냄) | `detail.message`를 입력 칸 아래에 보여 준다. 아무것도 저장되지 않음 |
 | `comparison_sample_a.json` | `GET /contracts/{id}/comparison` | 비교 요약. 표준 조항별 `status`, `difference`, 양쪽 인용, `disclaimer` |
@@ -36,5 +38,6 @@ PR #24 엔드포인트의 **실제 응답**입니다. 가상 샘플 `data/sample
 | `NO_CLAUSES` | 409 | 아직 조항이 없음 (처리 중) |
 | `INVALID_TERM` | 422 | 조건 값이 형식에 맞지 않음, 또는 찾지 못한 조건을 값 없이 확정하려 함 |
 | `LLM_FAILED` | 502 | AI 호출 실패. "다시 시도" 버튼 |
+| `LLM_NOT_CONFIGURED` | 503 | 서버에 AI 키가 없음 (개발 환경 설정 문제). 비교·Q&A만 해당 |
 
 요청 모양 자체가 틀리면 FastAPI 기본 422가 나옵니다. 이때 `detail`은 목록입니다.

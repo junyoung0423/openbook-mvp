@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from openbook.db import ClauseRecord, Contract, TermRecord, term_to_record
 from openbook.pipeline import ProcessResult
+from openbook.schemas import Term, TermKey, TermStatus
 
 STATUS_WAITING = "조건 확인 대기"
 
@@ -39,7 +40,12 @@ def save_process_result(db: Session, contract: Contract, result: ProcessResult) 
         )
         for c in result.clauses
     )
-    if result.terms is not None:
-        db.add_all(term_to_record(contract.id, t) for t in result.terms.terms)
+    # 조건은 항상 9개를 둔다. 추출이 실패했거나(terms=None) 빠진 key는 '찾지 못함'으로 넣어야
+    # 사용자가 직접 입력해 확정할 수 있다 (TermSet.all_confirmed는 9개 key가 모두 있어야 true).
+    terms = {t.key: t for t in (result.terms.terms if result.terms else [])}
+    db.add_all(
+        term_to_record(contract.id, terms.get(k) or Term(key=k, status=TermStatus.NOT_FOUND))
+        for k in TermKey
+    )
     if result.clauses:
         contract.status = STATUS_WAITING

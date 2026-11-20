@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import threading
 from collections import OrderedDict
 from functools import lru_cache
 
@@ -43,11 +44,17 @@ def _llm_failed() -> Exception:
 # 결과를 DB에 둘지는 박다연 님과 정한다 (명세서 테이블에 없음).
 _CACHE_SIZE = 256
 _comparisons: OrderedDict[tuple[str, str], ComparisonResult] = OrderedDict()
+_cache_lock = threading.Lock()
 
 
 @lru_cache(maxsize=1)
 def _core_standard() -> tuple[StandardClause, ...]:
     return tuple(load_standard(core_only=True))
+
+
+@lru_cache(maxsize=1)
+def _full_standard() -> tuple[StandardClause, ...]:
+    return tuple(load_standard())
 
 
 def _fingerprint(clauses: list[Clause]) -> str:
@@ -61,16 +68,18 @@ def get_comparison(
 ) -> ComparisonResult:
     clauses = require_clauses(db, contract.id)
     key = (contract.id, _fingerprint(clauses))
-    if not refresh and key in _comparisons:
-        _comparisons.move_to_end(key)
-        return _comparisons[key]
+    with _cache_lock:  # 동기 엔드포인트는 스레드풀에서 돌므로 캐시를 잠근다
+        if not refresh and key in _comparisons:
+            _comparisons.move_to_end(key)
+            return _comparisons[key]
     try:
         result = compare_with_standard(contract.id, clauses, list(_core_standard()), llm)
     except (LLMError, httpx.HTTPError):
         raise _llm_failed() from None
-    _comparisons[key] = result
-    while len(_comparisons) > _CACHE_SIZE:
-        _comparisons.popitem(last=False)
+    with _cache_lock:
+        _comparisons[key] = result
+        while len(_comparisons) > _CACHE_SIZE:
+            _comparisons.popitem(last=False)
     return result
 
 
@@ -93,7 +102,7 @@ class QARequest(BaseModel):
 def post_qa(body: QARequest, contract: OwnedContract, db: DB, llm: LLM) -> QAResult:
     clauses = require_clauses(db, contract.id)
     try:
-        result = answer_question(contract.id, body.question, clauses, llm)
+        result = answer_question(contract.id, body.question, clauses, llm, list(_full_standard()))
     except (LLMError, httpx.HTTPError):
         raise _llm_failed() from None
     db.add(

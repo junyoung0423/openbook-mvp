@@ -36,7 +36,10 @@ def get_db() -> Iterator[Session]:
 
 
 def get_llm() -> LLMClient:
-    return UpstageClient.from_env()
+    try:
+        return UpstageClient.from_env()
+    except ValueError:  # API 키가 비어 있음. 키 값은 문구에 넣지 않는다
+        raise api_error(503, "LLM_NOT_CONFIGURED", "AI 기능이 아직 설정되지 않았습니다.") from None
 
 
 def current_user_id(x_user_id: Annotated[str | None, Header()] = None) -> str:

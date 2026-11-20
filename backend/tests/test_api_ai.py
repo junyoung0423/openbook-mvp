@@ -250,3 +250,43 @@ def test_save_process_result_replaces_clauses_and_terms(env):
         )
     with sessions.begin() as s, pytest.raises(ValueError):
         save_process_result(s, s.get(Contract, "k1"), result)
+
+
+def test_failed_extraction_still_lets_user_fill_and_confirm(env):
+    client, _, sessions = env
+    from openbook.api.process_store import save_process_result
+    from openbook.pipeline import ProcessResult
+    from openbook.schemas import Clause
+
+    failed = ProcessResult(
+        contract_id="k3",
+        clause_style="article",
+        clause_review_needed=False,
+        clauses=[Clause(id="c-01", no="제1조", title="선급금", text=C01)],
+        terms=None,
+        error="조건 추출 호출에 실패했습니다: Upstage 호출 실패: HTTP 500",
+    )
+    with sessions.begin() as s:
+        save_process_result(s, s.get(Contract, "k3"), failed)
+    body = client.get("/contracts/k3/terms").json()
+    assert body["missing_keys"] == [] and all(t["status"] == "not_found" for t in body["terms"])
+    updates = [
+        {"key": "mg_amount", "value": "5000000", "confirmed": True},
+        {"key": "mg_recoup", "value": "from_rs", "confirmed": True},
+        {"key": "rs_rate", "value": "0.6", "confirmed": True},
+        {"key": "revenue_base", "value": "net", "confirmed": True},
+        {"key": "deductions", "value": [], "confirmed": True},
+    ]
+    body = client.put("/contracts/k3/terms", json={"terms": updates}).json()
+    assert body["all_confirmed"] is True
+    assert all(t["status"] == "user_input" for t in body["terms"] if t["confirmed"])
+
+
+def test_missing_api_key_is_503_not_500(env, monkeypatch):
+    client, _, _ = env
+    del app.dependency_overrides[get_llm]
+    monkeypatch.setattr("openbook.terms.llm.load_dotenv", lambda: None)
+    monkeypatch.delenv("UPSTAGE_API_KEY", raising=False)
+    res = client.post("/contracts/k1/qa", json={"question": "선급금은?"})
+    assert res.status_code == 503 and res.json()["detail"]["code"] == "LLM_NOT_CONFIGURED"
+    assert client.get("/contracts/k1/terms").status_code == 200  # LLM이 필요 없는 곳은 그대로
