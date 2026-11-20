@@ -1,0 +1,176 @@
+{
+  "$defs": {
+    "PastedRow": {
+      "description": "붙여 넣은 표의 한 칸이 어디로 갔는지. 화면은 이것으로 '어느 줄에서 왔는지'를 보여 준다.",
+      "properties": {
+        "line": {
+          "description": "붙여 넣은 글의 몇 번째 줄인가 (1부터)",
+          "title": "Line",
+          "type": "integer"
+        },
+        "label": {
+          "description": "항목 이름 칸의 글자",
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "description": "값 칸의 글자 (읽기 전 그대로)",
+          "title": "Value",
+          "type": "string"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StatementField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "어느 칸에 넣었는가. null이면 넣지 않음"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "넣지 않았거나 바꿔 넣은 이유",
+          "title": "Note"
+        }
+      },
+      "required": [
+        "line",
+        "label",
+        "value"
+      ],
+      "title": "PastedRow",
+      "type": "object"
+    },
+    "StatementDeduction": {
+      "description": "정산서에 적힌 공제 한 줄 (예: 앱마켓 수수료). 금액만 받는다.",
+      "properties": {
+        "name": {
+          "description": "정산서에 적힌 공제 항목 이름",
+          "title": "Name",
+          "type": "string"
+        },
+        "amount": {
+          "description": "원 단위 금액",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "title": "Amount",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "amount"
+      ],
+      "title": "StatementDeduction",
+      "type": "object"
+    },
+    "StatementField": {
+      "enum": [
+        "period",
+        "gross",
+        "deduction",
+        "reported_payout"
+      ],
+      "title": "StatementField",
+      "type": "string"
+    }
+  },
+  "description": "정산서 표 붙여넣기 결과 (초안). 빈칸은 사용자가 채운다.",
+  "properties": {
+    "period_start": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Period Start"
+    },
+    "period_end": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Period End"
+    },
+    "gross": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Gross"
+    },
+    "deductions": {
+      "items": {
+        "$ref": "#/$defs/StatementDeduction"
+      },
+      "title": "Deductions",
+      "type": "array"
+    },
+    "reported_payout": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reported Payout"
+    },
+    "rows": {
+      "items": {
+        "$ref": "#/$defs/PastedRow"
+      },
+      "title": "Rows",
+      "type": "array"
+    },
+    "missing": {
+      "description": "찾지 못한 칸 (period, gross, reported_payout 중)",
+      "items": {
+        "$ref": "#/$defs/StatementField"
+      },
+      "title": "Missing",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "title": "StatementDraft",
+  "type": "object"
+}
