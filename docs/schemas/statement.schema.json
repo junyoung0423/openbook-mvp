@@ -1,0 +1,67 @@
+{
+  "$defs": {
+    "StatementDeduction": {
+      "description": "정산서에 적힌 공제 한 줄 (예: 앱마켓 수수료). 금액만 받는다.",
+      "properties": {
+        "name": {
+          "description": "정산서에 적힌 공제 항목 이름",
+          "title": "Name",
+          "type": "string"
+        },
+        "amount": {
+          "description": "원 단위 금액",
+          "pattern": "^\\d+(\\.\\d+)?$",
+          "title": "Amount",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "amount"
+      ],
+      "title": "StatementDeduction",
+      "type": "object"
+    }
+  },
+  "description": "정산서 한 건 (statements 테이블 한 행). POST /contracts/{id}/statements 요청 본문.",
+  "properties": {
+    "period_start": {
+      "format": "date",
+      "title": "Period Start",
+      "type": "string"
+    },
+    "period_end": {
+      "format": "date",
+      "title": "Period End",
+      "type": "string"
+    },
+    "gross": {
+      "description": "정산서에 적힌 총매출",
+      "pattern": "^\\d+(\\.\\d+)?$",
+      "title": "Gross",
+      "type": "string"
+    },
+    "deductions": {
+      "description": "정산서에 적힌 공제 항목. 없으면 빈 목록",
+      "items": {
+        "$ref": "#/$defs/StatementDeduction"
+      },
+      "title": "Deductions",
+      "type": "array"
+    },
+    "reported_payout": {
+      "description": "정산서에 적힌 지급액",
+      "pattern": "^\\d+(\\.\\d+)?$",
+      "title": "Reported Payout",
+      "type": "string"
+    }
+  },
+  "required": [
+    "period_start",
+    "period_end",
+    "gross",
+    "reported_payout"
+  ],
+  "title": "Statement",
+  "type": "object"
+}
