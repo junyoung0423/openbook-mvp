@@ -21,6 +21,7 @@
 │   │   ├── engine/          # M5 계산 엔진 — LLM 사용 금지     (박다연)
 │   │   ├── reconcile/       # M6 대조·설명                    (박다연 로직, 정준영 문장)
 │   │   ├── qa/              # M7 조항 Q&A                     (정준영)
+│   │   ├── statements/      # 정산서 붙여넣기 정규화           (정준영)
 │   │   └── alerts/          # M8 알림 (P2)                    (박다연)
 │   └── tests/
 ├── frontend/                # Next.js + TypeScript + Tailwind (신민주)
@@ -53,6 +54,34 @@ uvicorn openbook.api.main:app --reload
 ```
 
 `http://localhost:8000/docs`에서 API 문서를 볼 수 있습니다. 테스트는 `pytest`로 돌립니다.
+
+#### DB: SQLite로 빠르게 시작
+
+`DATABASE_URL`을 설정하지 않으면 개발 DB는 `sqlite:///./openbook.db`를 사용합니다.
+
+```bash
+cd backend
+alembic upgrade head
+```
+
+SQLite는 개발 편의를 위한 경로입니다. 금액 컬럼은 SQLAlchemy `NUMERIC`/Python `Decimal`로 선언되어 있지만 SQLite 자체의 정밀도 특성은 PostgreSQL과 다르므로, 배포 전 PostgreSQL 왕복 테스트를 실행합니다.
+
+#### DB: PostgreSQL
+
+루트에서 PostgreSQL을 띄웁니다.
+
+```bash
+docker compose up -d db
+```
+
+`.env`의 `DATABASE_URL`을 PostgreSQL로 두고 마이그레이션합니다.
+
+```bash
+cd backend
+alembic upgrade head
+```
+
+마이그레이션 도구는 **Alembic**을 사용합니다. SQLAlchemy 모델과 같은 생태계이고 SQLite/PostgreSQL 모두 같은 마이그레이션 경로를 사용할 수 있기 때문입니다.
 
 ### 프론트엔드
 

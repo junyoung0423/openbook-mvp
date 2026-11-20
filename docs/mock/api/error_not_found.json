@@ -1,0 +1,6 @@
+{
+  "detail": {
+    "code": "CONTRACT_NOT_FOUND",
+    "message": "계약서를 찾을 수 없습니다."
+  }
+}
