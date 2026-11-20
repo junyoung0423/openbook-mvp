@@ -1,0 +1,69 @@
+{
+  "period_start": "2027-01-01",
+  "period_end": "2027-01-31",
+  "gross": "3000000",
+  "deductions": [
+    {
+      "name": "앱마켓 수수료",
+      "amount": "900000"
+    },
+    {
+      "name": "결제 수수료",
+      "amount": "60000"
+    }
+  ],
+  "reported_payout": "0",
+  "rows": [
+    {
+      "line": 1,
+      "label": "정산 기간",
+      "value": "2027.01.01 ~ 2027.01.31",
+      "field": "period",
+      "note": null
+    },
+    {
+      "line": 2,
+      "label": "총매출",
+      "value": "3,000,000",
+      "field": "gross",
+      "note": null
+    },
+    {
+      "line": 3,
+      "label": "앱마켓 수수료",
+      "value": "900,000",
+      "field": "deduction",
+      "note": null
+    },
+    {
+      "line": 4,
+      "label": "결제 수수료",
+      "value": "60,000",
+      "field": "deduction",
+      "note": null
+    },
+    {
+      "line": 5,
+      "label": "수익배분금",
+      "value": "1,224,000",
+      "field": null,
+      "note": "작가 몫(배분금)은 지급액과 다를 수 있어 넣지 않았습니다."
+    },
+    {
+      "line": 6,
+      "label": "선급금 차감",
+      "value": "1,224,000",
+      "field": null,
+      "note": "MG·선급금 회수는 계약 조건으로 따로 계산하므로 넣지 않았습니다."
+    },
+    {
+      "line": 7,
+      "label": "지급액",
+      "value": "0",
+      "field": "reported_payout",
+      "note": null
+    }
+  ],
+  "missing": [],
+  "warnings": []
+}

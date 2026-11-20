@@ -223,3 +223,30 @@ def test_statement_paste(env):
     assert llm.calls == 0  # LLM을 부르지 않는다
     too_long = client.post("/contracts/k1/statements/paste", json={"text": "x" * 20_001})
     assert too_long.status_code == 422
+
+
+def test_save_process_result_replaces_clauses_and_terms(env):
+    client, _, sessions = env
+    from openbook.api.process_store import save_process_result
+    from openbook.pipeline import ProcessResult
+    from openbook.schemas import Clause, TermSet
+
+    result = ProcessResult(
+        contract_id="k3",
+        clause_style="article",
+        clause_review_needed=False,
+        clauses=[Clause(id="c-01", no="제1조", title="선급금", text=C01)],
+        terms=TermSet(contract_id="k3", terms=_terms()),
+    )
+    for _ in range(2):  # 다시 처리해도 중복되지 않는다
+        with sessions.begin() as s:
+            save_process_result(s, s.get(Contract, "k3"), result)
+    body = client.get("/contracts/k3/terms").json()
+    assert len(body["terms"]) == 9 and body["missing_keys"] == []
+    with sessions() as s:
+        assert s.get(Contract, "k3").status == "조건 확인 대기"
+        assert (
+            len(s.scalars(select(ClauseRecord).where(ClauseRecord.contract_id == "k3")).all()) == 1
+        )
+    with sessions.begin() as s, pytest.raises(ValueError):
+        save_process_result(s, s.get(Contract, "k1"), result)

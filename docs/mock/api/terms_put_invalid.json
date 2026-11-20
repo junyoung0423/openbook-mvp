@@ -1,0 +1,6 @@
+{
+  "detail": {
+    "code": "INVALID_TERM",
+    "message": "rs_rate: 금액·비율은 문자열로 보내야 합니다. 예: \"5000000\", \"0.6\""
+  }
+}
