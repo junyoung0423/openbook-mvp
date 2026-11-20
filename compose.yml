@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: openbook
+      POSTGRES_USER: openbook
+      POSTGRES_PASSWORD: openbook
+    ports:
+      - "5432:5432"
+    volumes:
+      - openbook-postgres:/var/lib/postgresql/data
+
+volumes:
+  openbook-postgres:
