@@ -3,11 +3,11 @@ from __future__ import annotations
 import os
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from openbook.db import Base
 import openbook.db.models  # noqa: F401
+from alembic import context
+from openbook.db import Base
 
 config = context.config
 if config.config_file_name is not None:

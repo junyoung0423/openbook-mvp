@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 
 from sqlalchemy import select
@@ -24,9 +24,9 @@ def test_money_round_trip_uses_decimal(tmp_path):
             contract=contract,
             period_start=date(2026, 10, 1),
             period_end=date(2026, 10, 31),
-            gross=Decimal("123456789"),
+            gross=Decimal(123456789),
             deductions=[{"name": "결제 수수료", "rate": "0.1", "amount": None}],
-            reported_payout=Decimal("98765432"),
+            reported_payout=Decimal(98765432),
         )
         session.add(statement)
         session.flush()
@@ -35,14 +35,14 @@ def test_money_round_trip_uses_decimal(tmp_path):
     with sessions() as session:
         saved = session.get(Statement, statement_id)
         assert isinstance(saved.gross, Decimal)
-        assert saved.gross == Decimal("123456789")
-        assert saved.reported_payout == Decimal("98765432")
+        assert saved.gross == Decimal(123456789)
+        assert saved.reported_payout == Decimal(98765432)
     engine.dispose()
 
 
 def test_term_money_and_rate_round_trip_without_float(tmp_path):
     engine, sessions = _db(tmp_path)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     with sessions.begin() as session:
         user = User(email="term@example.test")
         contract = Contract(user=user, title="가상 계약")
@@ -74,10 +74,10 @@ def test_term_money_and_rate_round_trip_without_float(tmp_path):
         rate_saved = session.get(TermRecord, rate_id)
         assert mg_saved.value == "5000000"
         assert rate_saved.value == "0.6"
-        assert mg_saved.numeric_value == Decimal("5000000")
+        assert mg_saved.numeric_value == Decimal(5000000)
         # SQLite NUMERIC은 내부 변환으로 소수 정밀도가 달라질 수 있다.
         assert isinstance(rate_saved.numeric_value, Decimal)
-        assert record_to_term(mg_saved).value == Decimal("5000000")
+        assert record_to_term(mg_saved).value == Decimal(5000000)
         assert record_to_term(rate_saved).value == Decimal("0.6")
     engine.dispose()
 
@@ -91,9 +91,9 @@ def test_contract_delete_cascades_children(tmp_path):
             contract=contract,
             period_start=date(2026, 1, 1),
             period_end=date(2026, 1, 31),
-            gross=Decimal("1000"),
+            gross=Decimal(1000),
             deductions=[],
-            reported_payout=Decimal("600"),
+            reported_payout=Decimal(600),
         )
         session.add(statement)
         session.flush()

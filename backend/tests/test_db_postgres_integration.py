@@ -28,9 +28,9 @@ def test_postgres_numeric_round_trip():
                 contract=contract,
                 period_start=date(2026, 1, 1),
                 period_end=date(2026, 1, 31),
-                gross=Decimal("900719925474099312345"),
+                gross=Decimal(900719925474099312345),
                 deductions=[],
-                reported_payout=Decimal("900719925474099312344"),
+                reported_payout=Decimal(900719925474099312344),
             )
             session.add(row)
             session.flush()
@@ -47,8 +47,8 @@ def test_postgres_numeric_round_trip():
         with sessions() as session:
             saved = session.get(Statement, row_id)
             saved_rate = session.get(TermRecord, rate_id)
-            assert saved.gross == Decimal("900719925474099312345")
-            assert saved.reported_payout == Decimal("900719925474099312344")
+            assert saved.gross == Decimal(900719925474099312345)
+            assert saved.reported_payout == Decimal(900719925474099312344)
             assert saved_rate.numeric_value == Decimal("0.6")
     finally:
         with sessions.begin() as session:

@@ -6,7 +6,7 @@ terms.value와 계산 breakdown처럼 구조가 항목마다 다른 값은 JSON/
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from uuid import uuid4
 
@@ -21,7 +21,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from openbook.db.base import Base, JSON_DOCUMENT
+from openbook.db.base import JSON_DOCUMENT, Base
 
 MONEY = Numeric(38, 0, asdecimal=True)
 SCALAR_NUMERIC = Numeric(38, 18, asdecimal=True)
@@ -32,7 +32,7 @@ def _id() -> str:
 
 
 def _now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class User(Base):
@@ -40,7 +40,9 @@ class User(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_id)
     email: Mapped[str] = mapped_column(String(320), unique=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, nullable=False
+    )
 
     contracts: Mapped[list[Contract]] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
@@ -57,7 +59,9 @@ class Contract(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     file_ref: Mapped[str | None] = mapped_column(String(1024))
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="처리중")
-    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, nullable=False)
+    uploaded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_now, nullable=False
+    )
 
     user: Mapped[User] = relationship(back_populates="contracts")
     clauses: Mapped[list[ClauseRecord]] = relationship(
