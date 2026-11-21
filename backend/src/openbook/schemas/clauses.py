@@ -19,7 +19,12 @@ class Clause(BaseModel):
         description="계약서에 적힌 조항 번호 표기 그대로. 예: '제7조'. 번호가 없으면 null.",
     )
     title: str | None = Field(default=None, description="조항 제목. 없으면 null.")
-    text: str = Field(description="조항 원문. 요약·수정 없이 그대로.")
+    text: str = Field(
+        description=(
+            "조항 본문 원문. 제목 줄(예: '제4조 (선급금)')은 no·title에 있으므로 빼고, "
+            "그 아래 본문을 요약·수정 없이 그대로."
+        )
+    )
     type_id: str | None = Field(
         default=None,
         description="조항유형 id (clause_types.yaml 기준). 분류하지 못했으면 null.",

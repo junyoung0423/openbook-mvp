@@ -2,6 +2,7 @@
 
 from openbook.schemas.clauses import Clause, ClauseSplitResult
 from openbook.schemas.terms import (
+    REQUIRED_TERM_KEYS,
     Deduction,
     MgCarryover,
     MgRecoup,
@@ -16,6 +17,7 @@ from openbook.schemas.terms import (
 )
 
 __all__ = [
+    "REQUIRED_TERM_KEYS",
     "Clause",
     "ClauseSplitResult",
     "Deduction",
