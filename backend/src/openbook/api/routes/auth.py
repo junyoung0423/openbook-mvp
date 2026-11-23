@@ -21,7 +21,7 @@ from openbook.api.auth import (
     token_hash,
     verify_password,
 )
-from openbook.api.deps import DB, UserId, api_error, current_session
+from openbook.api.deps import DB, UserId, api_error, auth_disabled, current_session
 from openbook.db import AuthSession, User
 
 router = APIRouter(tags=["auth"])
@@ -46,6 +46,7 @@ class Credentials(BaseModel):
 class UserOut(BaseModel):
     id: str
     email: str
+    auth_disabled: bool = False  # 로컬 개발용으로 로그인을 끈 상태 (로그아웃 버튼을 숨긴다)
 
 
 class LoginOut(BaseModel):
@@ -96,4 +97,4 @@ def me(user_id: UserId, db: DB) -> UserOut:
     user = db.get(User, user_id)
     if user is None:
         raise api_error(401, "UNAUTHENTICATED", "로그인이 필요합니다.")
-    return UserOut(id=user.id, email=user.email)
+    return UserOut(id=user.id, email=user.email, auth_disabled=auth_disabled(db))

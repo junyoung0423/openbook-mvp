@@ -8,11 +8,13 @@ message에는 계약서 원문·정산서 값을 넣지 않는다.
 
 from __future__ import annotations
 
+import os
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Annotated
 
+from dotenv import dotenv_values
 from fastapi import Depends, Header, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
@@ -22,6 +24,7 @@ from openbook.db import (
     AuthSession,
     ClauseRecord,
     Contract,
+    User,
     create_db_engine,
     make_session_factory,
 )
@@ -88,8 +91,28 @@ def current_session(db: DB, authorization: Annotated[str | None, Header()] = Non
     raise api_error(401, "UNAUTHENTICATED", "로그인이 필요합니다.")
 
 
-def current_user_id(session: Annotated[AuthSession, Depends(current_session)]) -> str:
-    return session.user_id
+AUTH_OFF_FLAG = "OPENBOOK_AUTH_DISABLED"
+LOCAL_USER_ID = "local-user"
+LOCAL_USER_EMAIL = "local@openbook.invalid"
+
+
+def auth_disabled(db: Session) -> bool:
+    """로컬 개발용: OPENBOOK_AUTH_DISABLED=1이고 SQLite DB일 때만 로그인을 끈다.
+
+    배포 DB(Postgres)에서는 이 값이 있어도 로그인을 끄지 않는다. .env 전체를 불러오지 않고
+    이 값만 읽는다 (.env의 DATABASE_URL이 실행 중에 바뀌지 않게).
+    """
+    flag = os.getenv(AUTH_OFF_FLAG) or dotenv_values().get(AUTH_OFF_FLAG)
+    return flag == "1" and db.get_bind().url.get_backend_name() == "sqlite"
+
+
+def current_user_id(db: DB, authorization: Annotated[str | None, Header()] = None) -> str:
+    if auth_disabled(db):
+        if db.get(User, LOCAL_USER_ID) is None:
+            db.add(User(id=LOCAL_USER_ID, email=LOCAL_USER_EMAIL))
+            db.commit()
+        return LOCAL_USER_ID
+    return current_session(db, authorization).user_id
 
 
 UserId = Annotated[str, Depends(current_user_id)]

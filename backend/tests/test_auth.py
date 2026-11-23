@@ -118,3 +118,29 @@ def test_users_only_see_their_own_contracts(env):
     assert [c["id"] for c in client.get("/contracts", headers=_auth(a["token"])).json()] == ["ka"]
     assert client.get("/contracts", headers=_auth(b["token"])).json() == []
     assert client.get("/contracts/ka", headers=_auth(b["token"])).status_code == 404
+
+
+def test_local_auth_switch_only_on_sqlite(env, monkeypatch):
+    client, sessions = env
+    monkeypatch.setenv("OPENBOOK_AUTH_DISABLED", "1")
+    me = client.get("/auth/me").json()  # 토큰 없이도 로컬 사용자
+    assert me["email"] == "local@openbook.invalid" and me["auth_disabled"] is True
+    assert client.get("/contracts").status_code == 200
+    with sessions() as s:
+        assert s.get(User, "local-user") is not None
+
+    monkeypatch.setenv("OPENBOOK_AUTH_DISABLED", "0")
+    assert client.get("/contracts").status_code == 401  # 끄면 다시 로그인 필요
+
+
+def test_local_auth_switch_ignored_on_other_databases(monkeypatch):
+    from openbook.api.deps import auth_disabled
+
+    class FakeDB:
+        def get_bind(self):
+            from sqlalchemy.engine import make_url
+
+            return type("B", (), {"url": make_url("postgresql+psycopg://u:p@h/db")})()
+
+    monkeypatch.setenv("OPENBOOK_AUTH_DISABLED", "1")
+    assert auth_disabled(FakeDB()) is False
