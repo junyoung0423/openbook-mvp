@@ -94,7 +94,7 @@ CONFIRM = {
         {"key": "mg_amount", "value": "1000000", "confirmed": True},
         {"key": "mg_recoup", "value": "from_rs", "confirmed": True},
         {"key": "rs_rate", "value": "0.6", "confirmed": True},
-        {"key": "revenue_base", "value": "net", "confirmed": True},
+        {"key": "revenue_base", "value": "gross", "confirmed": True},
         {
             "key": "deductions",
             "value": [{"name": "앱마켓 수수료", "rate": "0.3"}],
@@ -140,10 +140,12 @@ def test_full_flow_from_text(env):
     report = client.get(f"/contracts/{cid}/reconciliations").json()
     m1, m2 = report["items"]
     assert (m1["computed_payout"], m1["mg_balance_after"], m1["diff"]) == ("0", "580000", "0")
-    assert (m2["computed_payout"], m2["diff"]) == ("50000", "10000")  # 금액은 문자열
-    assert m2["summary"].startswith("계약서 기준으로 계산하면 50,000원")
+    # 2월: 몫 630,000 − 남은 MG 580,000 = 50,000 → 원천징수 1,500 + 150 → 실지급 48,350
+    assert (m2["payout_before_tax"], m2["computed_withholding"]) == ("50000", "1650")
+    assert (m2["computed_payout"], m2["diff"]) == ("48350", "-8350")  # 정산서 − 계산, 문자열
+    assert m2["summary"].startswith("계약서 기준으로 계산한 작가지급액(원천징수 뒤)은 48,350원")
     assert any("운영비" in q for q in m2["questions"])
-    assert report["rules_version"].startswith("provisional")
+    assert report["rules_version"].startswith("draft") and report["unsupported_reason"] is None
 
     client.get(f"/contracts/{cid}/reconciliations")  # 다시 조회해도 결과가 쌓이지 않는다
     with sessions() as s:

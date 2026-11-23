@@ -147,9 +147,12 @@ class Statement(Base):
     )
     period_start: Mapped[date] = mapped_column(Date, nullable=False)
     period_end: Mapped[date] = mapped_column(Date, nullable=False)
-    gross: Mapped[Decimal] = mapped_column(MONEY, nullable=False)
+    gross: Mapped[Decimal] = mapped_column(MONEY, nullable=False)  # 매출액 (음수 가능)
+    net_revenue: Mapped[Decimal | None] = mapped_column(MONEY)  # 회사입금액
     deductions: Mapped[list[dict]] = mapped_column(JSON_DOCUMENT, nullable=False, default=list)
-    reported_payout: Mapped[Decimal] = mapped_column(MONEY, nullable=False)
+    reported_settlement: Mapped[Decimal | None] = mapped_column(MONEY)  # 정산액
+    reported_withholding: Mapped[Decimal | None] = mapped_column(MONEY)  # 원천징수
+    reported_payout: Mapped[Decimal] = mapped_column(MONEY, nullable=False)  # 작가지급액
 
     contract: Mapped[Contract] = relationship(back_populates="statements")
     reconciliations: Mapped[list[Reconciliation]] = relationship(

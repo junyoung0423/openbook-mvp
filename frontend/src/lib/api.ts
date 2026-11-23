@@ -94,11 +94,15 @@ export type TermsResponse = {
   all_confirmed: boolean;
 };
 
+// 지급내역형 정산서: 매출액 → 회사입금액 → 정산액 → 원천징수 → 작가지급액
 export type StatementBody = {
   period_start: string;
   period_end: string;
   gross: string;
+  net_revenue: string | null;
   deductions: { name: string; amount: string }[];
+  reported_settlement: string | null;
+  reported_withholding: string | null;
   reported_payout: string;
 };
 export type StatementOut = StatementBody & { id: string };
@@ -120,6 +124,13 @@ export type PeriodReconciliation = {
   period_start: string;
   period_end: string;
   status: "computed" | "unsupported";
+  computed_settlement: string | null;
+  reported_settlement: string | null;
+  settlement_diff: string | null;
+  payout_before_tax: string | null;
+  computed_withholding: string | null;
+  reported_withholding: string | null;
+  withholding_diff: string | null;
   computed_payout: string | null;
   reported_payout: string;
   diff: string | null;
@@ -133,6 +144,7 @@ export type ReconciliationReport = {
   contract_id: string;
   items: PeriodReconciliation[];
   rules_version: string;
+  unsupported_reason: string | null;
   diff_meaning: string;
   notice: string;
 };
@@ -177,6 +189,7 @@ export const CHOICES: Record<string, Record<string, string>> = {
 };
 
 export const MONEY = /^[0-9]+(\.[0-9]+)?$/;
+export const SIGNED_MONEY = /^-?[0-9]+(\.[0-9]+)?$/;
 export const RATE = /^(0(\.[0-9]+)?|1(\.0+)?)$/;
 
 export function won(value: string | null | undefined): string {

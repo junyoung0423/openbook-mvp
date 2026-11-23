@@ -85,6 +85,7 @@ class SettlementCycle(StrEnum):
 
 # \d는 전각 숫자("５００")도 받으므로 [0-9]로 쓴다 (JSON Schema 정규식과 같은 뜻이 되게)
 MONEY_PATTERN = r"^[0-9]+(\.[0-9]+)?$"
+SIGNED_MONEY_PATTERN = r"^-?[0-9]+(\.[0-9]+)?$"  # 정산서 매출·정산액 (환불이 많은 달은 음수)
 RATE_PATTERN = r"^(0(\.[0-9]+)?|1(\.0+)?)$"
 
 
@@ -119,6 +120,18 @@ Money = Annotated[
     Field(ge=0),
     _AS_PLAIN_TEXT,
     WithJsonSchema({"type": "string", "pattern": MONEY_PATTERN, "description": "원 단위 금액"}),
+]
+SignedMoney = Annotated[
+    Decimal,
+    _decimal_text(SIGNED_MONEY_PATTERN),
+    _AS_PLAIN_TEXT,
+    WithJsonSchema(
+        {
+            "type": "string",
+            "pattern": SIGNED_MONEY_PATTERN,
+            "description": "원 단위 금액 (음수 가능)",
+        }
+    ),
 ]
 Rate = Annotated[
     Decimal,

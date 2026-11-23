@@ -1,6 +1,7 @@
 """정산서 입력 스키마 (명세서 2절 '정산서 입력', 5절 statements 테이블).
 
-초안(v1): 팀 리뷰 후 확정한다.
+양식: 작가가 받는 지급내역형 (매출액 → 회사입금액 → 정산액 → 원천징수 → 작가지급액).
+계산 규칙 R1–R12(engine/rules.py)가 이 칸들을 쓴다. 매출·회사입금액·정산액은 음수일 수 있다 (환불이 많은 달).
 
 원칙
 - 정산서에 '적힌' 값만 담는다. 계약서 기준 금액은 계산 엔진(M5)이 따로 만든다.
@@ -16,7 +17,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from openbook.schemas.terms import Money, _blank
+from openbook.schemas.terms import Money, SignedMoney, _blank
 
 
 class StatementDeduction(BaseModel):
@@ -43,11 +44,20 @@ class Statement(BaseModel):
 
     period_start: date
     period_end: date
-    gross: Money = Field(description="정산서에 적힌 총매출")
+    gross: SignedMoney = Field(description="정산서 '매출액' (총매출)")
+    net_revenue: SignedMoney | None = Field(
+        default=None, description="정산서 '회사입금액'. 순매출 기준 계약이면 필요"
+    )
     deductions: list[StatementDeduction] = Field(
         default_factory=list, description="정산서에 적힌 공제 항목. 없으면 빈 목록"
     )
-    reported_payout: Money = Field(description="정산서에 적힌 지급액")
+    reported_settlement: SignedMoney | None = Field(
+        default=None, description="정산서 '정산액' (작가 몫). 있으면 R12로 대조"
+    )
+    reported_withholding: Money | None = Field(
+        default=None, description="정산서 '원천징수'. 있으면 R11로 대조"
+    )
+    reported_payout: Money = Field(description="정산서 '작가지급액' (원천징수 뒤 실제 받는 돈)")
 
     @model_validator(mode="after")
     def _period_order(self) -> Statement:
@@ -58,7 +68,10 @@ class Statement(BaseModel):
 class StatementField(StrEnum):
     PERIOD = "period"
     GROSS = "gross"
+    NET_REVENUE = "net_revenue"
     DEDUCTION = "deduction"
+    SETTLEMENT = "reported_settlement"
+    WITHHOLDING = "reported_withholding"
     REPORTED_PAYOUT = "reported_payout"
 
 
@@ -79,8 +92,11 @@ class StatementDraft(BaseModel):
 
     period_start: date | None = None
     period_end: date | None = None
-    gross: Money | None = None
+    gross: SignedMoney | None = None
+    net_revenue: SignedMoney | None = None
     deductions: list[StatementDeduction] = Field(default_factory=list)
+    reported_settlement: SignedMoney | None = None
+    reported_withholding: Money | None = None
     reported_payout: Money | None = None
     rows: list[PastedRow] = Field(default_factory=list)
     missing: list[StatementField] = Field(
