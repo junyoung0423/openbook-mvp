@@ -30,7 +30,7 @@ from openbook.api.deps import (
     load_clauses,
 )
 from openbook.api.process_store import save_process_result
-from openbook.db import Contract, User
+from openbook.db import Contract
 from openbook.parsing import UpstageDocumentParser, parse_pasted_text
 from openbook.parsing.upstage import SUPPORTED_EXTENSIONS
 from openbook.pipeline import process_contract
@@ -65,15 +65,7 @@ class ContractText(BaseModel):
     text: str = Field(min_length=1, max_length=MAX_TEXT_CHARS)
 
 
-def _ensure_user(db: Session, user_id: str) -> None:
-    """임시: 로그인이 붙기 전에는 X-User-Id로 사용자 행을 만든다."""
-    if db.get(User, user_id) is None:
-        db.add(User(id=user_id, email=f"{user_id}@users.invalid"))
-        db.flush()
-
-
 def _create(db: Session, user_id: str, title: str) -> Contract:
-    _ensure_user(db, user_id)
     contract = Contract(user_id=user_id, title=title.strip(), status=STATUS_PROCESSING)
     db.add(contract)
     db.commit()

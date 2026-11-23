@@ -18,7 +18,7 @@ PR #24 엔드포인트의 **실제 응답**입니다. 가상 샘플 `data/sample
 
 ## 요청 형식
 
-- 모든 요청에 임시로 `X-User-Id` 헤더가 필요합니다. 로그인이 붙으면 바뀝니다.
+- 로그인: `POST /auth/signup`·`/auth/login` `{"email", "password"}` → `{token, user}`. 이후 모든 요청에 `Authorization: Bearer <token>` (30일). `POST /auth/logout`, `GET /auth/me`. 오류: `INVALID_CREDENTIALS` 401, `EMAIL_TAKEN` 409, `WEAK_PASSWORD` 422 (8자 미만).
 - `PUT /contracts/{id}/terms`
   - 본문: `{"terms": [{"key": "rs_rate", "value": "0.7", "confirmed": true}]}`
   - 보낸 key만 바뀝니다. `value`가 `null`이면 값은 두고 확정 여부만 바꿉니다.

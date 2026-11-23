@@ -1,7 +1,8 @@
 // 오픈북 API 클라이언트. 금액·비율은 항상 문자열로 주고받는다.
-// 임시 인증: 브라우저마다 만든 id를 X-User-Id로 보낸다 (로그인이 붙으면 교체).
+// 로그인하면 받은 토큰을 Authorization: Bearer로 보낸다. 토큰이 없거나 만료되면 로그인 화면으로 보낸다.
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const TOKEN_KEY = "openbook-token";
 
 export class ApiError extends Error {
   constructor(
@@ -13,23 +14,34 @@ export class ApiError extends Error {
   }
 }
 
-function userId(): string {
-  const key = "openbook-user-id";
+function getToken(): string | null {
   try {
-    let id = localStorage.getItem(key);
-    if (!id) {
-      id = crypto.randomUUID();
-      localStorage.setItem(key, id);
-    }
-    return id;
+    return localStorage.getItem(TOKEN_KEY);
   } catch {
-    return "anonymous-browser";
+    return null;
   }
+}
+
+export function setToken(token: string | null) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // 저장소를 쓸 수 없는 브라우저: 이번 화면에서만 로그인 상태가 유지되지 않는다
+  }
+}
+
+function goToLogin() {
+  const here = window.location.pathname + window.location.search;
+  // 컴포넌트 밖의 공용 함수라 router를 쓸 수 없다. 로그인 화면으로 새로 연다
+  // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+  if (window.location.pathname !== "/login") window.location.assign(`/login?next=${encodeURIComponent(here)}`);
 }
 
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
-  headers.set("X-User-Id", userId());
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
   if (init.body && !(init.body instanceof FormData)) headers.set("Content-Type", "application/json");
   let res: Response;
   try {
@@ -41,6 +53,10 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const body = await res.json().catch(() => null);
   if (!res.ok) {
     const detail = body?.detail;
+    if (detail?.code === "UNAUTHENTICATED") {
+      setToken(null);
+      goToLogin();
+    }
     if (detail && typeof detail === "object" && !Array.isArray(detail)) {
       throw new ApiError(res.status, detail.code, detail.message);
     }
@@ -54,7 +70,10 @@ export const errorText = (e: unknown) =>
 
 // ---------------------------------------------------------------- 응답 타입
 
-export type ContractOut = { id: string; title: string; status: string; uploaded_at: string };
+export type UserOut = { id: string; email: string };
+export type LoginOut = { token: string; user: UserOut };
+
+export type ContractOut ={ id: string; title: string; status: string; uploaded_at: string };
 export type Clause = { id: string; no: string | null; title: string | null; text: string };
 
 export type Deduction = { name: string; rate?: string | null; amount?: string | null };

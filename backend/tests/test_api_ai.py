@@ -1,10 +1,12 @@
 import json
+from typing import Annotated
 
 import pytest
+from fastapi import Header
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
-from openbook.api.deps import get_db, get_llm
+from openbook.api.deps import api_error, current_user_id, get_db, get_llm
 from openbook.api.main import app
 from openbook.api.routes import ai
 from openbook.db import (
@@ -23,6 +25,13 @@ from openbook.terms.llm import LLMError
 # 모두 가상의 계약서·값이다 (실제 계약서 아님)
 C01 = "갑은 을에게 선급금 5,000,000원을 지급한다. 선급금은 을의 수익배분금에서 우선 차감한다."
 C02 = "을의 수익배분율은 순매출의 60%로 한다."
+
+
+def header_user(x_user_id: Annotated[str | None, Header()] = None) -> str:
+    """테스트 전용: 로그인 대신 X-User-Id 헤더로 사용자를 고른다 (로그인은 test_auth.py)."""
+    if not x_user_id:
+        raise api_error(401, "UNAUTHENTICATED", "로그인이 필요합니다.")
+    return x_user_id
 
 
 class FakeLLM:
@@ -82,6 +91,7 @@ def env(tmp_path):
     llm = FakeLLM()
     app.dependency_overrides[get_db] = _db
     app.dependency_overrides[get_llm] = lambda: llm
+    app.dependency_overrides[current_user_id] = header_user
     ai._comparisons.clear()
     client = TestClient(app, headers={"X-User-Id": "u1"})
     yield client, llm, sessions
