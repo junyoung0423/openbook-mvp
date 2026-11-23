@@ -1,0 +1,1500 @@
+{
+ "C01": {
+  "deviations": [
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "cp_id": "STD3_AUTO",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "cp_id": "STD7_EXTRA",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": null,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "omitted"
+   },
+   {
+    "user_no": 5,
+    "std_no": 9,
+    "cp_id": "STD9_PAYDATE",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 7,
+    "std_no": 12,
+    "cp_id": "STD12_COST",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "cp_id": "STD22_TERM",
+    "kind": "deviation",
+    "variant": 3
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "목적"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "계약 기간"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "게재 매체"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고 인도"
+   },
+   {
+    "user_no": 5,
+    "std_no": 9,
+    "title": "대가의 지급"
+   },
+   {
+    "user_no": 6,
+    "std_no": 10,
+    "title": "정산"
+   },
+   {
+    "user_no": 7,
+    "std_no": 12,
+    "title": "제작·홍보 비용"
+   },
+   {
+    "user_no": 8,
+    "std_no": 13,
+    "title": "발행 지역과 언어"
+   },
+   {
+    "user_no": 9,
+    "std_no": 14,
+    "title": "부가 사업"
+   },
+   {
+    "user_no": 10,
+    "std_no": 16,
+    "title": "작품의 보호"
+   },
+   {
+    "user_no": 11,
+    "std_no": 18,
+    "title": "원고 반환"
+   },
+   {
+    "user_no": 12,
+    "std_no": 21,
+    "title": "변경과 보완"
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "title": "해지와 해제"
+   },
+   {
+    "user_no": 14,
+    "std_no": 26,
+    "title": "비밀 유지"
+   },
+   {
+    "user_no": 15,
+    "std_no": 30,
+    "title": "관할"
+   },
+   {
+    "user_no": 16,
+    "std_no": 31,
+    "title": "검토 기간"
+   },
+   {
+    "user_no": 17,
+    "std_no": 32,
+    "title": "효력 발생"
+   }
+  ],
+  "fields": {
+   "fee": 180000,
+   "pay_timing": "검수완료후 90일",
+   "pay_user_no": 5,
+   "rs": "7:3",
+   "review_days": 15
+  },
+  "omitted_neutral": []
+ },
+ "C02": {
+  "deviations": [
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "cp_id": "STD5_SITE",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "cp_id": "STD10_STMT",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "cp_id": "STD13_TERR",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "cp_id": "STD18_RETURN",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 13,
+    "std_no": 21,
+    "cp_id": "STD21_CHANGE",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": null,
+    "std_no": 31,
+    "cp_id": "STD31_REVIEW",
+    "kind": "omitted"
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "계약의 취지"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "존속 기간"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "연재 사이트"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고의 인도"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "title": "쉬어가기"
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "title": "원고료"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "title": "수익 정산"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "title": "비용"
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "title": "이용 범위"
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "title": "2차적저작물"
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "title": "명의와 수정"
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "title": "종료 후 원고"
+   },
+   {
+    "user_no": 13,
+    "std_no": 21,
+    "title": "계약의 변경"
+   },
+   {
+    "user_no": 14,
+    "std_no": 22,
+    "title": "해지"
+   },
+   {
+    "user_no": 15,
+    "std_no": 26,
+    "title": "보안"
+   },
+   {
+    "user_no": 16,
+    "std_no": 30,
+    "title": "분쟁 해결"
+   },
+   {
+    "user_no": 17,
+    "std_no": 32,
+    "title": "효력"
+   }
+  ],
+  "fields": {
+   "fee": 200000,
+   "pay_timing": "익월 말일",
+   "pay_user_no": 6,
+   "rs": "7:3",
+   "review_days": null
+  },
+  "omitted_neutral": []
+ },
+ "C03": {
+  "deviations": [
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "cp_id": "STD5_SITE",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "cp_id": "STD7_EXTRA",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "cp_id": "STD9_PAYDATE",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "cp_id": "STD12_COST",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "cp_id": "STD14_DERIV",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": null,
+    "std_no": 18,
+    "cp_id": "STD18_RETURN",
+    "kind": "omitted"
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "cp_id": "STD22_TERM",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 14,
+    "std_no": 30,
+    "cp_id": "STD30_JURIS",
+    "kind": "deviation",
+    "variant": 3
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "목적"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "계약의 기간과 연장"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "연재처"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고 제출과 연재 시작"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "title": "휴재 및 연재 일정"
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "title": "대가의 지급"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "title": "정산"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "title": "제작·홍보 비용"
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "title": "발행 지역과 언어"
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "title": "부가 사업"
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "title": "작품의 보호"
+   },
+   {
+    "user_no": 12,
+    "std_no": 21,
+    "title": "계약의 변경"
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "title": "해지"
+   },
+   {
+    "user_no": 14,
+    "std_no": 30,
+    "title": "재판 관할"
+   },
+   {
+    "user_no": 15,
+    "std_no": 31,
+    "title": "설명과 검토"
+   },
+   {
+    "user_no": 16,
+    "std_no": 32,
+    "title": "효력"
+   }
+  ],
+  "fields": {
+   "fee": 300000,
+   "pay_timing": "정산확정후 60일",
+   "pay_user_no": 6,
+   "rs": "6:4",
+   "review_days": 30
+  },
+  "omitted_neutral": [
+   26
+  ]
+ },
+ "C04": {
+  "deviations": [
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "cp_id": "STD3_AUTO",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "cp_id": "STD10_STMT",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "cp_id": "STD14_DERIV",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "cp_id": "STD16_INTEG",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 13,
+    "std_no": 21,
+    "cp_id": "STD21_CHANGE",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 15,
+    "std_no": 26,
+    "cp_id": "STD26_CONF",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 16,
+    "std_no": 30,
+    "cp_id": "STD30_JURIS",
+    "kind": "deviation",
+    "variant": 2
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "계약의 취지"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "계약 기간"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "게재 매체"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고 인도"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "title": "휴재"
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "title": "연재료 지급"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "title": "수익분배"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "title": "비용 부담"
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "title": "권리의 범위"
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "title": "저작물의 활용"
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "title": "저작인격권"
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "title": "자료의 처리"
+   },
+   {
+    "user_no": 13,
+    "std_no": 21,
+    "title": "계약 내용 변경"
+   },
+   {
+    "user_no": 14,
+    "std_no": 22,
+    "title": "계약의 해지"
+   },
+   {
+    "user_no": 15,
+    "std_no": 26,
+    "title": "비밀"
+   },
+   {
+    "user_no": 16,
+    "std_no": 30,
+    "title": "재판 관할"
+   },
+   {
+    "user_no": 17,
+    "std_no": 31,
+    "title": "설명과 검토"
+   },
+   {
+    "user_no": 18,
+    "std_no": 32,
+    "title": "효력 발생"
+   }
+  ],
+  "fields": {
+   "fee": 180000,
+   "pay_timing": "익월 15일",
+   "pay_user_no": 6,
+   "rs": "7:3",
+   "review_days": 15
+  },
+  "omitted_neutral": []
+ },
+ "C05": {
+  "deviations": [
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "cp_id": "STD7_EXTRA",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "cp_id": "STD9_PAYDATE",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "cp_id": "STD10_STMT",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "cp_id": "STD13_TERR",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "cp_id": "STD16_INTEG",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "cp_id": "STD18_RETURN",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 17,
+    "std_no": 31,
+    "cp_id": "STD31_REVIEW",
+    "kind": "deviation",
+    "variant": 3
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "목적"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "존속 기간"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "연재 사이트"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고의 인도"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "title": "쉬어가기"
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "title": "원고료"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "title": "수익 정산"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "title": "비용"
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "title": "이용 범위"
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "title": "2차적저작물"
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "title": "명의와 수정"
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "title": "종료 후 원고"
+   },
+   {
+    "user_no": 13,
+    "std_no": 21,
+    "title": "계약의 변경"
+   },
+   {
+    "user_no": 14,
+    "std_no": 22,
+    "title": "해지"
+   },
+   {
+    "user_no": 15,
+    "std_no": 26,
+    "title": "보안"
+   },
+   {
+    "user_no": 16,
+    "std_no": 30,
+    "title": "분쟁 해결"
+   },
+   {
+    "user_no": 17,
+    "std_no": 31,
+    "title": "설명 의무"
+   },
+   {
+    "user_no": 18,
+    "std_no": 32,
+    "title": "효력"
+   }
+  ],
+  "fields": {
+   "fee": 120000,
+   "pay_timing": "검수완료후 90일",
+   "pay_user_no": 6,
+   "rs": "5:5",
+   "review_days": 3
+  },
+  "omitted_neutral": []
+ },
+ "C06": {
+  "deviations": [
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "cp_id": "STD3_AUTO",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "cp_id": "STD5_SITE",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": null,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "omitted"
+   },
+   {
+    "user_no": 7,
+    "std_no": 12,
+    "cp_id": "STD12_COST",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 12,
+    "std_no": 21,
+    "cp_id": "STD21_CHANGE",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 14,
+    "std_no": 26,
+    "cp_id": "STD26_CONF",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": null,
+    "std_no": 31,
+    "cp_id": "STD31_REVIEW",
+    "kind": "omitted"
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "계약의 취지"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "계약의 기간과 연장"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "연재처"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고 제출과 연재 시작"
+   },
+   {
+    "user_no": 5,
+    "std_no": 9,
+    "title": "원고료"
+   },
+   {
+    "user_no": 6,
+    "std_no": 10,
+    "title": "수익 정산"
+   },
+   {
+    "user_no": 7,
+    "std_no": 12,
+    "title": "비용"
+   },
+   {
+    "user_no": 8,
+    "std_no": 13,
+    "title": "이용 범위"
+   },
+   {
+    "user_no": 9,
+    "std_no": 14,
+    "title": "2차적저작물"
+   },
+   {
+    "user_no": 10,
+    "std_no": 16,
+    "title": "명의와 수정"
+   },
+   {
+    "user_no": 11,
+    "std_no": 18,
+    "title": "종료 후 원고"
+   },
+   {
+    "user_no": 12,
+    "std_no": 21,
+    "title": "계약의 변경"
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "title": "해지"
+   },
+   {
+    "user_no": 14,
+    "std_no": 26,
+    "title": "보안"
+   },
+   {
+    "user_no": 15,
+    "std_no": 30,
+    "title": "분쟁 해결"
+   },
+   {
+    "user_no": 16,
+    "std_no": 32,
+    "title": "효력 발생"
+   }
+  ],
+  "fields": {
+   "fee": 250000,
+   "pay_timing": "익월 말일",
+   "pay_user_no": 5,
+   "rs": "7:3",
+   "review_days": null
+  },
+  "omitted_neutral": []
+ },
+ "C07": {
+  "deviations": [
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "cp_id": "STD7_EXTRA",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "cp_id": "STD10_STMT",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "cp_id": "STD12_COST",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "cp_id": "STD13_TERR",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "cp_id": "STD14_DERIV",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "cp_id": "STD18_RETURN",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 14,
+    "std_no": 22,
+    "cp_id": "STD22_TERM",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 16,
+    "std_no": 30,
+    "cp_id": "STD30_JURIS",
+    "kind": "deviation",
+    "variant": 3
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "목적"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "계약 기간"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "게재 매체"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고 인도"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "title": "휴재"
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "title": "연재료 지급"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "title": "수익분배"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "title": "비용 부담"
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "title": "권리의 범위"
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "title": "저작물의 활용"
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "title": "저작인격권"
+   },
+   {
+    "user_no": 12,
+    "std_no": 18,
+    "title": "자료의 처리"
+   },
+   {
+    "user_no": 13,
+    "std_no": 21,
+    "title": "계약 내용 변경"
+   },
+   {
+    "user_no": 14,
+    "std_no": 22,
+    "title": "계약의 해지"
+   },
+   {
+    "user_no": 15,
+    "std_no": 26,
+    "title": "비밀"
+   },
+   {
+    "user_no": 16,
+    "std_no": 30,
+    "title": "재판 관할"
+   },
+   {
+    "user_no": 17,
+    "std_no": 31,
+    "title": "설명과 검토"
+   },
+   {
+    "user_no": 18,
+    "std_no": 32,
+    "title": "효력"
+   }
+  ],
+  "fields": {
+   "fee": 120000,
+   "pay_timing": "익월 15일",
+   "pay_user_no": 6,
+   "rs": "6:4",
+   "review_days": 30
+  },
+  "omitted_neutral": []
+ },
+ "C08": {
+  "deviations": [
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "cp_id": "STD3_AUTO",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "cp_id": "STD5_SITE",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "cp_id": "STD9_PAYDATE",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "cp_id": "STD13_TERR",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "cp_id": "STD14_DERIV",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "cp_id": "STD16_INTEG",
+    "kind": "deviation",
+    "variant": 2
+   },
+   {
+    "user_no": null,
+    "std_no": 18,
+    "cp_id": "STD18_RETURN",
+    "kind": "omitted"
+   },
+   {
+    "user_no": 12,
+    "std_no": 21,
+    "cp_id": "STD21_CHANGE",
+    "kind": "deviation",
+    "variant": 3
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "cp_id": "STD22_TERM",
+    "kind": "deviation",
+    "variant": 2
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1,
+    "title": "계약의 취지"
+   },
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "title": "존속 기간"
+   },
+   {
+    "user_no": 3,
+    "std_no": 5,
+    "title": "연재 사이트"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "title": "원고의 인도"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "title": "쉬어가기"
+   },
+   {
+    "user_no": 6,
+    "std_no": 9,
+    "title": "원고료"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "title": "수익 정산"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "title": "비용"
+   },
+   {
+    "user_no": 9,
+    "std_no": 13,
+    "title": "이용 범위"
+   },
+   {
+    "user_no": 10,
+    "std_no": 14,
+    "title": "2차적저작물"
+   },
+   {
+    "user_no": 11,
+    "std_no": 16,
+    "title": "명의와 수정"
+   },
+   {
+    "user_no": 12,
+    "std_no": 21,
+    "title": "계약 내용 변경"
+   },
+   {
+    "user_no": 13,
+    "std_no": 22,
+    "title": "계약의 해지"
+   },
+   {
+    "user_no": 14,
+    "std_no": 26,
+    "title": "비밀"
+   },
+   {
+    "user_no": 15,
+    "std_no": 30,
+    "title": "재판 관할"
+   },
+   {
+    "user_no": 16,
+    "std_no": 31,
+    "title": "설명과 검토"
+   },
+   {
+    "user_no": 17,
+    "std_no": 32,
+    "title": "효력"
+   }
+  ],
+  "fields": {
+   "fee": 180000,
+   "pay_timing": "정산확정후 60일",
+   "pay_user_no": 6,
+   "rs": "5:5",
+   "review_days": 15
+  },
+  "omitted_neutral": []
+ },
+ "C09": {
+  "deviations": [
+   {
+    "user_no": 2,
+    "std_no": 5,
+    "cp_id": "STD5_SITE",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 3,
+    "std_no": 3,
+    "cp_id": "STD3_AUTO",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 4,
+    "std_no": 7,
+    "cp_id": "STD7_EXTRA",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 5,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 7,
+    "std_no": 10,
+    "cp_id": "STD10_STMT",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 8,
+    "std_no": 12,
+    "cp_id": "STD12_COST",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 9,
+    "std_no": 14,
+    "cp_id": "STD14_DERIV",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 10,
+    "std_no": 16,
+    "cp_id": "STD16_INTEG",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 11,
+    "std_no": 22,
+    "cp_id": "STD22_TERM",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 12,
+    "std_no": 26,
+    "cp_id": "STD26_CONF",
+    "kind": "deviation"
+   },
+   {
+    "user_no": null,
+    "std_no": 18,
+    "cp_id": "STD18_RETURN",
+    "kind": "omitted"
+   },
+   {
+    "user_no": null,
+    "std_no": 31,
+    "cp_id": "STD31_REVIEW",
+    "kind": "omitted"
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1
+   },
+   {
+    "user_no": 2,
+    "std_no": 5
+   },
+   {
+    "user_no": 3,
+    "std_no": 3
+   },
+   {
+    "user_no": 4,
+    "std_no": 7
+   },
+   {
+    "user_no": 5,
+    "std_no": 8
+   },
+   {
+    "user_no": 6,
+    "std_no": 9
+   },
+   {
+    "user_no": 7,
+    "std_no": 10
+   },
+   {
+    "user_no": 8,
+    "std_no": 12
+   },
+   {
+    "user_no": 9,
+    "std_no": 14
+   },
+   {
+    "user_no": 10,
+    "std_no": 16
+   },
+   {
+    "user_no": 11,
+    "std_no": 22
+   },
+   {
+    "user_no": 12,
+    "std_no": 26
+   },
+   {
+    "user_no": 13,
+    "std_no": 30
+   },
+   {
+    "user_no": 14,
+    "std_no": 32
+   }
+  ],
+  "fields": {
+   "fee": 150000,
+   "pay_timing": "익월 25일",
+   "pay_user_no": 6,
+   "rs": "60:40",
+   "review_days": null
+  },
+  "omitted_neutral": [
+   13
+  ],
+  "notes": "제13조 관할(서울중앙지방법원)은 합의관할로 표준 해설이 허용하는 범위라 '표준과 다름'으로 세지 않음(정답=비해당)"
+ },
+ "C10": {
+  "deviations": [
+   {
+    "user_no": 2,
+    "std_no": 3,
+    "cp_id": "STD3_AUTO",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 3,
+    "std_no": 7,
+    "cp_id": "STD7_EXTRA",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 4,
+    "std_no": 8,
+    "cp_id": "STD8_HIATUS",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 6,
+    "std_no": 10,
+    "cp_id": "STD10_STMT",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 7,
+    "std_no": 12,
+    "cp_id": "STD12_COST",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 8,
+    "std_no": 13,
+    "cp_id": "STD13_TERR",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 9,
+    "std_no": 14,
+    "cp_id": "STD14_DERIV",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 11,
+    "std_no": 22,
+    "cp_id": "STD22_TERM",
+    "kind": "deviation"
+   },
+   {
+    "user_no": 13,
+    "std_no": 31,
+    "cp_id": "STD31_REVIEW",
+    "kind": "deviation"
+   }
+  ],
+  "clause_map": [
+   {
+    "user_no": 1,
+    "std_no": 1
+   },
+   {
+    "user_no": 2,
+    "std_no": 3
+   },
+   {
+    "user_no": 3,
+    "std_no": 7
+   },
+   {
+    "user_no": 4,
+    "std_no": 8
+   },
+   {
+    "user_no": 5,
+    "std_no": 9
+   },
+   {
+    "user_no": 6,
+    "std_no": 10
+   },
+   {
+    "user_no": 7,
+    "std_no": 12
+   },
+   {
+    "user_no": 8,
+    "std_no": 13
+   },
+   {
+    "user_no": 9,
+    "std_no": 14
+   },
+   {
+    "user_no": 10,
+    "std_no": 16
+   },
+   {
+    "user_no": 11,
+    "std_no": 22
+   },
+   {
+    "user_no": 12,
+    "std_no": 18
+   },
+   {
+    "user_no": 13,
+    "std_no": 31
+   },
+   {
+    "user_no": 14,
+    "std_no": 30
+   },
+   {
+    "user_no": 15,
+    "std_no": 26
+   },
+   {
+    "user_no": 16,
+    "std_no": 32
+   }
+  ],
+  "fields": {
+   "fee": 200000,
+   "pay_timing": "당월 말",
+   "pay_user_no": 5,
+   "rs": "50:50",
+   "review_days": 7
+  },
+  "omitted_neutral": [],
+  "notes": "제10조(수정)는 '동의 없이 ... 변경하지 않는다'로 표준에 부합(정답=비해당). 부정문 오탐 시험용."
+ }
+}
