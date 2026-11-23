@@ -22,6 +22,7 @@ from enum import StrEnum
 from typing import Annotated, Any
 
 from pydantic import (
+    AfterValidator,
     BaseModel,
     BeforeValidator,
     Field,
@@ -82,8 +83,9 @@ class SettlementCycle(StrEnum):
 
 # ---------------------------------------------------------------- value shapes
 
-MONEY_PATTERN = r"^\d+(\.\d+)?$"
-RATE_PATTERN = r"^(0(\.\d+)?|1(\.0+)?)$"
+# \d는 전각 숫자("５００")도 받으므로 [0-9]로 쓴다 (JSON Schema 정규식과 같은 뜻이 되게)
+MONEY_PATTERN = r"^[0-9]+(\.[0-9]+)?$"
+RATE_PATTERN = r"^(0(\.[0-9]+)?|1(\.0+)?)$"
 
 
 def _decimal_text(pattern: str):
@@ -131,6 +133,20 @@ def _blank(s: str | None) -> bool:
     return s is None or not s.strip()
 
 
+def _not_blank_text(v: str) -> str:
+    if _blank(v):
+        raise ValueError("빈 문구는 쓸 수 없습니다. 못 찾았으면 status를 not_found로 두세요.")
+    return v
+
+
+# 날짜·지급 시기처럼 계약서 문구를 그대로 담는 값. 공백뿐인 문자열은 거절한다.
+ContractText = Annotated[
+    str,
+    AfterValidator(_not_blank_text),
+    WithJsonSchema({"type": "string", "pattern": r"\S", "description": "계약서 문구 그대로"}),
+]
+
+
 class RsTier(BaseModel):
     """구간별 RS. MVP 계산은 지원하지 않지만 스키마에는 둔다 (명세서 M5)."""
 
@@ -161,14 +177,14 @@ class Deduction(BaseModel):
 # key -> value를 검증하는 타입. 날짜·지급 시기는 문구가 올 수 있어 str로 둔다.
 _VALUE_TYPES: dict[TermKey, Any] = {
     TermKey.MG_AMOUNT: Money,
-    TermKey.MG_PAY_DATE: str,
+    TermKey.MG_PAY_DATE: ContractText,
     TermKey.MG_RECOUP: MgRecoup,
     TermKey.MG_CARRYOVER: MgCarryover,
-    TermKey.RS_RATE: Rate | list[RsTier],
+    TermKey.RS_RATE: Rate | Annotated[list[RsTier], Field(min_length=1)],
     TermKey.REVENUE_BASE: RevenueBase,
     TermKey.DEDUCTIONS: list[Deduction],
     TermKey.SETTLEMENT_CYCLE: SettlementCycle,
-    TermKey.PAYMENT_DAY: str,
+    TermKey.PAYMENT_DAY: ContractText,
 }
 _ADAPTERS = {k: TypeAdapter(t) for k, t in _VALUE_TYPES.items()}
 
