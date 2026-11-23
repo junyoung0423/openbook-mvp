@@ -243,7 +243,7 @@ def test_compare_runs_on_real_standard():
 
 
 def test_quote_with_ellipsis_passes_only_when_pieces_are_verbatim_and_in_order():
-    from openbook.comparison.compare import _quoted_in
+    from openbook.quotes import quoted_in as _quoted_in
 
     text = "갑은 을에게 매월 말일까지 정산서를 제공한다. 정산서에는 총매출과 공제 내역을 적는다."
     assert _quoted_in("갑은 을에게 매월 … 정산서를 제공한다.", text)
