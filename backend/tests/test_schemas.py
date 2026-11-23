@@ -16,6 +16,7 @@ from openbook.schemas import (
     TermStatus,
     termset_json_schema,
 )
+from openbook.schemas.terms import MONEY_PATTERN, RATE_PATTERN
 
 
 def extracted(key, value, **kw):
@@ -251,3 +252,46 @@ def test_committed_json_schema_is_up_to_date():
     assert committed == termset_json_schema(), (
         "스키마를 바꿨으면 python backend/scripts/export_json_schema.py를 실행해 커밋하세요."
     )
+
+
+# ---- 허정민 님 #1 리뷰 후속 (빈 구간 목록, 빈 문구, 전각 숫자)
+
+
+def test_rs_rate_empty_tier_list_rejected():
+    with pytest.raises(ValidationError):
+        extracted(TermKey.RS_RATE, [])
+
+
+@pytest.mark.parametrize("key", [TermKey.MG_PAY_DATE, TermKey.PAYMENT_DAY])
+@pytest.mark.parametrize("text", ["", "   ", "\n\t"])
+def test_contract_text_values_cannot_be_blank(key, text):
+    with pytest.raises(ValidationError):
+        extracted(key, text)
+    assert extracted(key, "정산서 제공일로부터 15일 이내").value
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [(TermKey.MG_AMOUNT, "５００"), (TermKey.MG_AMOUNT, "5０0"), (TermKey.RS_RATE, "０.6")],
+)
+def test_full_width_digits_rejected_like_json_schema(key, value):
+    with pytest.raises(ValidationError):
+        extracted(key, value)
+
+
+def _patterns(node):
+    if isinstance(node, dict):
+        for k, v in node.items():
+            if k == "pattern":
+                yield v
+            else:
+                yield from _patterns(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _patterns(v)
+
+
+def test_json_schema_patterns_are_ascii_digits_and_non_blank_text():
+    patterns = set(_patterns(termset_json_schema()))
+    assert not any(r"\d" in p for p in patterns)
+    assert {MONEY_PATTERN, RATE_PATTERN, r"\S"} <= patterns

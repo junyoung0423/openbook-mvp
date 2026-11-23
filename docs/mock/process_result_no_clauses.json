@@ -1,0 +1,11 @@
+{
+  "contract_id": "no-clauses",
+  "clause_style": "none",
+  "clause_review_needed": true,
+  "clauses": [],
+  "terms": null,
+  "warnings": [
+    "조항 제목 규칙(제N조, N.)을 찾지 못했습니다."
+  ],
+  "error": null
+}
