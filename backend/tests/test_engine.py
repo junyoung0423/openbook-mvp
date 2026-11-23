@@ -1,14 +1,15 @@
 """M5 계산 엔진과 M6 문장. 정답은 모두 손으로 계산한 값이다 (가상 값)."""
 
+import calendar
 from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
-from openbook.engine import StatementInput, calculate, rules
+from openbook.engine import StatementInput, after_withholding, calculate, rules
 from openbook.reconcile import StatementLine, StatementWithLines, reconcile
-from openbook.reconcile.explain import Q_GENERIC_DEDUCTION, Q_MG_BALANCE
+from openbook.reconcile.explain import Q_GENERIC_DEDUCTION, Q_MG_BALANCE, Q_TAX
 from openbook.schemas import Term, TermKey, TermStatus
 
 NOW = datetime(2026, 11, 1, tzinfo=UTC)
@@ -40,11 +41,11 @@ def terms(mg="1000000", recoup="from_rs", rs="0.6", base="net", deductions=None,
     return out
 
 
-def st(sid, month, gross, reported, day_end=28):
+def st(sid, month, gross, reported):
     return StatementInput(
         id=sid,
         period_start=date(2026, month, 1),
-        period_end=date(2026, month, day_end),
+        period_end=date(2026, month, calendar.monthrange(2026, month)[1]),
         gross=Decimal(gross),
         reported_payout=Decimal(reported),
     )
@@ -168,3 +169,59 @@ def test_reconcile_sentences_and_questions():
     qs = odd.items[0].questions
     assert any("300,000원" in q for q in qs)  # 금액이 다르면 묻는다
     assert Q_GENERIC_DEDUCTION in qs and not any("부당" in q for q in qs)  # 금지 표현 필터
+
+
+def test_missing_month_stops_mg_chain():
+    # 1월 지급 0 · 남은 MG 580,000 → 2월이 빠지고 3월: 2월에 회수된 MG를 몰라 계산하지 않음
+    out = calculate(
+        terms(), [st("m1", 1, "1000000", "0"), st("m3", 3, "1000000", "0"), st("m4", 4, "1", "0")]
+    )
+    assert out[0].status == "computed"
+    assert out[1].unsupported_reason == rules.UNSUPPORTED_GAP
+    assert out[2].unsupported_reason == rules.UNSUPPORTED_CHAIN
+
+    report = reconcile(
+        "k1",
+        terms(),
+        [
+            StatementWithLines(st("m1", 1, "1000000", "0")),
+            StatementWithLines(st("m3", 3, "1", "0")),
+        ],
+    )
+    assert (
+        "2026-02-01 ~ 2026-02-28 기간의 정산서를 보내 주실 수 있을까요?"
+        in report.items[1].questions
+    )
+    assert report.items[0].questions == [Q_MG_BALANCE]
+
+
+def test_missing_month_after_mg_recouped_keeps_calculating():
+    # MG 0이면 빠진 달이 있어도 남은 MG는 0 그대로 → 계속 계산, 빠진 기간은 묻는다
+    out = calculate(terms(mg="0"), [st("m1", 1, "1000000", "420000"), st("m3", 3, "1000000", "0")])
+    assert [r.computed_payout for r in out] == [420000, 420000]
+    sep = calculate(
+        terms(recoup="separate"), [st("m1", 1, "1000000", "0"), st("m3", 3, "1000000", "0")]
+    )
+    assert all(r.status == "computed" for r in sep)
+
+
+def test_withholding_tax_notice():
+    # 420,000 → 소득세 12,600 · 지방소득세 1,260 → 406,140
+    assert after_withholding(Decimal(420000)) == 406140
+    # 1,095,000 → 소득세 32,850 · 지방소득세 3,280 (10원 미만 버림) → 1,058,870
+    assert after_withholding(Decimal(1095000)) == 1058870
+
+    def one(reported):
+        report = reconcile(
+            "k1", terms(mg="0"), [StatementWithLines(st("m1", 1, "1000000", reported))]
+        )
+        return report.items[0]
+
+    taxed = one("406140")
+    assert taxed.diff == 13860  # 계산 결과는 그대로 (표시만)
+    assert "원천징수 3.3%를 뗀 406,140원과 거의 같습니다" in taxed.summary
+    assert taxed.questions[0] == Q_TAX
+    assert Q_TAX in one("406150").questions  # 10원 안
+    for reported in ("406100", "420000", "0"):
+        item = one(reported)
+        assert Q_TAX not in item.questions and "원천징수" not in item.summary

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 
-from openbook.engine import RULES_VERSION, StatementInput, calculate
+from openbook.engine import RULES_VERSION, StatementInput, calculate, missing_periods
 from openbook.reconcile.explain import StatementLine, questions, summary
 from openbook.schemas.reconciliation import ReconciliationReport
 from openbook.schemas.terms import Term, TermKey
@@ -21,14 +21,18 @@ def reconcile(
     contract_id: str, terms: Sequence[Term], statements: Sequence[StatementWithLines]
 ) -> ReconciliationReport:
     """계산(M5) 후 결과 문장과 확인 질문을 붙인다. 필수 조건이 미확정이면 ValueError."""
-    results = calculate(terms, [s.statement for s in statements])
+    inputs = [s.statement for s in statements]
+    results = calculate(terms, inputs)
+    gaps = missing_periods(inputs)
     by_key = {t.key: t for t in terms}
     lines = {s.statement.id: s.lines for s in statements}
     recoup = by_key[TermKey.MG_RECOUP].value
     deductions = by_key[TermKey.DEDUCTIONS].value
     for r in results:
         r.summary = summary(r)
-        r.questions = questions(r, lines[r.statement_id], deductions, recoup)
+        r.questions = questions(
+            r, lines[r.statement_id], deductions, recoup, gaps.get(r.statement_id)
+        )
     return ReconciliationReport(contract_id=contract_id, items=results, rules_version=RULES_VERSION)
 
 
