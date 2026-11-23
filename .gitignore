@@ -41,3 +41,6 @@ Thumbs.db
 
 # Local SQLite databases
 *.db
+
+# 법령 색인 (python -m openbook.law build로 생성, 임베딩 포함이라 큼)
+data/law/index.json

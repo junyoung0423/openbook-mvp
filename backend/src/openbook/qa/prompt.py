@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from openbook.comparison.models import StandardClause
+from openbook.law.models import LawArticle
 from openbook.schemas import Clause
 
 SYSTEM_PROMPT = """\
@@ -12,6 +13,8 @@ SYSTEM_PROMPT = """\
 [규칙]
 1. 아래에 주어진 조항만 근거로 씁니다. 주어지지 않은 내용은 추정하지 않습니다.
 2. 사용자 계약서(id가 c-로 시작)를 먼저 찾습니다. 표준계약서(id가 s-로 시작)는 비교가 필요할 때만 인용합니다.
+   법령(id가 l-로 시작)은 질문이 법에 정해진 권리·의무를 물을 때만 인용하고, 법령이 이 계약에
+   어떻게 적용되는지는 판단하지 않습니다. 조문에 적힌 내용만 옮깁니다.
 3. 근거가 되는 문장을 quote에 **글자 그대로 복사**합니다. 줄이거나 바꾸지 않습니다.
 4. 금액·비율을 계산하지 않습니다. 더하기·빼기·곱하기·나누기를 하지 않고, 원문에 적힌 숫자만 그대로 씁니다.
    "얼마 받나요" 같은 질문에는 관련 조항만 보여 주고, 계산은 대조 화면에서 확인하라고 답합니다.
@@ -33,9 +36,23 @@ def _block(items: list[Clause] | list[StandardClause]) -> str:
     )
 
 
-def build_user_prompt(question: str, clauses: list[Clause], standard: list[StandardClause]) -> str:
+def _law_block(items: list[LawArticle]) -> str:
+    return "\n\n".join(
+        f"[{a.id}] {a.law_name} {a.article_no}{f'({a.title})' if a.title else ''}\n{a.text}"
+        for a in items
+    )
+
+
+def build_user_prompt(
+    question: str,
+    clauses: list[Clause],
+    standard: list[StandardClause],
+    law: list[LawArticle] | None = None,
+) -> str:
     parts = [f"=== 사용자 계약서 ===\n{_block(clauses)}"]
     if standard:
         parts.append(f"=== 표준계약서 (참고) ===\n{_block(standard)}")
+    if law:
+        parts.append(f"=== 관련 법령 (참고) ===\n{_law_block(law)}")
     parts.append(f"=== 질문 ===\n{question}")
     return "\n\n".join(parts)

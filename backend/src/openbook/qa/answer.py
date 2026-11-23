@@ -16,6 +16,7 @@ from typing import Any
 
 from openbook.comparison.models import StandardClause
 from openbook.comparison.standard import load_standard, standard_basis
+from openbook.law.models import LawArticle
 from openbook.qa.models import (
     CALC_ANSWER,
     NOT_FOUND_ANSWER,
@@ -39,20 +40,25 @@ def answer_question(
     clauses: list[Clause],
     llm: LLMClient,
     standard: list[StandardClause] | None = None,
+    law: list[LawArticle] | None = None,
 ) -> QAResult:
-    """질문에 계약서 조항을 근거로 답한다. LLMError는 호출한 쪽으로 올린다."""
+    """질문에 계약서 조항을 근거로 답한다. LLMError는 호출한 쪽으로 올린다.
+
+    law는 호출한 쪽이 법령 색인에서 미리 찾아 넘긴 조문이다 (없으면 법령 없이 답한다).
+    """
     warnings: list[str] = []
     if standard is None:
         standard = load_standard()
     picked = _related_standard(question, standard)
+    law = law or []
 
-    raw = llm.complete(SYSTEM_PROMPT, build_user_prompt(question, clauses, picked))
+    raw = llm.complete(SYSTEM_PROMPT, build_user_prompt(question, clauses, picked, law))
     data = _parse(raw)
     if data is None:
         warnings.append("LLM 답을 읽지 못해 '찾지 못함'으로 두었습니다.")
         return _not_found(contract_id, question, warnings)
 
-    citations = _verified_citations(data.get("citations"), clauses, picked, warnings)
+    citations = _verified_citations(data.get("citations"), clauses, picked, warnings, law)
     if not citations:
         return _not_found(contract_id, question, warnings)
 
@@ -62,7 +68,7 @@ def answer_question(
     elif not is_clean(answer):
         warnings.append("답 문장에 금지 표현이 있어 템플릿 문장으로 바꿨습니다.")
         answer = TEMPLATE_ANSWER
-    elif not _numbers_supported(answer, question, citations, clauses, picked):
+    elif not _numbers_supported(answer, question, citations, clauses, picked, law):
         warnings.append("답 문장에 원문에 없는 숫자가 있어 템플릿 문장으로 바꿨습니다.")
         answer = CALC_ANSWER
 
@@ -122,9 +128,13 @@ def _verified_citations(
     clauses: list[Clause],
     standard: list[StandardClause],
     warnings: list[str],
+    law: list[LawArticle] | None = None,
 ) -> list[Citation]:
-    by_id: dict[str, tuple[str, Clause | StandardClause]] = {c.id: ("contract", c) for c in clauses}
+    by_id: dict[str, tuple[str, Clause | StandardClause | LawArticle]] = {
+        c.id: ("contract", c) for c in clauses
+    }
     by_id.update({s.id: ("standard", s) for s in standard})
+    by_id.update({a.id: ("law", a) for a in law or []})
     out: list[Citation] = []
     dropped = 0
     for row in rows if isinstance(rows, list) else []:
@@ -136,6 +146,20 @@ def _verified_citations(
             dropped += 1
             continue
         source, c = hit
+        if isinstance(c, LawArticle):
+            out.append(
+                Citation(
+                    source="law",
+                    clause_id=c.id,
+                    clause_no=c.article_no,
+                    clause_title=c.title,
+                    quote=quote.strip(),
+                    law_name=c.law_name,
+                    effective_date=c.effective_date,
+                    source_url=c.source_url,
+                )
+            )
+            continue
         out.append(
             Citation(
                 source=source,
@@ -160,6 +184,7 @@ def _numbers_supported(
     citations: list[Citation],
     clauses: list[Clause],
     standard: list[StandardClause],
+    law: list[LawArticle] | None = None,
 ) -> bool:
     """답의 숫자가 모두 인용문·질문·조항 번호에서 온 것인가 (계산한 숫자를 막는다)."""
     allowed = _numbers(question)
@@ -167,4 +192,6 @@ def _numbers_supported(
         allowed |= _numbers(c.quote)
     for c in [*clauses, *standard]:
         allowed |= _numbers(c.no or "")
+    for x in law or []:
+        allowed |= _numbers(x.article_no)
     return _numbers(answer) <= allowed
