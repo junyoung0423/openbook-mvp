@@ -3,7 +3,27 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { api, ApiError, errorText, secondary, won, type ReconciliationReport } from "../../lib/api";
+import {
+  api,
+  ApiError,
+  errorText,
+  secondary,
+  won,
+  type PeriodReconciliation,
+  type ReconciliationReport,
+} from "../../lib/api";
+
+// 정산서 칸별 대조. 정산서에 그 칸이 없으면(null) 계약서 기준 값만 보인다.
+function rows(r: PeriodReconciliation) {
+  return [
+    { label: "작가지급액 (원천징수 뒤)", computed: r.computed_payout, reported: r.reported_payout, diff: r.diff, main: true },
+    { label: "정산액 (작가 몫)", computed: r.computed_settlement, reported: r.reported_settlement, diff: r.settlement_diff, main: false },
+    { label: "원천징수 (3.3%)", computed: r.computed_withholding, reported: r.reported_withholding, diff: r.withholding_diff, main: false },
+  ];
+}
+
+// 원천징수는 정산서가 더 많아도 작가에게 불리하므로, 차이가 있으면 방향과 관계없이 같은 색으로 표시한다.
+const diffColor = (d: string | null) => (d == null || Number(d) === 0 ? "" : "text-red-700");
 
 function ResultsInner() {
   const id = useSearchParams().get("id") ?? "";
@@ -36,10 +56,20 @@ function ResultsInner() {
       <section className="rounded-2xl bg-white p-6">
         <h1 className="text-3xl font-bold">정산 대조 결과</h1>
         <p className="mt-3 text-stone-600">{report.diff_meaning}</p>
-        {report.rules_version.startsWith("provisional") && (
+        {(report.rules_version.startsWith("provisional") || report.rules_version.startsWith("draft")) && (
           <p className="mt-2 text-sm text-stone-600">계산 규칙은 검토 중인 임시 안입니다 ({report.rules_version}).</p>
         )}
       </section>
+
+      {report.unsupported_reason && (
+        <section role="alert" className="space-y-2 rounded-2xl border border-amber-300 bg-amber-50 p-6">
+          <p className="text-lg font-semibold">{report.unsupported_reason}</p>
+          <p className="text-stone-700">
+            틀린 숫자를 보여 드리지 않으려고 이 계약은 금액을 계산하지 않았습니다. 아래 질문으로 플랫폼에 확인하거나,
+            빠진 정산서·조건을 채운 뒤 다시 확인해 주세요.
+          </p>
+        </section>
+      )}
 
       {report.items.length === 0 && (
         <section className="space-y-3 rounded-2xl bg-white p-6">
@@ -58,17 +88,34 @@ function ResultsInner() {
           <p className="text-lg">{r.summary}</p>
 
           {r.status === "computed" && (
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                ["계약서 기준 금액", r.computed_payout],
-                ["정산서 금액", r.reported_payout],
-                ["차이", r.diff],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-xl bg-stone-100 p-4">
-                  <p className="text-sm">{label}</p>
-                  <p className="mt-2 text-2xl font-bold">{won(value)}</p>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[32rem] text-left">
+                <thead className="text-sm text-stone-600">
+                  <tr>
+                    <th className="py-2 pr-3 font-medium">항목</th>
+                    <th className="py-2 pr-3 text-right font-medium">계약서 기준</th>
+                    <th className="py-2 pr-3 text-right font-medium">정산서</th>
+                    <th className="py-2 text-right font-medium">차이</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows(r).map((row) => (
+                    <tr key={row.label} className={"border-t border-stone-200 " + (row.main ? "text-lg font-bold" : "")}>
+                      <td className="py-2 pr-3">{row.label}</td>
+                      <td className="py-2 pr-3 text-right whitespace-nowrap">{won(row.computed)}</td>
+                      <td className="py-2 pr-3 text-right whitespace-nowrap">
+                        {row.reported == null ? <span className="text-sm font-normal text-stone-500">정산서에 없음</span> : won(row.reported)}
+                      </td>
+                      <td className={"py-2 text-right whitespace-nowrap " + diffColor(row.diff)}>
+                        {row.diff == null ? "—" : won(row.diff)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {r.mg_balance_after != null && (
+                <p className="mt-2 text-sm text-stone-600">이 기간 뒤 남은 MG: {won(r.mg_balance_after)}</p>
+              )}
             </div>
           )}
 

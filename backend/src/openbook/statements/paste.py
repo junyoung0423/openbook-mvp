@@ -4,7 +4,8 @@
 고르고 숫자 글자를 Decimal로 옮기는 것뿐이다.
 - 합계를 새로 계산하지 않는다. 값 줄이 여럿이면 '합계' 줄만 쓴다.
 - 단위를 환산하지 않는다. 천원·만원 단위면 넣지 않고 직접 입력을 부탁한다.
-- 애매한 줄(순매출, 작가 배분금, MG 차감, 세금 등)은 넣지 않고 이유(note)를 단다.
+- 지급내역형 양식의 칸(매출액, 회사입금액, 정산액, 원천징수, 작가지급액)을 각 칸에 넣는다.
+- 애매한 줄(MG 차감, 잔액, 부가세 등)은 넣지 않고 이유(note)를 단다.
 경고 문장에는 줄 번호만 쓰고 금액·항목 이름은 넣지 않는다 (로그에 정산서 내용이 남지 않게).
 
 지원 형식
@@ -52,24 +53,27 @@ _RULES: list[tuple[re.Pattern[str], StatementField | None, str | None]] = [
     (re.compile(r"잔액|이월"), None, "잔액·이월 줄이라 넣지 않았습니다."),
     (re.compile(r"기간|정산월|대상월|귀속월|해당월"), F.PERIOD, None),
     (
-        re.compile(r"세금|세액|원천|부가세|소득세|VAT|세$", re.IGNORECASE),
+        re.compile(r"부가세|부가가치세|VAT", re.IGNORECASE),
         None,
-        "세금 줄은 대조에 쓰지 않아 넣지 않았습니다.",
+        "부가세 줄은 대조에 쓰지 않아 넣지 않았습니다.",
     ),
-    (
-        re.compile(r"순매출|순수익|순판매"),
-        None,
-        "순매출은 총매출 칸에 넣지 않았습니다. 총매출을 확인해 직접 넣어 주세요.",
-    ),
-    (
-        re.compile(r"배분|분배|작가수익|작가몫|수익금"),
-        None,
-        "작가 몫(배분금)은 지급액과 다를 수 있어 넣지 않았습니다.",
-    ),
+    (re.compile(r"원천|소득세|세액|세금"), F.WITHHOLDING, None),
+    (re.compile(r"회사입금|플랫폼입금|순매출|순수익|순판매"), F.NET_REVENUE, None),
+    (re.compile(r"정산액|배분|분배|작가수익|작가몫|수익금"), F.SETTLEMENT, None),
     (re.compile(r"수수료|공제|차감|비용|환불"), F.DEDUCTION, None),
     (re.compile(r"지급|정산금|입금"), F.REPORTED_PAYOUT, None),
     (re.compile(r"매출|판매"), F.GROSS, None),
 ]
+
+# 칸 → StatementDraft 속성. 매출·회사입금액·정산액은 환불이 많은 달에 음수일 수 있다.
+_ATTR = {
+    F.GROSS: "gross",
+    F.NET_REVENUE: "net_revenue",
+    F.SETTLEMENT: "reported_settlement",
+    F.WITHHOLDING: "reported_withholding",
+    F.REPORTED_PAYOUT: "reported_payout",
+}
+_SIGNED = {F.GROSS, F.NET_REVENUE, F.SETTLEMENT}
 
 _TOTAL = re.compile(r"^(합계|총계|계|소계|total)$", re.IGNORECASE)
 _DEDUCTION_TOTAL = re.compile(r"합계|총|소계|계$")
@@ -282,10 +286,12 @@ def _assign(st: _State, row: PastedRow) -> None:
         row.field = target
         return
 
-    if negative:
+    if negative and target not in _SIGNED:
         row.note = "음수 금액이라 넣지 않았습니다."
         return
-    attr = "gross" if target is F.GROSS else "reported_payout"
+    if negative:
+        amount = -amount
+    attr = _ATTR[target]
     if getattr(d, attr) is not None:
         row.note = "같은 칸으로 보이는 줄이 앞에 있어 넣지 않았습니다."
         d.warnings.append(

@@ -10,7 +10,7 @@
         },
         "amount": {
           "description": "원 단위 금액",
-          "pattern": "^\\d+(\\.\\d+)?$",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
           "title": "Amount",
           "type": "string"
         }
@@ -36,10 +36,25 @@
       "type": "string"
     },
     "gross": {
-      "description": "정산서에 적힌 총매출",
-      "pattern": "^\\d+(\\.\\d+)?$",
+      "description": "정산서 '매출액' (총매출)",
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
       "title": "Gross",
       "type": "string"
+    },
+    "net_revenue": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액 (음수 가능)",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "정산서 '회사입금액'. 순매출 기준 계약이면 필요",
+      "title": "Net Revenue"
     },
     "deductions": {
       "description": "정산서에 적힌 공제 항목. 없으면 빈 목록",
@@ -49,9 +64,39 @@
       "title": "Deductions",
       "type": "array"
     },
+    "reported_settlement": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액 (음수 가능)",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "정산서 '정산액' (작가 몫). 있으면 R12로 대조",
+      "title": "Reported Settlement"
+    },
+    "reported_withholding": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "정산서 '원천징수'. 있으면 R11로 대조",
+      "title": "Reported Withholding"
+    },
     "reported_payout": {
-      "description": "정산서에 적힌 지급액",
-      "pattern": "^\\d+(\\.\\d+)?$",
+      "description": "정산서 '작가지급액' (원천징수 뒤 실제 받는 돈)",
+      "pattern": "^[0-9]+(\\.[0-9]+)?$",
       "title": "Reported Payout",
       "type": "string"
     }

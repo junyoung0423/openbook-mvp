@@ -1,0 +1,69 @@
+{
+  "id": "C07",
+  "title": "작가 몫이 남은 최소 보장금과 똑같은 달",
+  "rules": [
+    "R6"
+  ],
+  "contract": {
+    "mg_amount": 4200000,
+    "mg_recoup": "post",
+    "rs_rate": "0.6",
+    "revenue_base": "gross",
+    "deductions": [
+      {
+        "name": "플랫폼 수수료",
+        "type": "ratio",
+        "value": "0.30"
+      }
+    ]
+  },
+  "statement": [
+    {
+      "month": "2026-01",
+      "rows": [
+        {
+          "플랫폼": "가상플랫폼A",
+          "작품명": "가상작품",
+          "매출액": 10000000,
+          "회사입금액": 7000000,
+          "정산액": 4200000,
+          "원천징수": 0,
+          "작가지급액": 0,
+          "비고": "MG공제 4,200,000"
+        }
+      ]
+    }
+  ],
+  "input": [
+    {
+      "month": "2026-01",
+      "G": "10000000"
+    }
+  ],
+  "expected": {
+    "computable": true,
+    "months": [
+      {
+        "month": "2026-01",
+        "G": "10000000",
+        "D": "3000000.00",
+        "S": "4200000.000",
+        "S_display": 4200000,
+        "P": 0,
+        "withholding": 0,
+        "net_payout": 0,
+        "B": "0",
+        "B_display": 0,
+        "statement": {
+          "settle": 4200000,
+          "withholding": 0,
+          "net_payout": 0
+        },
+        "diff_settle_R12": 0,
+        "diff_withholding_R11": 0,
+        "diff_net_payout_R7": 0
+      }
+    ]
+  },
+  "point": "작가 몫 420만 원 = 남은 최소 보장금 420만 원 → 지급액 0원, 남은 최소 보장금 0원"
+}

@@ -97,14 +97,32 @@ def test_multiple_rows_without_total_are_not_summed():
     assert any("합계 줄" in w for w in d.warnings)
 
 
-@pytest.mark.parametrize(
-    "label",
-    ["순매출", "수익배분금", "MG 차감", "선인세 회수", "원천징수세액", "미회수 잔액", "판매 건수"],
-)
+@pytest.mark.parametrize("label", ["MG 차감", "선인세 회수", "미회수 잔액", "판매 건수", "부가세"])
 def test_ambiguous_rows_are_left_for_the_user(label):
     d = parse_pasted_statement(f"{label}\t123,000")
     assert d.gross is None and d.reported_payout is None and d.deductions == []
     assert d.rows[0].field is None and d.rows[0].note
+
+
+def test_payout_statement_columns():
+    # 지급내역형 가로 표 (가상 값): 매출액 → 회사입금액 → 정산액 → 원천징수 → 작가지급액, 비고는 넣지 않음
+    d = parse_pasted_statement(
+        "정산월\t2026-03\n"
+        "플랫폼\t작품명\t매출액\t회사입금액\t정산액\t원천징수\t작가지급액\t비고\n"
+        "가상플랫폼A\t가상작품\t15,000,000\t10,500,000\t6,300,000\t17,820\t522,180\tMG공제 5,760,000"
+    )
+    assert (d.period_start, d.period_end) == (date(2026, 3, 1), date(2026, 3, 31))
+    assert (d.gross, d.net_revenue, d.reported_settlement) == (15000000, 10500000, 6300000)
+    assert (d.reported_withholding, d.reported_payout) == (17820, 522180)
+    assert d.missing == []
+
+
+def test_negative_sales_month_keeps_sign():
+    d = parse_pasted_statement(
+        "매출액\t-1,000,000\n회사입금액\t-900,000\n정산액\t-540,000\n작가지급액\t0"
+    )
+    assert (d.gross, d.net_revenue, d.reported_settlement) == (-1000000, -900000, -540000)
+    assert d.reported_payout == 0
 
 
 def test_deduction_keywords_win_over_sales():
