@@ -8,15 +8,20 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal
 
-from openbook.engine import won
+from openbook.engine import after_withholding, won
 from openbook.safety import is_clean
 from openbook.schemas.reconciliation import PeriodReconciliation
 from openbook.schemas.terms import Deduction, MgRecoup
 
 SUMMARY = "계약서 기준으로 계산하면 {computed}원, 정산서에는 {reported}원, 차이는 {diff}원입니다."
 SUMMARY_UNSUPPORTED = "이 정산서는 계산하지 않았습니다. {reason}"
+SUMMARY_TAX = (
+    " 정산서 금액은 계약서 기준 금액에서 원천징수 3.3%를 뗀 {net}원과 거의 같습니다."
+    " 세금을 뗀 뒤의 금액일 수 있습니다."
+)
 FALLBACK = "계산 결과는 아래 단계별 내역을 확인해 주세요."
 
 Q_BREAKDOWN = "정산서 지급액이 어떤 순서로 계산되었는지 항목별 내역을 받을 수 있을까요?"
@@ -28,6 +33,8 @@ Q_DEDUCTION_AMOUNT = (
     "어떻게 계산되었는지 알려 주실 수 있을까요?"
 )
 Q_MG_BALANCE = "이 정산 기간 뒤 남은 MG(선급금) 금액을 알려 주실 수 있을까요?"
+Q_TAX = "정산서 지급액이 원천징수 3.3%를 뗀 뒤의 금액인지 알려 주실 수 있을까요?"
+Q_MISSING_PERIOD = "{start} ~ {end} 기간의 정산서를 보내 주실 수 있을까요?"
 Q_GENERIC_DEDUCTION = "정산서의 공제 항목별 근거 조항을 알려 주실 수 있을까요?"
 
 
@@ -48,6 +55,19 @@ def _same_item(a: str, b: str) -> bool:
     return bool(ka and kb) and (ka in kb or kb in ka)
 
 
+TAX_TOLERANCE = Decimal(10)
+
+
+def withholding_match(r: PeriodReconciliation) -> Decimal | None:
+    """R12: 정산서 지급액이 계약서 기준 금액에서 3.3%를 뗀 금액과 10원 안으로 같으면 그 금액."""
+    if r.status != "computed" or r.computed_payout is None or r.computed_payout <= 0:
+        return None
+    if r.reported_payout >= r.computed_payout:
+        return None
+    net = after_withholding(r.computed_payout)
+    return net if abs(r.reported_payout - net) <= TAX_TOLERANCE else None
+
+
 def summary(r: PeriodReconciliation) -> str:
     if r.status == "unsupported":
         text = SUMMARY_UNSUPPORTED.format(reason=r.unsupported_reason or "")
@@ -56,6 +76,9 @@ def summary(r: PeriodReconciliation) -> str:
         text = SUMMARY.format(
             computed=won(r.computed_payout), reported=won(r.reported_payout), diff=won(r.diff)
         )
+        net = withholding_match(r)
+        if net is not None:
+            text += SUMMARY_TAX.format(net=won(net))
     return text if is_clean(text) else FALLBACK
 
 
@@ -64,8 +87,13 @@ def questions(
     statement_lines: Sequence[StatementLine],
     contract_deductions: Sequence[Deduction],
     recoup: MgRecoup,
+    missing: tuple[date, date] | None = None,
 ) -> list[str]:
     out: list[str] = []
+    if missing is not None:  # R11
+        out.append(Q_MISSING_PERIOD.format(start=missing[0], end=missing[1]))
+    if withholding_match(r) is not None:  # R12
+        out.append(Q_TAX)
     if r.status == "unsupported" or (r.diff is not None and r.diff != 0):
         out.append(Q_BREAKDOWN)
 

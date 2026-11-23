@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_DOWN, Decimal
 from itertools import pairwise
 
@@ -59,6 +59,7 @@ def calculate(
 
     ordered = sorted(statements, key=lambda s: (s.period_start, s.period_end, s.id))
     overlapping = _overlapping_ids(ordered)
+    gaps = missing_periods(ordered)
     reason = _unsupported_reason(by_key)
     recoup = by_key[TermKey.MG_RECOUP].value
 
@@ -69,6 +70,8 @@ def calculate(
         why = reason or (rules.UNSUPPORTED_OVERLAP if st.id in overlapping else None)
         if why is None and recoup is MgRecoup.FROM_RS and balance is None:
             why = rules.UNSUPPORTED_CHAIN
+        if why is None and recoup is MgRecoup.FROM_RS and st.id in gaps and balance:
+            why = rules.UNSUPPORTED_GAP  # R11: 빠진 기간에 회수된 MG를 모른다
         if why is not None:
             results.append(_unsupported(st, why))
             balance = None if recoup is MgRecoup.FROM_RS else balance
@@ -95,6 +98,29 @@ def _overlapping_ids(ordered: Sequence[StatementInput]) -> set[str]:
         if b.period_start <= a.period_end:
             out.update((a.id, b.id))
     return out
+
+
+def missing_periods(statements: Sequence[StatementInput]) -> dict[str, tuple[date, date]]:
+    """R11: 앞 정산서와 이어지지 않는 정산서 id → 빠진 기간 (시작일, 종료일)."""
+    ordered = sorted(statements, key=lambda s: (s.period_start, s.period_end, s.id))
+    out: dict[str, tuple[date, date]] = {}
+    for a, b in pairwise(ordered):
+        start = a.period_end + timedelta(days=1)
+        if b.period_start > start:
+            out[b.id] = (start, b.period_start - timedelta(days=1))
+    return out
+
+
+def floor_ten(x: Decimal) -> Decimal:
+    """10원 미만 버림."""
+    return (x / 10).quantize(Decimal(1), rounding=ROUND_DOWN) * 10
+
+
+def after_withholding(payout: Decimal) -> Decimal:
+    """R12 (표시만): 지급액에서 원천징수 3.3%를 뗀 금액. 소득세 3%, 지방소득세는 소득세의 10%."""
+    income_tax = floor_ten(payout * Decimal("0.03"))
+    local_tax = floor_ten(income_tax * Decimal("0.1"))
+    return payout - income_tax - local_tax
 
 
 def _unsupported(st: StatementInput, reason: str) -> PeriodReconciliation:

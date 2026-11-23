@@ -1,5 +1,6 @@
 """업로드 → 조건 확정 → 정산서 → 대조 → 삭제 흐름 (가상 계약서, 가짜 LLM·파서)."""
 
+import calendar
 from typing import Annotated
 
 import pytest
@@ -106,7 +107,7 @@ CONFIRM = {
 def _statement(month, gross, payout, deductions=()):
     return {
         "period_start": f"2026-{month:02d}-01",
-        "period_end": f"2026-{month:02d}-28",
+        "period_end": f"2026-{month:02d}-{calendar.monthrange(2026, month)[1]:02d}",
         "gross": gross,
         "deductions": [{"name": n, "amount": a} for n, a in deductions],
         "reported_payout": payout,
