@@ -1,0 +1,79 @@
+{
+  "contract_id": "sample-a",
+  "items": [
+    {
+      "standard_id": "s-02",
+      "standard_no": "제2조",
+      "standard_title": "정의",
+      "core": true,
+      "user_clause_id": "c-02",
+      "status": "different",
+      "difference": "표준은 17개 용어를 정의하나 사용자 계약서는 총매출과 순매출 2개만 정의하며, 순매출 공제 항목에서 세금·앱마켓 수수료·환불 수수료가 빠져 있다.",
+      "user_quote": "② \"순매출\"이란 총매출에서 플랫폼 수수료와 결제 수수료를 뺀 금액을 말한다.",
+      "standard_quote": "15. \"순 매출액\"은 총 매출액에서 세금, 앱마켓(구글ㆍ애플 등) 수수료, 결제/환불 수수료 등을 공제한 금액을 말한다.",
+      "notice": null
+    },
+    {
+      "standard_id": "s-03",
+      "standard_no": "제3조",
+      "standard_title": "계약기간 등",
+      "core": true,
+      "user_clause_id": "c-03",
+      "status": "different",
+      "difference": "표준은 권리 허락 기간과 연장 합의 조건을 명시하나 사용자 계약서는 자동 연장 조항만 두고 권리 허락 기간·독점 여부·조건 변경 가능성을 정하지 않는다.",
+      "user_quote": "② 기간 만료 3개월 전까지 양 당사자가 서면으로 이의하지 않으면 1년씩 자동 연장된다.",
+      "standard_quote": "② ‘저작권자’와 ‘서비스 제공업자’는 계약기간 만료일 ____개월 전까지 계약 연장에 서면으로 합의할 수 있고, 그 경우 이 계약은 같은 조건으로 (____개월 / ____회) 연장된다. 다만, ‘저작권자’와 ‘서비스 제공업자’는 연장에 합의하면서 계약의 조건을 변경할 수 있다.",
+      "notice": null
+    },
+    {
+      "standard_id": "s-09",
+      "standard_no": "제9조",
+      "standard_title": "대가의 지급",
+      "core": true,
+      "user_clause_id": "c-04",
+      "status": "different",
+      "difference": "표준은 1회차 원고에 대한 연재료 지급을 정하나 사용자 계약서는 선급금(MG) 지급과 MG의 수익배분금 우선 차감·미상환분 반환 면제만 정한다.",
+      "user_quote": "① 갑은 을에게 선급금(이하 \"MG\") 5,000,000원을 계약 체결일로부터 30일 이내에 지급한다.",
+      "standard_quote": "① ‘서비스 제공업자’는 ‘저작권자’에게 대상 저작물의 1회차 분량의 원고에 대해 연재료로 ____원을 지급한다.",
+      "notice": null
+    },
+    {
+      "standard_id": "s-10",
+      "standard_no": "제10조",
+      "standard_title": "정산 등",
+      "core": true,
+      "user_clause_id": "c-05",
+      "status": "different",
+      "difference": "표준은 RS 비율과 대금 공제 방식, 정산서 포함 항목·보관·열람 의무를 상세히 정하나 사용자 계약서는 수익배분율만 정하고 정산서 항목·보관·열람 규정은 없다.",
+      "user_quote": "① 을의 수익배분율은 순매출의 60%로 한다.",
+      "standard_quote": "① ‘저작권자’와 ‘서비스 제공업자’는 수익분배(Revenue Share, 이하 ‘RS’라 한다) 비율에 따라 순 매출액을 나누어 갖는다. 이때 ‘저작권자’와 ‘서비스 제공업자’의 RS 비율은 ____%: ____%(저작권자:서비스 제공업자)이며, 제9조에 따라 지급되는 대금의 공제 방식은 제2항에서 정한다.",
+      "notice": null
+    },
+    {
+      "standard_id": "s-12",
+      "standard_no": "제12조",
+      "standard_title": "비용의 부담",
+      "core": true,
+      "user_clause_id": "c-06",
+      "status": "different",
+      "difference": "표준은 창작비·제작비·판매홍보비 부담 주체와 예고편 등 별도 비용·PPL 별도 합의를 정하나 사용자 계약서는 총매출에서 공제 가능한 비용 항목만 정한다.",
+      "user_quote": "갑은 다음 각 호의 비용을 정산 전에 총매출에서 공제할 수 있다.",
+      "standard_quote": "① 대상 저작물을 창작하는 비용은 ‘저작권자’가 부담한다. 다만, ‘서비스 제공업자’는 ‘저작권자’와 협의에 따라 창작 비용 전부 또는 일부를 지원할 수 있다.",
+      "notice": null
+    },
+    {
+      "standard_id": "s-22",
+      "standard_no": "제22조",
+      "standard_title": "계약의 해지 또는 해제",
+      "core": true,
+      "user_clause_id": "c-10",
+      "status": "different",
+      "difference": "표준은 해지 시 서비스 중지 의무와 30일 이내 서비스 허용 단서, 해지 시점까지 발생 대금 지급을 정하나 사용자 계약서는 정산금 지급만 정하고 서비스 중지 관련 규정이 없다.",
+      "user_quote": "② 해지 시 갑은 해지일까지 발생한 정산금을 지급한다.",
+      "standard_quote": "④ 이 계약이 해지되면, ‘서비스 제공업자’는 다음과 같은 책임을 부담한다.\n1. ‘서비스 제공업자’는 제9조 및 제10조에 따라 ‘저작권자’에게 해지 시점(제2호의 단서 기간 포함)까지 발생한 모든 대금(원고료, RS 등)을 지급한다.",
+      "notice": null
+    }
+  ],
+  "warnings": [],
+  "disclaimer": "찾지 못했다는 것이 표준과 같다는 뜻은 아닙니다."
+}
