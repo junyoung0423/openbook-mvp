@@ -27,6 +27,22 @@ PR #24 엔드포인트의 **실제 응답**입니다. 가상 샘플 `data/sample
 - `POST /contracts/{id}/statements/paste`: `{"text": "…"}` (20,000자까지)
 - `GET /contracts/{id}/comparison?refresh=true`: 비교를 다시 실행합니다. 기본은 저장해 둔 결과를 씁니다.
 
+## 계약서·정산서·대조 (P0, 2026-11-23 추가)
+
+| 요청 | 하는 일 |
+|---|---|
+| `POST /contracts` (multipart: `file`, `title` 선택) | 파일 업로드. 202와 `{id, title, status: "처리중"}`. 처리는 응답 뒤에 돈다 |
+| `POST /contracts/text` `{"title", "text"}` | 본문 붙여넣기로 등록 (100,000자까지) |
+| `GET /contracts`, `GET /contracts/{id}` | 목록·상태. `status`가 `조건 확인 대기`가 되면 조건 화면으로, `처리 실패`면 다시 올리기 안내 |
+| `GET /contracts/{id}/clauses` | 조항 목록 |
+| `DELETE /contracts/{id}` | 계약서와 조항·조건·정산서·대조 결과·Q&A를 함께 삭제 (204) |
+| `POST /contracts/{id}/statements` | 정산서 저장 (본문은 `Statement`, 201) |
+| `GET /contracts/{id}/statements`, `DELETE .../statements/{sid}` | 정산서 목록·삭제 |
+| `GET /contracts/{id}/reconciliations` | 대조 결과. 정산서마다 `summary`(결과 문장), `breakdown`(단계별 계산), `questions`(플랫폼에 확인할 질문). 필수 조건 미확정이면 409 `TERMS_NOT_CONFIRMED` |
+
+- 원본 파일은 서버에 저장하지 않습니다.
+- 대조 결과의 `rules_version`이 `provisional-…`이면 계산 규칙이 아직 임시 안입니다 (`backend/src/openbook/engine/rules.py`).
+
 ## 오류 형식
 
 `{"detail": {"code": "...", "message": "..."}}`
@@ -38,6 +54,9 @@ PR #24 엔드포인트의 **실제 응답**입니다. 가상 샘플 `data/sample
 | `NO_CLAUSES` | 409 | 아직 조항이 없음 (처리 중) |
 | `INVALID_TERM` | 422 | 조건 값이 형식에 맞지 않음, 또는 찾지 못한 조건을 값 없이 확정하려 함 |
 | `LLM_FAILED` | 502 | AI 호출 실패. "다시 시도" 버튼 |
-| `LLM_NOT_CONFIGURED` | 503 | 서버에 AI 키가 없음 (개발 환경 설정 문제). 비교·Q&A만 해당 |
+| `LLM_NOT_CONFIGURED` | 503 | 서버에 AI 키가 없음 (개발 환경 설정 문제). 업로드·비교·Q&A만 해당 |
+| `TERMS_NOT_CONFIRMED` | 409 | 필수 조건 5개가 확정되지 않아 대조할 수 없음 |
+| `STATEMENT_NOT_FOUND` | 404 | 없는 정산서 |
+| `UNSUPPORTED_FILE` · `FILE_TOO_LARGE` · `EMPTY_FILE` | 415 · 413 · 422 | 업로드 파일 문제 |
 
 요청 모양 자체가 틀리면 FastAPI 기본 422가 나옵니다. 이때 `detail`은 목록입니다.

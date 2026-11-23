@@ -17,6 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from openbook.db import ClauseRecord, Contract, create_db_engine, make_session_factory
+from openbook.parsing import DocumentParseConfigError, UpstageDocumentParser
 from openbook.schemas import Clause
 from openbook.terms import LLMClient, UpstageClient
 
@@ -33,6 +34,18 @@ def _sessions() -> sessionmaker[Session]:
 def get_db() -> Iterator[Session]:
     with _sessions()() as session:
         yield session
+
+
+def get_session_factory() -> sessionmaker[Session]:
+    """요청이 끝난 뒤 도는 작업(계약서 처리)이 쓰는 세션 공장."""
+    return _sessions()
+
+
+def get_parser() -> UpstageDocumentParser:
+    try:
+        return UpstageDocumentParser.from_env()
+    except DocumentParseConfigError:
+        raise api_error(503, "LLM_NOT_CONFIGURED", "AI 기능이 아직 설정되지 않았습니다.") from None
 
 
 def get_llm() -> LLMClient:
