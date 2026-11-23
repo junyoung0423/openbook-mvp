@@ -1,1 +1,20 @@
-"""M1 문서 수집·파싱 (박다연). 인터페이스: 파일 -> 정규화 텍스트와 요소 위치. Upstage Document Parse 사용."""
+from openbook.parsing.errors import (
+    DocumentParseConfigError,
+    DocumentParseError,
+    DocumentParseTimeout,
+    UnsupportedDocumentError,
+)
+from openbook.parsing.models import ParsedDocument, ParsedElement, Point
+from openbook.parsing.upstage import UpstageDocumentParser, parse_pasted_text
+
+__all__ = [
+    "DocumentParseConfigError",
+    "DocumentParseError",
+    "DocumentParseTimeout",
+    "ParsedDocument",
+    "ParsedElement",
+    "Point",
+    "UnsupportedDocumentError",
+    "UpstageDocumentParser",
+    "parse_pasted_text",
+]
