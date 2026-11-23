@@ -9,6 +9,7 @@ message에는 계약서 원문·정산서 값을 넣지 않는다.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Annotated
 
@@ -16,7 +17,14 @@ from fastapi import Depends, Header, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
-from openbook.db import ClauseRecord, Contract, create_db_engine, make_session_factory
+from openbook.api.auth import token_hash
+from openbook.db import (
+    AuthSession,
+    ClauseRecord,
+    Contract,
+    create_db_engine,
+    make_session_factory,
+)
 from openbook.parsing import DocumentParseConfigError, UpstageDocumentParser
 from openbook.schemas import Clause
 from openbook.terms import LLMClient, UpstageClient
@@ -55,17 +63,35 @@ def get_llm() -> LLMClient:
         raise api_error(503, "LLM_NOT_CONFIGURED", "AI 기능이 아직 설정되지 않았습니다.") from None
 
 
-def current_user_id(x_user_id: Annotated[str | None, Header()] = None) -> str:
-    """임시 사용자 확인. 로그인(박다연 담당)이 붙으면 이 함수만 바꾼다.
-
-    지금은 X-User-Id 헤더 값을 그대로 믿으므로 배포 전에 반드시 교체해야 한다.
-    """
-    if not x_user_id:
-        raise api_error(401, "UNAUTHENTICATED", "로그인이 필요합니다.")
-    return x_user_id
-
-
 DB = Annotated[Session, Depends(get_db)]
+
+
+def _bearer(authorization: str | None) -> str | None:
+    if not authorization:
+        return None
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer":
+        return None
+    return token.strip() or None
+
+
+def current_session(db: DB, authorization: Annotated[str | None, Header()] = None) -> AuthSession:
+    """Authorization: Bearer <토큰>으로 로그인 세션을 찾는다. 없거나 만료면 401."""
+    token = _bearer(authorization)
+    row = db.get(AuthSession, token_hash(token)) if token else None
+    if row is not None:
+        expires = row.expires_at
+        if expires.tzinfo is None:  # SQLite는 시간대 없이 돌려준다 (저장은 UTC)
+            expires = expires.replace(tzinfo=UTC)
+        if expires > datetime.now(UTC):
+            return row
+    raise api_error(401, "UNAUTHENTICATED", "로그인이 필요합니다.")
+
+
+def current_user_id(session: Annotated[AuthSession, Depends(current_session)]) -> str:
+    return session.user_id
+
+
 UserId = Annotated[str, Depends(current_user_id)]
 LLM = Annotated[LLMClient, Depends(get_llm)]
 

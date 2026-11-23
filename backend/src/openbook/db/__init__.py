@@ -1,6 +1,7 @@
 from openbook.db.base import Base
 from openbook.db.models import (
     Alert,
+    AuthSession,
     ClauseRecord,
     Contract,
     QaLog,
@@ -14,6 +15,7 @@ from openbook.db.term_storage import record_to_term, term_to_record
 
 __all__ = [
     "Alert",
+    "AuthSession",
     "Base",
     "ClauseRecord",
     "Contract",

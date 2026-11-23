@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from openbook import __version__
-from openbook.api.routes import ai, contracts, reconcile, terms
+from openbook.api.routes import ai, auth, contracts, reconcile, terms
 
 app = FastAPI(title="OpenBook API", version=__version__)
 app.add_middleware(
@@ -14,6 +14,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth.router)
 app.include_router(contracts.router)
 app.include_router(terms.router)
 app.include_router(reconcile.router)

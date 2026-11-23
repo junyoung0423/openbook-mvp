@@ -1,12 +1,29 @@
 """업로드 → 조건 확정 → 정산서 → 대조 → 삭제 흐름 (가상 계약서, 가짜 LLM·파서)."""
 
+from typing import Annotated
+
 import pytest
+from fastapi import Header
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
-from openbook.api.deps import get_db, get_llm, get_parser, get_session_factory
+from openbook.api.deps import (
+    api_error,
+    current_user_id,
+    get_db,
+    get_llm,
+    get_parser,
+    get_session_factory,
+)
 from openbook.api.main import app
-from openbook.db import Base, Reconciliation, Statement, create_db_engine, make_session_factory
+from openbook.db import (
+    Base,
+    Reconciliation,
+    Statement,
+    User,
+    create_db_engine,
+    make_session_factory,
+)
 from openbook.parsing import DocumentParseError, ParsedDocument
 
 TEXT = """웹툰 연재 계약서 (가상)
@@ -20,6 +37,13 @@ TEXT = """웹툰 연재 계약서 (가상)
 제3조 (수익배분)
 을의 수익배분율은 순매출의 60%로 한다. 순매출은 총매출에서 앱마켓 수수료 30%를 뺀 금액이다.
 """
+
+
+def header_user(x_user_id: Annotated[str | None, Header()] = None) -> str:
+    """테스트 전용: 로그인 대신 X-User-Id 헤더로 사용자를 고른다 (로그인은 test_auth.py)."""
+    if not x_user_id:
+        raise api_error(401, "UNAUTHENTICATED", "로그인이 필요합니다.")
+    return x_user_id
 
 
 class FakeLLM:
@@ -42,6 +66,8 @@ def env(tmp_path):
     engine = create_db_engine(f"sqlite:///{tmp_path / 'flow.db'}")
     Base.metadata.create_all(engine)
     sessions = make_session_factory(engine)
+    with sessions.begin() as s:
+        s.add_all([User(id="u1", email="u1@example.test"), User(id="u2", email="u2@example.test")])
     parser = FakeParser()
 
     def _db():
@@ -54,6 +80,7 @@ def env(tmp_path):
             get_session_factory: lambda: sessions,
             get_llm: lambda: FakeLLM(),
             get_parser: lambda: parser,
+            current_user_id: header_user,
         }
     )
     yield TestClient(app, headers={"X-User-Id": "u1"}), sessions, parser
