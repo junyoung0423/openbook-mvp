@@ -75,7 +75,7 @@
               "anyOf": [
                 {
                   "description": "원 단위 금액",
-                  "pattern": "^\\d+(\\.\\d+)?$",
+                  "pattern": "^[0-9]+(\\.[0-9]+)?$",
                   "type": "string"
                 },
                 {
@@ -96,6 +96,8 @@
             "value": {
               "anyOf": [
                 {
+                  "description": "계약서 문구 그대로",
+                  "pattern": "\\S",
                   "type": "string"
                 },
                 {
@@ -157,13 +159,14 @@
               "anyOf": [
                 {
                   "description": "비율. \"0.6\" = 60%",
-                  "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
+                  "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$",
                   "type": "string"
                 },
                 {
                   "items": {
                     "$ref": "#/$defs/RsTier"
                   },
+                  "minItems": 1,
                   "type": "array"
                 },
                 {
@@ -247,6 +250,8 @@
             "value": {
               "anyOf": [
                 {
+                  "description": "계약서 문구 그대로",
+                  "pattern": "\\S",
                   "type": "string"
                 },
                 {
@@ -310,7 +315,7 @@
         "from_amount": {
           "default": "0",
           "description": "원 단위 금액",
-          "pattern": "^\\d+(\\.\\d+)?$",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
           "title": "From Amount",
           "type": "string"
         },
@@ -318,7 +323,7 @@
           "anyOf": [
             {
               "description": "원 단위 금액",
-              "pattern": "^\\d+(\\.\\d+)?$",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$",
               "type": "string"
             },
             {
@@ -331,7 +336,7 @@
         },
         "rate": {
           "description": "비율. \"0.6\" = 60%",
-          "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
+          "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$",
           "title": "Rate",
           "type": "string"
         }
@@ -361,7 +366,7 @@
           "anyOf": [
             {
               "description": "비율. \"0.6\" = 60%",
-              "pattern": "^(0(\\.\\d+)?|1(\\.0+)?)$",
+              "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$",
               "type": "string"
             },
             {
@@ -375,7 +380,7 @@
           "anyOf": [
             {
               "description": "원 단위 금액",
-              "pattern": "^\\d+(\\.\\d+)?$",
+              "pattern": "^[0-9]+(\\.[0-9]+)?$",
               "type": "string"
             },
             {
