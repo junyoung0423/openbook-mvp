@@ -70,7 +70,7 @@ export const errorText = (e: unknown) =>
 
 // ---------------------------------------------------------------- 응답 타입
 
-export type UserOut = { id: string; email: string };
+export type UserOut = { id: string; email: string; auth_disabled?: boolean };
 export type LoginOut = { token: string; user: UserOut };
 
 export type ContractOut ={ id: string; title: string; status: string; uploaded_at: string };

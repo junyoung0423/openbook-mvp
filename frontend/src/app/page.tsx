@@ -119,10 +119,16 @@ export default function Home() {
           <span className="font-bold text-teal-900">오픈북</span>
           {me && (
             <span className="flex items-center gap-3 text-sm">
-              {me.email}
-              <button type="button" className={secondary} onClick={logout}>
-                로그아웃
-              </button>
+              {me.auth_disabled ? (
+                <span className="rounded border border-stone-300 px-2 py-1">로컬 모드 · 로그인 꺼짐</span>
+              ) : (
+                <>
+                  {me.email}
+                  <button type="button" className={secondary} onClick={logout}>
+                    로그아웃
+                  </button>
+                </>
+              )}
             </span>
           )}
         </header>
