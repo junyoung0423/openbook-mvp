@@ -212,6 +212,7 @@ export default function Home() {
                     <Link className={secondary} href={`/terms?id=${c.id}`}>조건</Link>
                     <Link className={secondary} href={`/statements?id=${c.id}`}>정산서</Link>
                     <Link className={secondary} href={`/results?id=${c.id}`}>대조 결과</Link>
+                    <Link className={secondary} href={`/qa?id=${c.id}`}>질문하기</Link>
                   </>
                 )}
                 <button type="button" className={secondary} onClick={() => remove(c)}>

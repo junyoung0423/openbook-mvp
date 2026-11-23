@@ -106,9 +106,14 @@ function ResultsInner() {
       ))}
 
       <section className="rounded-2xl bg-white p-6 text-stone-600">{report.notice}</section>
-      <Link className={secondary + " inline-block"} href={`/statements?id=${id}`}>
-        정산서 입력으로 돌아가기
-      </Link>
+      <div className="flex flex-wrap gap-2">
+        <Link className={secondary} href={`/statements?id=${id}`}>
+          정산서 입력으로 돌아가기
+        </Link>
+        <Link className={secondary} href={`/qa?id=${id}`}>
+          계약서에 질문하기
+        </Link>
+      </div>
     </>
   );
 }
