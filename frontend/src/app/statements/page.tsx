@@ -10,17 +10,54 @@ import {
   MONEY,
   primary,
   secondary,
+  SIGNED_MONEY,
   won,
   type StatementBody,
   type StatementDraft,
   type StatementOut,
 } from "../../lib/api";
 
-const EMPTY: StatementBody = { period_start: "", period_end: "", gross: "", deductions: [], reported_payout: "" };
+// 화면에서는 빈칸을 ""로 다루고, 보낼 때 선택 칸의 ""를 null로 바꾼다.
+type Form = {
+  period_start: string;
+  period_end: string;
+  gross: string;
+  net_revenue: string;
+  deductions: { name: string; amount: string }[];
+  reported_settlement: string;
+  reported_withholding: string;
+  reported_payout: string;
+};
+
+const EMPTY: Form = {
+  period_start: "",
+  period_end: "",
+  gross: "",
+  net_revenue: "",
+  deductions: [],
+  reported_settlement: "",
+  reported_withholding: "",
+  reported_payout: "",
+};
+
+// 정산서 칸 순서 그대로 (지급내역형)
+const AMOUNTS: { key: "gross" | "net_revenue" | "reported_settlement" | "reported_withholding"; label: string; hint: string }[] = [
+  { key: "gross", label: "매출액 (원)", hint: "필수. 환불이 많은 달은 음수(-)도 됩니다." },
+  { key: "net_revenue", label: "회사입금액 (원)", hint: "순매출 기준 계약이면 필요합니다." },
+  { key: "reported_settlement", label: "정산액 (원)", hint: "작가 몫. 적혀 있으면 계약서 기준과 대조합니다." },
+  { key: "reported_withholding", label: "원천징수 (원)", hint: "적혀 있으면 3.3% 계산과 대조합니다." },
+];
+
+const toBody = (f: Form): StatementBody => ({
+  ...f,
+  net_revenue: f.net_revenue || null,
+  reported_settlement: f.reported_settlement || null,
+  reported_withholding: f.reported_withholding || null,
+});
 
 function StatementsInner() {
   const id = useSearchParams().get("id") ?? "";
-  const [form, setForm] = useState<StatementBody>(EMPTY);
+  const [form, setForm] = useState<Form>(EMPTY);
   const [paste, setPaste] = useState("");
   const [saved, setSaved] = useState<StatementOut[]>([]);
   const [message, setMessage] = useState("");
@@ -50,7 +87,10 @@ function StatementsInner() {
         period_start: d.period_start ?? "",
         period_end: d.period_end ?? "",
         gross: d.gross ?? "",
+        net_revenue: d.net_revenue ?? "",
         deductions: d.deductions ?? [],
+        reported_settlement: d.reported_settlement ?? "",
+        reported_withholding: d.reported_withholding ?? "",
         reported_payout: d.reported_payout ?? "",
       });
       setNotes(d.warnings ?? []);
@@ -64,12 +104,18 @@ function StatementsInner() {
     event.preventDefault();
     if (!form.period_start || !form.period_end) return setMessage("정산 기간을 입력해 주세요.");
     if (form.period_end < form.period_start) return setMessage("정산 기간의 끝이 시작보다 앞입니다.");
-    if (!MONEY.test(form.gross) || !MONEY.test(form.reported_payout))
-      return setMessage("총매출과 지급액을 쉼표 없이 숫자로 입력해 주세요.");
+    if (!SIGNED_MONEY.test(form.gross) || !MONEY.test(form.reported_payout))
+      return setMessage("매출액과 작가지급액을 쉼표 없이 숫자로 입력해 주세요.");
+    if (
+      (form.net_revenue && !SIGNED_MONEY.test(form.net_revenue)) ||
+      (form.reported_settlement && !SIGNED_MONEY.test(form.reported_settlement)) ||
+      (form.reported_withholding && !MONEY.test(form.reported_withholding))
+    )
+      return setMessage("회사입금액·정산액·원천징수는 비워 두거나 쉼표 없이 숫자로 입력해 주세요.");
     if (form.deductions.some((d) => !d.name.trim() || !MONEY.test(d.amount)))
       return setMessage("공제 항목의 이름과 금액을 확인해 주세요.");
     try {
-      await api(`/contracts/${id}/statements`, { method: "POST", body: JSON.stringify(form) });
+      await api(`/contracts/${id}/statements`, { method: "POST", body: JSON.stringify(toBody(form)) });
       setForm(EMPTY);
       setPaste("");
       setNotes([]);
@@ -124,13 +170,19 @@ function StatementsInner() {
             <input type="date" className={field} value={form.period_end} onChange={(e) => setForm({ ...form, period_end: e.target.value })} />
           </label>
         </div>
-        <label className="block">
-          정산서 총매출 (원)
-          <input className={field} inputMode="decimal" value={form.gross} onChange={(e) => setForm({ ...form, gross: e.target.value })} />
-        </label>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {AMOUNTS.map(({ key, label, hint }) => (
+            <label key={key} className="block">
+              {label}
+              <input className={field} inputMode="decimal" value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} />
+              <span className="mt-1 block text-sm text-stone-600">{hint}</span>
+            </label>
+          ))}
+        </div>
 
         <fieldset className="space-y-2">
-          <legend className="font-semibold">정산서 공제 항목</legend>
+          <legend className="font-semibold">정산서 공제 항목 (적혀 있으면)</legend>
           {form.deductions.map((d, i) => (
             <div key={i} className="grid gap-2 sm:grid-cols-3">
               <input className={field} placeholder="항목 이름" value={d.name} onChange={(e) => setDed(i, { name: e.target.value })} />
@@ -154,13 +206,14 @@ function StatementsInner() {
         </fieldset>
 
         <label className="block">
-          정산서에 적힌 지급액 (원)
+          작가지급액 (원)
           <input
             className={field}
             inputMode="decimal"
             value={form.reported_payout}
             onChange={(e) => setForm({ ...form, reported_payout: e.target.value })}
           />
+          <span className="mt-1 block text-sm text-stone-600">필수. 원천징수 뒤 실제로 받는 금액입니다.</span>
         </label>
         <button type="submit" className={primary}>
           정산서 저장
@@ -174,7 +227,10 @@ function StatementsInner() {
         {saved.map((s) => (
           <div key={s.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-stone-200 pt-3">
             <p>
-              {s.period_start} ~ {s.period_end} · 총매출 {won(s.gross)} · 지급액 {won(s.reported_payout)}
+              {s.period_start} ~ {s.period_end} · 매출액 {won(s.gross)}
+              {s.reported_settlement != null && <> · 정산액 {won(s.reported_settlement)}</>}
+              {s.reported_withholding != null && <> · 원천징수 {won(s.reported_withholding)}</>} · 작가지급액{" "}
+              {won(s.reported_payout)}
             </p>
             <button type="button" className={secondary} onClick={() => remove(s.id)}>
               삭제

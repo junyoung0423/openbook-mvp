@@ -34,9 +34,16 @@ class StatementOut(Statement):
             period_start=row.period_start,
             period_end=row.period_end,
             gross=row.gross,
+            net_revenue=row.net_revenue,
             deductions=[StatementDeduction.model_validate(d) for d in row.deductions],
+            reported_settlement=row.reported_settlement,
+            reported_withholding=row.reported_withholding,
             reported_payout=row.reported_payout,
         )
+
+
+def _dec(x: Decimal | None) -> Decimal | None:
+    return None if x is None else Decimal(x)
 
 
 def _rows(db: DB, contract_id: str) -> list[StatementRow]:
@@ -56,7 +63,10 @@ def create_statement(body: Statement, contract: OwnedContract, db: DB) -> Statem
         period_start=body.period_start,
         period_end=body.period_end,
         gross=body.gross,
+        net_revenue=body.net_revenue,
         deductions=[d.model_dump(mode="json") for d in body.deductions],
+        reported_settlement=body.reported_settlement,
+        reported_withholding=body.reported_withholding,
         reported_payout=body.reported_payout,
     )
     db.add(row)
@@ -95,6 +105,9 @@ def get_reconciliations(contract: OwnedContract, db: DB) -> ReconciliationReport
                 period_end=r.period_end,
                 gross=Decimal(r.gross),
                 reported_payout=Decimal(r.reported_payout),
+                net_revenue=_dec(r.net_revenue),
+                reported_settlement=_dec(r.reported_settlement),
+                reported_withholding=_dec(r.reported_withholding),
             ),
             lines=tuple(StatementLine(d["name"], Decimal(d["amount"])) for d in r.deductions),
         )

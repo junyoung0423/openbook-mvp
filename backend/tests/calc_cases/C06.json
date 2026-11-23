@@ -1,0 +1,69 @@
+{
+  "id": "C06",
+  "title": "순매출 기준 계약 (공제 이중차감 방지)",
+  "rules": [
+    "R2"
+  ],
+  "contract": {
+    "mg_amount": 2000000,
+    "mg_recoup": "post",
+    "rs_rate": "0.6",
+    "revenue_base": "net",
+    "deductions": [
+      {
+        "name": "플랫폼 수수료",
+        "type": "ratio",
+        "value": "0.30"
+      }
+    ]
+  },
+  "statement": [
+    {
+      "month": "2026-01",
+      "rows": [
+        {
+          "플랫폼": "가상플랫폼A",
+          "작품명": "가상작품",
+          "매출액": 10000000,
+          "회사입금액": 7000000,
+          "정산액": 4200000,
+          "원천징수": 72600,
+          "작가지급액": 2127400,
+          "비고": "MG공제 2,000,000"
+        }
+      ]
+    }
+  ],
+  "input": [
+    {
+      "month": "2026-01",
+      "G": "7000000"
+    }
+  ],
+  "expected": {
+    "computable": true,
+    "months": [
+      {
+        "month": "2026-01",
+        "G": "7000000",
+        "D": null,
+        "S": "4200000.0",
+        "S_display": 4200000,
+        "P": 2200000,
+        "withholding": 72600,
+        "net_payout": 2127400,
+        "B": "0",
+        "B_display": 0,
+        "statement": {
+          "settle": 4200000,
+          "withholding": 72600,
+          "net_payout": 2127400
+        },
+        "diff_settle_R12": 0,
+        "diff_withholding_R11": 0,
+        "diff_net_payout_R7": 0
+      }
+    ]
+  },
+  "point": "계약 매출 기준이 순매출이면 회사입금액(700만 원)에 배분율만 곱하고 공제 목록은 쓰지 않음"
+}

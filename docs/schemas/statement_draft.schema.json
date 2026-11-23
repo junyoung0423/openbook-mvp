@@ -62,7 +62,7 @@
         },
         "amount": {
           "description": "원 단위 금액",
-          "pattern": "^\\d+(\\.\\d+)?$",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
           "title": "Amount",
           "type": "string"
         }
@@ -78,7 +78,10 @@
       "enum": [
         "period",
         "gross",
+        "net_revenue",
         "deduction",
+        "reported_settlement",
+        "reported_withholding",
         "reported_payout"
       ],
       "title": "StatementField",
@@ -116,8 +119,8 @@
     "gross": {
       "anyOf": [
         {
-          "description": "원 단위 금액",
-          "pattern": "^\\d+(\\.\\d+)?$",
+          "description": "원 단위 금액 (음수 가능)",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
           "type": "string"
         },
         {
@@ -127,6 +130,20 @@
       "default": null,
       "title": "Gross"
     },
+    "net_revenue": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액 (음수 가능)",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Net Revenue"
+    },
     "deductions": {
       "items": {
         "$ref": "#/$defs/StatementDeduction"
@@ -134,11 +151,39 @@
       "title": "Deductions",
       "type": "array"
     },
+    "reported_settlement": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액 (음수 가능)",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reported Settlement"
+    },
+    "reported_withholding": {
+      "anyOf": [
+        {
+          "description": "원 단위 금액",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reported Withholding"
+    },
     "reported_payout": {
       "anyOf": [
         {
           "description": "원 단위 금액",
-          "pattern": "^\\d+(\\.\\d+)?$",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
           "type": "string"
         },
         {

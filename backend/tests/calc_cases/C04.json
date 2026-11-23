@@ -1,0 +1,74 @@
+{
+  "id": "C04",
+  "title": "비율 공제 + 정액 공제 함께",
+  "rules": [
+    "R1"
+  ],
+  "contract": {
+    "mg_amount": 3000000,
+    "mg_recoup": "post",
+    "rs_rate": "0.6",
+    "revenue_base": "gross",
+    "deductions": [
+      {
+        "name": "플랫폼 수수료",
+        "type": "ratio",
+        "value": "0.30"
+      },
+      {
+        "name": "프로모션 비용",
+        "type": "fixed",
+        "value": "500000"
+      }
+    ]
+  },
+  "statement": [
+    {
+      "month": "2026-01",
+      "rows": [
+        {
+          "플랫폼": "가상플랫폼A",
+          "작품명": "가상작품",
+          "매출액": 10000000,
+          "회사입금액": 6500000,
+          "정산액": 3900000,
+          "원천징수": 29700,
+          "작가지급액": 870300,
+          "비고": "MG공제 3,000,000"
+        }
+      ]
+    }
+  ],
+  "input": [
+    {
+      "month": "2026-01",
+      "G": "10000000"
+    }
+  ],
+  "expected": {
+    "computable": true,
+    "months": [
+      {
+        "month": "2026-01",
+        "G": "10000000",
+        "D": "3500000.00",
+        "S": "3900000.000",
+        "S_display": 3900000,
+        "P": 900000,
+        "withholding": 29700,
+        "net_payout": 870300,
+        "B": "0",
+        "B_display": 0,
+        "statement": {
+          "settle": 3900000,
+          "withholding": 29700,
+          "net_payout": 870300
+        },
+        "diff_settle_R12": 0,
+        "diff_withholding_R11": 0,
+        "diff_net_payout_R7": 0
+      }
+    ]
+  },
+  "point": "공제 = 매출 × 30% + 50만 원"
+}
