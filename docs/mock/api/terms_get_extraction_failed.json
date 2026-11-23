@@ -1,0 +1,95 @@
+{
+  "contract_id": "sample-a-failed",
+  "terms": [
+    {
+      "key": "mg_amount",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "mg_pay_date",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "mg_recoup",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "mg_carryover",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "rs_rate",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "revenue_base",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "deductions",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "settlement_cycle",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    },
+    {
+      "key": "payment_day",
+      "value": null,
+      "status": "not_found",
+      "source_clause_id": null,
+      "quote": null,
+      "confirmed": false,
+      "confirmed_at": null
+    }
+  ],
+  "missing_keys": [],
+  "unconfirmed_required": [
+    "mg_amount",
+    "mg_recoup",
+    "rs_rate",
+    "revenue_base",
+    "deductions"
+  ],
+  "all_confirmed": false
+}
