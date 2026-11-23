@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Protocol
 
 import httpx
+from dotenv import load_dotenv
 
 from openbook.parsing.errors import (
     DocumentParseConfigError,
@@ -60,6 +61,7 @@ class UpstageDocumentParser:
 
     @classmethod
     def from_env(cls, **kwargs) -> UpstageDocumentParser:
+        load_dotenv()  # .env의 키를 읽는다 (조건 추출 클라이언트와 같은 방식)
         return cls(os.getenv("UPSTAGE_API_KEY", ""), **kwargs)
 
     def parse_file(
