@@ -5,8 +5,8 @@
 - 목록: GET {base}/lawSearch.do?OC=..&target=law&type=JSON&query=법령명
 - 본문: GET {base}/lawService.do?OC=..&target=law&type=JSON&MST=법령일련번호
 
-응답 모양은 공개 문서 기준으로 작성했다. OC가 없어 실제 응답으로는 아직 확인하지 못했으므로
-parse_law는 필드가 없거나 항이 하나여서 목록이 아닌 경우에도 버티게 만들었다.
+응답 모양은 2026-11-24 실제 호출로 확인했다 (저작권법 등 5개 법령, 조문 357개).
+항·호·목은 하나면 목록이 아니라 객체로 오므로 parse_law는 둘 다 받는다.
 """
 
 from __future__ import annotations

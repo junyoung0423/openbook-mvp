@@ -150,11 +150,14 @@ export type ReconciliationReport = {
 };
 
 export type Citation = {
-  source: "contract" | "standard";
+  source: "contract" | "standard" | "law";
   clause_id: string;
   clause_no: string | null;
   clause_title: string | null;
   quote: string;
+  law_name?: string | null; // source=law일 때
+  effective_date?: string | null; // 원문 시행일 (YYYY-MM-DD)
+  source_url?: string | null;
 };
 export type QAResult = {
   contract_id: string;

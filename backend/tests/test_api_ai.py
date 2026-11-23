@@ -89,11 +89,14 @@ def env(tmp_path):
             yield s
 
     llm = FakeLLM()
+    law_hits: list = []  # 법령 색인 대신 (실제 색인·임베딩 API를 쓰지 않는다)
     app.dependency_overrides[get_db] = _db
+    app.dependency_overrides[ai.get_law_search] = lambda: lambda q: list(law_hits)
     app.dependency_overrides[get_llm] = lambda: llm
     app.dependency_overrides[current_user_id] = header_user
     ai._comparisons.clear()
     client = TestClient(app, headers={"X-User-Id": "u1"})
+    client.law_hits = law_hits
     yield client, llm, sessions
     app.dependency_overrides.clear()
     engine.dispose()
@@ -300,3 +303,48 @@ def test_missing_api_key_is_503_not_500(env, monkeypatch):
     res = client.post("/contracts/k1/qa", json={"question": "선급금은?"})
     assert res.status_code == 503 and res.json()["detail"]["code"] == "LLM_NOT_CONFIGURED"
     assert client.get("/contracts/k1/terms").status_code == 200  # LLM이 필요 없는 곳은 그대로
+
+
+def test_qa_with_law_citation(env):
+    from datetime import date
+
+    from openbook.law import LawArticle
+
+    client, llm, sessions = env
+    text = "저작자는 그의 저작물을 원저작물로 하는 2차적저작물을 작성하여 이용할 권리를 가진다."
+    client.law_hits.append(
+        LawArticle(
+            id="l-저작권법-제22조",
+            law_name="저작권법",
+            article_no="제22조",
+            title="2차적저작물작성권",
+            text=text,
+            effective_date=date(2026, 3, 1),
+            source_url="https://www.law.go.kr/법령/저작권법",
+        )
+    )
+    llm.raw = json.dumps(
+        {
+            "found": True,
+            "answer": "저작권법 제22조는 2차적저작물 작성권을 저작자의 권리로 정합니다.",
+            "citations": [{"clause_id": "l-저작권법-제22조", "quote": text}],
+        },
+        ensure_ascii=False,
+    )
+    body = client.post("/contracts/k1/qa", json={"question": "2차적저작물 권리는?"}).json()
+    law = body["citations"][0]
+    assert law["source"] == "law" and law["law_name"] == "저작권법"
+    assert law["effective_date"] == "2026-03-01"
+    with sessions() as s:
+        assert s.scalars(select(QaLog)).one().cited_clause_ids == ["l-저작권법-제22조"]
+
+
+def test_law_search_off_without_index(monkeypatch, tmp_path):
+    from openbook.law import index
+
+    monkeypatch.setenv("LAW_INDEX_PATH", str(tmp_path / "none.json"))
+    index.default_index.cache_clear()
+    try:
+        assert ai.get_law_search()("2차적저작물") == []
+    finally:
+        index.default_index.cache_clear()
