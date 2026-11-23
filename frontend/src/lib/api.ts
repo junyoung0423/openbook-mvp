@@ -137,6 +137,24 @@ export type ReconciliationReport = {
   notice: string;
 };
 
+export type Citation = {
+  source: "contract" | "standard";
+  clause_id: string;
+  clause_no: string | null;
+  clause_title: string | null;
+  quote: string;
+};
+export type QAResult = {
+  contract_id: string;
+  question: string;
+  found: boolean;
+  answer: string;
+  citations: Citation[];
+  basis: string | null;
+  notice: string;
+  warnings: string[];
+};
+
 // ---------------------------------------------------------------- 표시
 
 export const TERM_LABELS: Record<string, string> = {
