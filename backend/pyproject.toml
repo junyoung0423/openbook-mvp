@@ -14,6 +14,9 @@ dependencies = [
     "python-dotenv>=1.0",
     "pyyaml>=6.0",
     "httpx>=0.27",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.2",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +34,9 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: 외부 서비스 또는 실제 DB가 필요한 테스트",
+]
 
 [tool.ruff]
 line-length = 100
