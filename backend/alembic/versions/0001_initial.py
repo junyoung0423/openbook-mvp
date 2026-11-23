@@ -4,9 +4,10 @@ Revision ID: 0001_initial
 Revises:
 """
 
-from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+
+from alembic import op
 
 revision = "0001_initial"
 down_revision = None
@@ -29,7 +30,9 @@ def upgrade() -> None:
     op.create_table(
         "contracts",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("user_id", sa.String(36), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.String(36), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("title", sa.String(255), nullable=False),
         sa.Column("file_ref", sa.String(1024)),
         sa.Column("status", sa.String(32), nullable=False),
@@ -39,7 +42,12 @@ def upgrade() -> None:
 
     op.create_table(
         "clauses",
-        sa.Column("contract_id", sa.String(36), sa.ForeignKey("contracts.id", ondelete="CASCADE"), primary_key=True),
+        sa.Column(
+            "contract_id",
+            sa.String(36),
+            sa.ForeignKey("contracts.id", ondelete="CASCADE"),
+            primary_key=True,
+        ),
         sa.Column("id", sa.String(64), primary_key=True),
         sa.Column("no", sa.String(64)),
         sa.Column("title", sa.String(255)),
@@ -51,7 +59,12 @@ def upgrade() -> None:
     op.create_table(
         "terms",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("contract_id", sa.String(36), sa.ForeignKey("contracts.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "contract_id",
+            sa.String(36),
+            sa.ForeignKey("contracts.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("key", sa.String(64), nullable=False),
         sa.Column("value", JSON_DOCUMENT),
         sa.Column("numeric_value", SCALAR_NUMERIC),
@@ -66,7 +79,12 @@ def upgrade() -> None:
     op.create_table(
         "statements",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("contract_id", sa.String(36), sa.ForeignKey("contracts.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "contract_id",
+            sa.String(36),
+            sa.ForeignKey("contracts.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("period_start", sa.Date(), nullable=False),
         sa.Column("period_end", sa.Date(), nullable=False),
         sa.Column("gross", MONEY, nullable=False),
@@ -78,7 +96,12 @@ def upgrade() -> None:
     op.create_table(
         "reconciliations",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("statement_id", sa.String(36), sa.ForeignKey("statements.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "statement_id",
+            sa.String(36),
+            sa.ForeignKey("statements.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("computed_payout", MONEY),
         sa.Column("diff", MONEY),
         sa.Column("breakdown", JSON_DOCUMENT, nullable=False),
@@ -89,7 +112,12 @@ def upgrade() -> None:
     op.create_table(
         "qa_logs",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("contract_id", sa.String(36), sa.ForeignKey("contracts.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "contract_id",
+            sa.String(36),
+            sa.ForeignKey("contracts.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("question", sa.Text(), nullable=False),
         sa.Column("answer", sa.Text(), nullable=False),
         sa.Column("cited_clause_ids", JSON_DOCUMENT, nullable=False),
@@ -99,7 +127,12 @@ def upgrade() -> None:
     op.create_table(
         "alerts",
         sa.Column("id", sa.String(36), primary_key=True),
-        sa.Column("contract_id", sa.String(36), sa.ForeignKey("contracts.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "contract_id",
+            sa.String(36),
+            sa.ForeignKey("contracts.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("due_date", sa.DateTime(timezone=True), nullable=False),
         sa.Column("channel", sa.String(32), nullable=False),
         sa.Column("sent_at", sa.DateTime(timezone=True)),
