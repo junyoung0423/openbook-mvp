@@ -181,3 +181,17 @@ def test_unsupported_contract_hides_amounts_and_asks_for_missing_month():
     )
     assert sep.unsupported_reason is None
     assert any("2026-02-01" in q for q in sep.items[1].questions)
+
+
+def test_summary_mentions_withholding_difference():
+    # 444,135 × 3% = 13,324.05 → 13,320, 지방세 1,330 → 14,650. 정산서는 8.8%로 39,080을 뗌
+    report = reconcile(
+        "k1",
+        terms(mg="0", recoup="separate", rs="1", deductions=[]),
+        [StatementWithLines(st("m1", 2, "444135", "405055", settle="444135", tax="39080"))],
+    )
+    (r,) = report.items
+    assert r.summary.endswith(
+        "원천징수는 계약서 기준(3.3%) 14,650원, 정산서 39,080원으로 차이는 24,430원입니다."
+    )
+    assert r.questions[0] == Q_WITHHOLDING

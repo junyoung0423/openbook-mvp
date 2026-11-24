@@ -24,6 +24,9 @@ SUMMARY = (
 SUMMARY_SETTLEMENT = (
     " 정산액(작가 몫)은 계약서 기준 {computed}원, 정산서 {reported}원으로 차이는 {diff}원입니다."
 )
+SUMMARY_WITHHOLDING = (
+    " 원천징수는 계약서 기준(3.3%) {computed}원, 정산서 {reported}원으로 차이는 {diff}원입니다."
+)
 SUMMARY_UNSUPPORTED = "{reason}. 금액은 표시하지 않습니다."
 FALLBACK = "계산 결과는 아래 단계별 내역을 확인해 주세요."
 
@@ -75,6 +78,13 @@ def summary(r: PeriodReconciliation) -> str:
                 computed=won(r.computed_settlement),
                 reported=won(r.reported_settlement),
                 diff=won(r.settlement_diff),
+            )
+        if r.withholding_diff:  # 0이 아니면
+            assert r.computed_withholding is not None and r.reported_withholding is not None
+            text += SUMMARY_WITHHOLDING.format(
+                computed=won(r.computed_withholding),
+                reported=won(r.reported_withholding),
+                diff=won(r.withholding_diff),
             )
     return text if is_clean(text) else FALLBACK
 

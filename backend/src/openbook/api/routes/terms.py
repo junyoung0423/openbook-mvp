@@ -4,7 +4,9 @@
 - 확정은 사용자 요청으로만 기록한다. confirmed_at은 서버 시각으로 정한다 (요청 값을 믿지 않음).
 - 값을 바꾸면 상태가 '직접 입력'(user_input)이 된다. 근거 조항·인용은 화면에서 원문을 보여 줄 수
   있게 그대로 둔다.
-- 필수 5개가 모두 확정되면 계약서 상태를 '확정', 아니면 '조건 확인 대기'로 둔다 ('처리중'이면 그대로).
+- 필수 5개가 모두 확정되면 계약서 상태를 '확정', 아니면 '조건 확인 대기'로 둔다.
+- '처리중'인 계약서는 수정·확정을 받지 않는다 (409 CONTRACT_PROCESSING). 처리가 끝나면 조건을
+  새로 저장하므로, 그 전에 받은 확정은 덮어써져 사라지기 때문이다.
 """
 
 from __future__ import annotations
@@ -96,6 +98,12 @@ def get_terms(contract: OwnedContract, db: DB) -> TermsResponse:
 
 @router.put("/contracts/{contract_id}/terms", response_model=TermsResponse)
 def put_terms(body: TermsUpdate, contract: OwnedContract, db: DB) -> TermsResponse:
+    if contract.status == STATUS_PROCESSING:
+        raise api_error(
+            409,
+            "CONTRACT_PROCESSING",
+            "계약서를 아직 읽는 중입니다. 처리가 끝난 뒤 조건을 확인해 주세요.",
+        )
     records = _records(db, contract.id)
     now = datetime.now(UTC)
     for u in body.terms:

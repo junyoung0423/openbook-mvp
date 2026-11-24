@@ -348,3 +348,12 @@ def test_law_search_off_without_index(monkeypatch, tmp_path):
         assert ai.get_law_search()("2차적저작물") == []
     finally:
         index.default_index.cache_clear()
+
+
+def test_terms_cannot_be_confirmed_while_processing(env):
+    # 처리중에 받은 확정은 처리 결과 저장 때 지워지므로 아예 받지 않는다
+    client, _, _ = env
+    body = {"terms": [{"key": "mg_amount", "value": "1000", "confirmed": True}]}
+    res = client.put("/contracts/k3/terms", json=body)
+    assert res.status_code == 409 and res.json()["detail"]["code"] == "CONTRACT_PROCESSING"
+    assert client.put("/contracts/k1/terms", json=body).status_code == 200
