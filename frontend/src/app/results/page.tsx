@@ -56,6 +56,10 @@ function ResultsInner() {
       <section className="rounded-2xl bg-white p-6">
         <h1 className="text-3xl font-bold">정산 대조 결과</h1>
         <p className="mt-3 text-stone-600">{report.diff_meaning}</p>
+        <p className="mt-2 text-sm text-stone-600">
+          원천징수는 사업소득 3.3%(소득세 3% + 지방소득세 0.3%, 각각 10원 미만 버림) 기준으로 계산합니다.
+          기타소득(8.8%) 등 다른 방식으로 떼는 계약이면 원천징수와 작가지급액에 차이가 날 수 있습니다.
+        </p>
         {(report.rules_version.startsWith("provisional") || report.rules_version.startsWith("draft")) && (
           <p className="mt-2 text-sm text-stone-600">계산 규칙은 검토 중인 임시 안입니다 ({report.rules_version}).</p>
         )}

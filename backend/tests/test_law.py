@@ -250,3 +250,18 @@ def test_qa_drops_invented_law_quote_and_skips_law_block_when_empty():
     llm2 = FakeLLM({"found": False, "answer": "", "citations": []})
     answer_question("k1", "권리는?", CLAUSES, llm2, [], [])
     assert "관련 법령" not in llm2.calls[0]
+
+
+def test_evaluate_counts_hits_and_abstentions():
+    from openbook.law.evaluate import evaluate, unknown_labels
+
+    idx = LawIndex(ARTICLES)
+    cases = [
+        {"q": "2차적저작물 작성권은 누구에게?", "expect": ["가상법 제2조"]},
+        {"q": "배타적발행권 존속기간은?", "expect": ["가상법 제1조"]},  # 일부러 틀린 정답
+        {"q": "MG는 언제 지급되나요?", "expect": []},
+    ]
+    report = evaluate(idx, cases)
+    assert [r.ok for r in report.rows] == [True, False, True]
+    assert report.hit_rate == 0.5 and report.abstain_rate == 1.0
+    assert unknown_labels(idx, [{"q": "x", "expect": ["가상법 제9조"]}]) == ["가상법 제9조"]
