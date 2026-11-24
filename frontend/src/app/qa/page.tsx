@@ -6,11 +6,20 @@ import { Suspense, useState, type FormEvent } from "react";
 import { api, errorText, field, primary, secondary, type QAResult } from "../../lib/api";
 
 const MAX_QUESTION = 500; // 백엔드 MAX_QUESTION과 같게
-const EXAMPLES = ["선급금(MG)은 얼마이고 어떻게 회수하나요?", "정산금은 언제 받나요?", "계약을 해지하려면 어떻게 해야 하나요?"];
+const EXAMPLES = [
+  "선급금(MG)은 얼마이고 어떻게 회수하나요?",
+  "정산금은 언제 받나요?",
+  "계약을 해지하려면 어떻게 해야 하나요?",
+  "2차적저작물 작성권은 누구에게 있나요?",
+];
 
 function sourceLabel(c: QAResult["citations"][number]) {
-  const where = c.source === "standard" ? "표준계약서" : "내 계약서";
   const name = [c.clause_no, c.clause_title].filter(Boolean).join(" ");
+  if (c.source === "law") {
+    const when = c.effective_date ? ` (${c.effective_date} 시행)` : "";
+    return `법령 · ${c.law_name ?? ""} ${name || c.clause_id}${when}`;
+  }
+  const where = c.source === "standard" ? "표준계약서" : "내 계약서";
   return `${where} · ${name || c.clause_id}`;
 }
 
@@ -88,9 +97,19 @@ function QAInner() {
                 <blockquote key={j} className="rounded-xl bg-stone-100 p-4">
                   <p className="text-sm text-stone-600">{sourceLabel(c)}</p>
                   <p className="mt-1 whitespace-pre-wrap">{c.quote}</p>
+                  {c.source === "law" && c.source_url && (
+                    <a className="mt-2 inline-block text-sm text-teal-900 underline" href={c.source_url} target="_blank" rel="noreferrer">
+                      국가법령정보센터에서 현행 원문 보기
+                    </a>
+                  )}
                 </blockquote>
               ))}
               {r.basis && <p className="text-sm text-stone-600">표준계약서 기준 · {r.basis}</p>}
+              {r.citations.some((c) => c.source === "law") && (
+                <p className="text-sm text-stone-600">
+                  법령 조문은 적힌 내용만 옮긴 것이고, 이 계약에 어떻게 적용되는지는 판단하지 않습니다.
+                </p>
+              )}
             </div>
           )}
           <p className="text-sm text-stone-600">{r.notice}</p>

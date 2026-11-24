@@ -1,7 +1,8 @@
 """AI 모듈을 감싸는 엔드포인트 (정준영).
 
 - GET  /contracts/{id}/comparison        표준계약서 비교 (M3, 정산 관련 핵심 조항)
-- POST /contracts/{id}/qa                조항 Q&A (M7). 질문·답·인용 조항 id를 qa_logs에 남긴다
+- POST /contracts/{id}/qa                조항 Q&A (M7). 질문·답·인용 조항 id를 qa_logs에 남긴다.
+                                         법령 색인(data/law/index.json)이 있으면 관련 조문도 함께 찾는다
 - POST /contracts/{id}/statements/paste  정산서 표 붙여넣기 읽기 (저장하지 않음, LLM 없음)
 
 LLM 호출 실패는 502 LLM_FAILED로 알린다. 오류 문구에는 계약서 원문을 넣지 않는다.
@@ -13,16 +14,19 @@ import hashlib
 import json
 import threading
 from collections import OrderedDict
+from collections.abc import Callable
 from functools import lru_cache
+from typing import Annotated
 
 import httpx
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field, field_validator
 
 from openbook.api.deps import DB, LLM, OwnedContract, api_error, require_clauses
 from openbook.comparison import ComparisonResult, compare_with_standard, load_standard
 from openbook.comparison.models import StandardClause
 from openbook.db import QaLog
+from openbook.law import LawArticle, UpstageEmbedder, default_index
 from openbook.qa import QAResult, answer_question
 from openbook.schemas import Clause, StatementDraft
 from openbook.statements import MAX_CHARS, parse_pasted_statement
@@ -98,11 +102,41 @@ class QARequest(BaseModel):
         return v
 
 
+LawSearch = Callable[[str], list[LawArticle]]
+
+
+def get_law_search() -> LawSearch:
+    """법령 색인이 있으면 질문 → 관련 조문. 없으면 늘 빈 목록 (법령 없이 답한다)."""
+    index = default_index()
+    if index is None:
+        return lambda _q: []
+    embedder = None
+    if index.vectors:
+        try:
+            embedder = UpstageEmbedder.from_env()
+        except ValueError:  # 키가 없으면 글자 겹침만
+            embedder = None
+    return lambda q: index.search(q, embedder)
+
+
 @router.post("/contracts/{contract_id}/qa", response_model=QAResult)
-def post_qa(body: QARequest, contract: OwnedContract, db: DB, llm: LLM) -> QAResult:
+def post_qa(
+    body: QARequest,
+    contract: OwnedContract,
+    db: DB,
+    llm: LLM,
+    law_search: Annotated[LawSearch, Depends(get_law_search)],
+) -> QAResult:
     clauses = require_clauses(db, contract.id)
     try:
-        result = answer_question(contract.id, body.question, clauses, llm, list(_full_standard()))
+        result = answer_question(
+            contract.id,
+            body.question,
+            clauses,
+            llm,
+            list(_full_standard()),
+            law_search(body.question),
+        )
     except (LLMError, httpx.HTTPError):
         raise _llm_failed() from None
     db.add(

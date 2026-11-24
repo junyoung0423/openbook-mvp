@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -18,17 +19,20 @@ CALC_ANSWER = (
     "아래 원문을 직접 확인하세요."
 )
 
-Source = Literal["contract", "standard"]
+Source = Literal["contract", "standard", "law"]
 
 
 class Citation(BaseModel):
     """답의 근거. quote는 원문에 글자 그대로 있는 것이 코드로 확인된 문장만 남는다."""
 
-    source: Source = Field(description="contract=사용자 계약서, standard=표준계약서")
+    source: Source = Field(description="contract=사용자 계약서, standard=표준계약서, law=법령")
     clause_id: str
     clause_no: str | None = None
     clause_title: str | None = None
     quote: str
+    law_name: str | None = Field(default=None, description="source=law일 때 법령명")
+    effective_date: date | None = Field(default=None, description="source=law일 때 원문 시행일")
+    source_url: str | None = None
 
 
 class QAResult(BaseModel):
