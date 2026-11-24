@@ -4,7 +4,7 @@
 - 인용문은 해당 조항 원문에 글자 그대로 있어야 남는다. 확인된 인용이 하나도 없으면 '찾지 못함'.
 - 답에 나온 숫자는 인용문·질문·조항 번호에 있는 숫자여야 한다. LLM이 계산한 숫자가 섞이면
   답 문장을 버리고 템플릿 문장으로 바꾼다 (금액 계산은 코드만 한다).
-- 금지 표현이 있으면 템플릿 문장으로 바꾼다.
+- 금지 표현이 있거나 답이 비면 '인용한 조항 이름 + 원문 확인' 문장으로 바꾼다 (조항 이름은 코드가 만든다).
 질문과 계약서 원문은 로그·경고에 넣지 않는다.
 """
 
@@ -26,7 +26,7 @@ from openbook.qa.models import (
 )
 from openbook.qa.prompt import SYSTEM_PROMPT, build_user_prompt
 from openbook.quotes import quoted_in
-from openbook.safety import is_clean
+from openbook.safety import find_banned, is_clean
 from openbook.schemas import Clause
 from openbook.terms.llm import LLMClient
 
@@ -64,10 +64,11 @@ def answer_question(
 
     answer = data.get("answer")
     if not isinstance(answer, str) or not answer.strip():
-        answer = TEMPLATE_ANSWER
+        answer = cited_answer(citations)
     elif not is_clean(answer):
-        warnings.append("답 문장에 금지 표현이 있어 템플릿 문장으로 바꿨습니다.")
-        answer = TEMPLATE_ANSWER
+        banned = ", ".join(find_banned(answer))  # 고정 목록의 낱말만 (원문은 넣지 않는다)
+        warnings.append(f"답 문장에 금지 표현({banned})이 있어 인용 조항 안내 문장으로 바꿨습니다.")
+        answer = cited_answer(citations)
     elif not _numbers_supported(answer, question, citations, clauses, picked, law):
         warnings.append("답 문장에 원문에 없는 숫자가 있어 템플릿 문장으로 바꿨습니다.")
         answer = CALC_ANSWER
@@ -195,3 +196,23 @@ def _numbers_supported(
     for x in law or []:
         allowed |= _numbers(x.article_no)
     return _numbers(answer) <= allowed
+
+
+def _cite_name(c: Citation) -> str:
+    name = " ".join(
+        x for x in (c.clause_no, f"({c.clause_title})" if c.clause_title else None) if x
+    )
+    name = name.replace(" (", "(") or c.clause_id
+    if c.source == "law":
+        return f"{c.law_name or '법령'} {name}"
+    return f"{'표준계약서' if c.source == 'standard' else '계약서'} {name}"
+
+
+def cited_answer(citations: list[Citation]) -> str:
+    """LLM 답 문장을 쓸 수 없을 때: 인용한 조항 이름만 코드로 이어 붙인 안내 문장.
+
+    조항 제목은 사용자 계약서에서 온 글이라 이 문장도 금지 표현 필터를 통과해야 쓴다.
+    """
+    names = list(dict.fromkeys(_cite_name(c) for c in citations))
+    text = f"{', '.join(names)}에 관련 내용이 있습니다. 아래 원문을 직접 확인하세요."
+    return text if names and is_clean(text) else TEMPLATE_ANSWER

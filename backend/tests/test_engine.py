@@ -11,6 +11,7 @@ from openbook.engine import StatementInput, calculate, withholding
 from openbook.reconcile import StatementLine, StatementWithLines, reconcile
 from openbook.reconcile.explain import (
     Q_BREAKDOWN,
+    Q_BREAKDOWN_NO_MG,
     Q_GENERIC_DEDUCTION,
     Q_MG_BALANCE,
     Q_SETTLEMENT,
@@ -194,4 +195,4 @@ def test_summary_mentions_withholding_difference():
     assert r.summary.endswith(
         "원천징수는 계약서 기준(3.3%) 14,650원, 정산서 39,080원으로 차이는 24,430원입니다."
     )
-    assert r.questions[0] == Q_WITHHOLDING
+    assert r.questions == [Q_WITHHOLDING, Q_BREAKDOWN_NO_MG]  # 별도 계약이라 MG 말 없음

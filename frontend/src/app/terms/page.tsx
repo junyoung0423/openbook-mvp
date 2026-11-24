@@ -13,6 +13,7 @@ import {
   RATE,
   secondary,
   TERM_LABELS,
+  type ContractOut,
   type Deduction,
   type Term,
   type TermsResponse,
@@ -79,7 +80,30 @@ function TermsInner() {
 
   useEffect(() => {
     if (!id) return;
-    api<TermsResponse>(`/contracts/${id}/terms`).then(load, (e) => setMessage(errorText(e)));
+    let stop = false;
+    // 계약서를 아직 읽는 중이면 조건이 비어 있고 저장도 막혀 있으므로(409), 끝날 때까지 기다렸다가 불러온다.
+    (async () => {
+      try {
+        for (let i = 0; i < 90; i++) {
+          const c = await api<ContractOut>(`/contracts/${id}`);
+          if (stop) return;
+          if (c.status === "처리 실패") return setMessage("계약서를 읽지 못했습니다. 첫 화면에서 다시 올려 주세요.");
+          if (c.status !== "처리중") break;
+          setMessage("계약서를 읽는 중입니다. 1~2분 걸릴 수 있고, 끝나면 조건이 자동으로 나타납니다.");
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+        const res = await api<TermsResponse>(`/contracts/${id}/terms`);
+        if (!stop) {
+          setMessage("");
+          load(res);
+        }
+      } catch (e) {
+        if (!stop) setMessage(errorText(e));
+      }
+    })();
+    return () => {
+      stop = true;
+    };
   }, [id, load]);
 
   const set = (key: string, patch: Partial<Draft>) =>
