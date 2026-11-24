@@ -101,6 +101,9 @@ def test_banned_word_is_replaced_with_template():
         },
     )
     assert "불리" not in out.answer and out.found
+    # 판단 문장 대신 인용한 조항 이름으로 안내한다 (경고에는 걸린 낱말만)
+    assert out.answer == "계약서 제4조(선급금)에 관련 내용이 있습니다. 아래 원문을 직접 확인하세요."
+    assert any("금지 표현(불리)" in w for w in out.warnings)
 
 
 def test_standard_citation_carries_basis():
@@ -137,3 +140,30 @@ def test_question_and_contract_text_not_in_warnings():
         {"found": True, "answer": "x", "citations": [{"clause_id": "c-99", "quote": "없는 문장"}]},
     )
     assert not any("선급금" in w or "5,000,000" in w for w in out.warnings)
+
+
+def test_cited_answer_names_sources_and_falls_back_when_title_is_banned():
+    from openbook.qa.answer import cited_answer
+    from openbook.qa.models import TEMPLATE_ANSWER, Citation
+
+    law = Citation(
+        source="law",
+        clause_id="l-저작권법-제14조",
+        clause_no="제14조",
+        clause_title="저작인격권의 일신전속성",
+        quote="저작인격권은 저작자 일신에 전속한다.",
+        law_name="저작권법",
+    )
+    std = Citation(source="standard", clause_id="s-10", clause_no="제10조", quote="x")
+    assert cited_answer([law, std, law]) == (
+        "저작권법 제14조(저작인격권의 일신전속성), 표준계약서 제10조에 관련 내용이 있습니다. "
+        "아래 원문을 직접 확인하세요."
+    )
+    bad = Citation(
+        source="contract",
+        clause_id="c-9",
+        clause_no="제9조",
+        clause_title="위반 시 조치",
+        quote="x",
+    )
+    assert cited_answer([bad]) == TEMPLATE_ANSWER

@@ -265,3 +265,19 @@ def test_evaluate_counts_hits_and_abstentions():
     assert [r.ok for r in report.rows] == [True, False, True]
     assert report.hit_rate == 0.5 and report.abstain_rate == 1.0
     assert unknown_labels(idx, [{"q": "x", "expect": ["가상법 제9조"]}]) == ["가상법 제9조"]
+
+
+def test_glossary_adds_legal_terms():
+    from openbook.law.index import expand_query
+
+    assert expand_query("웹툰을 드라마로 만들 때 허락이 필요한가요?") == (
+        "웹툰을 드라마로 만들 때 허락이 필요한가요? (영상화 영상저작물 이용허락)"
+    )
+    assert expand_query("MG는 언제 지급되나요?") == "MG는 언제 지급되나요?"
+    # 덧붙인 용어로 글자 검색이 법령 표현을 찾는다
+    idx = LawIndex(
+        [*ARTICLES, art("제5조", "저작물의 영상화", "영상저작물로 제작하는 것을 허락한다.")]
+    )
+    q = "내 작품을 드라마로 만들어도 되나요?"
+    assert 4 not in idx.keyword_ranking(q)  # 그대로는 '영상' 조문과 겹치는 글자가 없다
+    assert idx.keyword_ranking(expand_query(q))[0] == 4

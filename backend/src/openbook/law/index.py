@@ -40,6 +40,32 @@ RELEVANT_COSINE = (
 RELEVANT_BM25 = 10.0  # 임베딩 없이 찾을 때의 같은 기준 (관련 12~50, 무관 8 정도)
 BM25_K1, BM25_B = 1.2, 0.75
 
+# 작가가 쓰는 말 → 법령 용어. 질문에 왼쪽 말이 있으면 오른쪽 용어를 덧붙여 찾는다 (질문 확장).
+# '작가→저작자', '웹툰→만화'는 넣지 않는다: 계산 질문(작가지급액)에 법령이 붙고 만화진흥법 질문이 흐려졌다.
+# 평가 세트로 고른 목록이라 새 질문에도 통하는지는 따로 잰다 (docs/design/law-rag.md).
+GLOSSARY = {
+    "드라마": "영상화 영상저작물",
+    "영화": "영상화 영상저작물",
+    "애니메이션": "영상화 영상저작물",
+    "영상": "영상화 영상저작물",
+    "웹소설": "어문저작물",
+    "남은 책": "복제물 배포",
+    "재고": "복제물 배포",
+    "끝난 뒤": "소멸 후",
+    "끝나면": "소멸",
+    "넘기": "양도",
+    "넘어가": "양도",
+    "고쳐": "변경 동일성",
+    "이름": "성명표시",
+    "허락": "이용허락",
+}
+
+
+def expand_query(question: str) -> str:
+    """질문에 법령 용어를 덧붙인다. 해당하는 말이 없으면 그대로."""
+    extra = list(dict.fromkeys(v for k, v in GLOSSARY.items() if k in question))
+    return f"{question} ({' '.join(extra)})" if extra else question
+
 
 def bigrams(s: str) -> list[str]:
     """한글·영문·숫자만 남기고 2글자씩. 띄어쓰기·문장부호 차이를 무시한다."""
@@ -117,6 +143,7 @@ class LawIndex:
         self, question: str, embedder: Embedder | None = None, k: int = TOP_K
     ) -> list[LawArticle]:
         """관련 조문 최대 k개. 관련 있는 조문이 없으면 빈 목록 (법령 없이 답한다)."""
+        question = expand_query(question)
         keyword = self.keyword_scores(question)
         vector: list[tuple[float, int]] | None = None
         if embedder is not None and self.vectors:

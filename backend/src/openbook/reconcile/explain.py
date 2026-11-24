@@ -31,6 +31,9 @@ SUMMARY_UNSUPPORTED = "{reason}. 금액은 표시하지 않습니다."
 FALLBACK = "계산 결과는 아래 단계별 내역을 확인해 주세요."
 
 Q_BREAKDOWN = "작가지급액이 어떤 순서로 계산되었는지 항목별 내역(MG 공제 포함)을 받을 수 있을까요?"
+Q_BREAKDOWN_NO_MG = (  # MG를 RS에서 빼지 않는 계약 (별도)
+    "작가지급액이 어떤 순서로 계산되었는지 항목별 내역(공제·원천징수 포함)을 받을 수 있을까요?"
+)
 Q_SETTLEMENT = (
     "정산액이 어떻게 계산되었는지 적용한 배분율과 공제 항목별 금액을 알려 주실 수 있을까요?"
 )
@@ -104,7 +107,7 @@ def questions(
     if r.withholding_diff:
         out.append(Q_WITHHOLDING)
     if r.status == "unsupported" or r.diff:
-        out.append(Q_BREAKDOWN)
+        out.append(Q_BREAKDOWN_NO_MG if recoup is MgRecoup.SEPARATE else Q_BREAKDOWN)
 
     computed = {  # 순매출 기준 계약이면 공제 단계가 없다 (R2)
         s.label.removeprefix("공제: "): floor_won(s.value)
