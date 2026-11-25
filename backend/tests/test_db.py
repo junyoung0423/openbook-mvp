@@ -106,3 +106,14 @@ def test_contract_delete_cascades_children(tmp_path):
     with sessions() as session:
         assert session.scalar(select(Statement).where(Statement.contract_id == contract_id)) is None
     engine.dispose()
+
+
+def test_normalize_url_turns_vercel_postgres_into_psycopg():
+    from openbook.db.session import normalize_url
+
+    assert normalize_url("postgres://u:p@h/db?sslmode=require") == (
+        "postgresql+psycopg://u:p@h/db?sslmode=require"
+    )
+    assert normalize_url("postgresql://u:p@h/db") == "postgresql+psycopg://u:p@h/db"
+    assert normalize_url("postgresql+psycopg://u:p@h/db") == "postgresql+psycopg://u:p@h/db"
+    assert normalize_url("sqlite:///./openbook.db") == "sqlite:///./openbook.db"

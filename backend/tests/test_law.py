@@ -298,3 +298,16 @@ def test_select_articles_keeps_only_listed_articles():
     ]
     with pytest.raises(SystemExit):  # 목록의 조문이 법령에 없으면 색인을 만들지 않는다
         select_articles(arts, ["제200조"])
+
+
+def test_index_saves_vectors_as_float16_and_loads_both_formats(tmp_path):
+    arts = [art("제1조", "목적", "가"), art("제2조", "정의", "나")]
+    vecs = [[0.5, -0.25, 0.125], [1.0, 0.0, -1.0]]
+    LawIndex(arts, vecs).save(tmp_path / "i.json")
+    saved = json.loads((tmp_path / "i.json").read_text(encoding="utf-8"))
+    assert "vectors" not in saved and saved["dim"] == 3
+    assert LawIndex.load(tmp_path / "i.json").vectors == vecs  # float16로 정확히 나타나는 값
+
+    old = {"articles": [a.model_dump(mode="json") for a in arts], "vectors": vecs}
+    (tmp_path / "old.json").write_text(json.dumps(old), encoding="utf-8")
+    assert LawIndex.load(tmp_path / "old.json").vectors == vecs

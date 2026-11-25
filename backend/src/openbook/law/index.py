@@ -1,8 +1,8 @@
 """법령 조문 색인과 검색.
 
-색인 파일(JSON)은 `python -m openbook.law build`로 만든다. 공개 법령이지만 크기가 커서(임베딩 포함)
-저장소에는 넣지 않는다 (data/law/index.json은 .gitignore). 파일이 없으면 법령 검색을 하지 않고
-Q&A는 지금처럼 계약서·표준계약서만으로 답한다.
+색인 파일(JSON)은 `python -m openbook.law build`로 만든다. 임베딩은 float16으로 줄여(base64) 저장해
+파일이 약 6MB이고, Vercel 배포에 함께 실리도록 저장소에 넣는다 (법령 원문은 저작권 보호 대상이 아님,
+저작권법 제7조). 파일이 없으면 법령 검색을 하지 않고 Q&A는 계약서·표준계약서만으로 답한다.
 
 검색은 두 가지 순위를 섞는다 (Reciprocal Rank Fusion).
 - 글자 겹침: 2글자 묶음 BM25. 흔한 묶음('저작', '하는')은 가볍게, 긴 조문(제2조 정의 등)은 덜 유리하게.
@@ -17,10 +17,12 @@ Q&A는 지금처럼 계약서·표준계약서만으로 답한다.
 
 from __future__ import annotations
 
+import base64
 import json
 import math
 import os
 import re
+import struct
 from collections import Counter
 from collections.abc import Sequence
 from functools import lru_cache
@@ -100,15 +102,17 @@ class LawIndex:
     def load(cls, path: str | Path) -> LawIndex:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
         articles = [LawArticle.model_validate(a) for a in data["articles"]]
-        return cls(articles, data.get("vectors"))
+        if "vectors_f16" in data:
+            return cls(articles, unpack_vectors(data["vectors_f16"], data["dim"]))
+        return cls(articles, data.get("vectors"))  # 예전 형식 (float 목록)
 
     def save(self, path: str | Path) -> None:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        data = {
-            "articles": [a.model_dump(mode="json") for a in self.articles],
-            "vectors": self.vectors,
-        }
+        data: dict = {"articles": [a.model_dump(mode="json") for a in self.articles]}
+        if self.vectors:
+            data["dim"] = len(self.vectors[0])
+            data["vectors_f16"] = pack_vectors(self.vectors)
         p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
 
     # ------------------------------------------------------------ 검색
@@ -168,6 +172,18 @@ class LawIndex:
                 score[i] = score.get(i, 0.0) + 1.0 / (RRF_K + rank + 1)
         best = sorted(score, key=lambda i: (-score[i], i))[:k]
         return [self.articles[i] for i in best]
+
+
+def pack_vectors(vectors: Sequence[Sequence[float]]) -> str:
+    """임베딩을 float16(리틀 엔디언)으로 이어 붙여 base64로. 코사인 순위에는 영향이 거의 없다."""
+    flat = [x for v in vectors for x in v]
+    return base64.b64encode(struct.pack(f"<{len(flat)}e", *flat)).decode("ascii")
+
+
+def unpack_vectors(packed: str, dim: int) -> list[list[float]]:
+    raw = base64.b64decode(packed)
+    flat = struct.unpack(f"<{len(raw) // 2}e", raw)
+    return [list(flat[i : i + dim]) for i in range(0, len(flat), dim)]
 
 
 @lru_cache(maxsize=1)
