@@ -16,6 +16,7 @@ from openbook.reconcile.explain import (
     Q_MG_BALANCE,
     Q_SETTLEMENT,
     Q_WITHHOLDING,
+    same_deduction,
 )
 from openbook.schemas import Term, TermKey, TermStatus
 
@@ -150,6 +151,29 @@ def test_reconcile_sentences_and_questions():
     qs = odd.items[0].questions
     assert any("300,000원" in q for q in qs)  # 금액이 다르면 묻는다
     assert Q_GENERIC_DEDUCTION in qs and not any("부당" in q for q in qs)  # 금지 표현 필터
+
+
+def test_deduction_within_one_won_of_exact_value_is_same():
+    # 매출 1,000,001 × 30% = 300,000.3 → 300,000(버림)·300,001(올림) 모두 같음, 300,002는 다름
+    assert same_deduction(Decimal(300000), Decimal("300000.3"))
+    assert same_deduction(Decimal(300001), Decimal("300000.3"))
+    assert not same_deduction(Decimal(300002), Decimal("300000.3"))
+    assert not same_deduction(Decimal(299999), Decimal("300000.3"))
+
+    def asked(amount: int) -> bool:
+        report = reconcile(
+            "k1",
+            terms(),
+            [
+                StatementWithLines(
+                    st("m1", 1, "1000001", "0"), (StatementLine("앱마켓 수수료", Decimal(amount)),)
+                )
+            ],
+        )
+        return any("'앱마켓 수수료'" in q for q in report.items[0].questions)
+
+    assert not asked(300000) and not asked(300001)
+    assert asked(300002)
 
 
 def test_unsupported_contract_hides_amounts_and_asks_for_missing_month():

@@ -19,7 +19,8 @@ function sourceLabel(c: QAResult["citations"][number]) {
     const when = c.effective_date ? ` (${c.effective_date} 시행)` : "";
     return `법령 · ${c.law_name ?? ""} ${name || c.clause_id}${when}`;
   }
-  const where = c.source === "standard" ? "표준계약서" : "내 계약서";
+  // 표준계약서는 법령이 아니라 문체부 고시라서 법령과 다른 이름으로 보인다
+  const where = c.source === "standard" ? "표준계약서(문체부 고시, 법령 아님)" : "내 계약서";
   return `${where} · ${name || c.clause_id}`;
 }
 

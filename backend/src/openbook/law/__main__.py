@@ -20,18 +20,30 @@ from openbook.law.embed import UpstageEmbedder
 from openbook.law.evaluate import evaluate, unknown_labels
 from openbook.law.index import DEFAULT_INDEX, LawIndex
 from openbook.law.lawgo import LawApiClient
+from openbook.law.models import LawArticle
 
 DEFAULT_TARGETS = DEFAULT_INDEX.parent / "targets.yaml"
 DEFAULT_EVAL = DEFAULT_INDEX.parent / "eval.yaml"
 
 
+def select_articles(articles: list[LawArticle], keep: list[str] | None) -> list[LawArticle]:
+    """targets.yaml에 articles가 있으면 그 조문만 (예: 소득세법은 원천징수 조문만). 없으면 전부."""
+    if not keep:
+        return articles
+    got = [a for a in articles if a.article_no in keep]
+    missing = set(keep) - {a.article_no for a in got}
+    if missing:
+        raise SystemExit(f"targets.yaml의 조문을 찾지 못함: {sorted(missing)}")
+    return got
+
+
 def build(targets: Path, out: Path, embed: bool) -> int:
-    names = [t["name"] for t in yaml.safe_load(targets.read_text(encoding="utf-8"))["laws"]]
+    laws = yaml.safe_load(targets.read_text(encoding="utf-8"))["laws"]
     client = LawApiClient.from_env()
     articles = []
-    for name in names:
-        got = client.articles(name)
-        print(f"{name}: 조문 {len(got)}개")
+    for law in laws:
+        got = select_articles(client.articles(law["name"]), law.get("articles"))
+        print(f"{law['name']}: 조문 {len(got)}개")
         articles.extend(got)
     vectors = None
     if embed:

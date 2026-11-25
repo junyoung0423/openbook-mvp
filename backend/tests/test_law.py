@@ -281,3 +281,20 @@ def test_glossary_adds_legal_terms():
     q = "내 작품을 드라마로 만들어도 되나요?"
     assert 4 not in idx.keyword_ranking(q)  # 그대로는 '영상' 조문과 겹치는 글자가 없다
     assert idx.keyword_ranking(expand_query(q))[0] == 4
+
+
+def test_select_articles_keeps_only_listed_articles():
+    from openbook.law.__main__ import select_articles
+
+    arts = [
+        art("제19조", "사업소득", "가"),
+        art("제86조", "소액부징수", "나"),
+        art("제129조", "세율", "다"),
+    ]
+    assert select_articles(arts, None) == arts
+    assert [a.article_no for a in select_articles(arts, ["제129조", "제19조"])] == [
+        "제19조",
+        "제129조",
+    ]
+    with pytest.raises(SystemExit):  # 목록의 조문이 법령에 없으면 색인을 만들지 않는다
+        select_articles(arts, ["제200조"])
