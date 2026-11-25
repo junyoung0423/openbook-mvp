@@ -8,13 +8,14 @@ from sqlalchemy import engine_from_config, pool
 import openbook.db.models  # noqa: F401
 from alembic import context
 from openbook.db import Base
+from openbook.db.session import database_url
 
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 if os.getenv("DATABASE_URL"):
-    config.set_main_option("sqlalchemy.url", os.environ["DATABASE_URL"])
+    config.set_main_option("sqlalchemy.url", database_url().replace("%", "%%"))  # ini 보간 방지
 
 target_metadata = Base.metadata
 

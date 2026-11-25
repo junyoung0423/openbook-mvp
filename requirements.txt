@@ -1,0 +1,12 @@
+# Vercel 백엔드 함수 의존성. backend/pyproject.toml의 dependencies와 같게 둔다
+# (backend/tests/test_vercel.py가 확인한다).
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+python-dotenv>=1.0
+pyyaml>=6.0
+httpx>=0.27
+sqlalchemy>=2.0
+alembic>=1.13
+psycopg[binary]>=3.2
+python-multipart>=0.0.9

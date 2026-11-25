@@ -15,6 +15,8 @@ import {
 } from "../lib/api";
 
 const FILE_TYPES = /\.(pdf|docx?|hwp|hwpx|jpe?g|png|webp|tiff?|bmp|heic)$/i;
+// 백엔드 MAX_FILE_BYTES와 같게. Vercel 함수가 요청 본문을 4.5MB까지만 받는다
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function Home() {
@@ -28,7 +30,8 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [contracts, setContracts] = useState<ContractOut[]>([]);
 
-  const validFile = Boolean(file?.size) && FILE_TYPES.test(file?.name ?? "");
+  const tooLarge = (file?.size ?? 0) > MAX_FILE_BYTES;
+  const validFile = Boolean(file?.size) && !tooLarge && FILE_TYPES.test(file?.name ?? "");
   const canSubmit =
     consent && !busy && (mode === "file" ? validFile : Boolean(text.trim() && title.trim()));
 
@@ -154,7 +157,7 @@ export default function Home() {
 
           {mode === "file" ? (
             <label className="block">
-              계약서 파일 <span className="text-sm text-stone-600">PDF, DOCX, HWP, 사진·스캔 이미지 (20MB까지)</span>
+              계약서 파일 <span className="text-sm text-stone-600">PDF, DOCX, HWP, 사진·스캔 이미지 (4MB까지)</span>
               <input
                 type="file"
                 className={field}
@@ -163,7 +166,9 @@ export default function Home() {
               />
               {file && !validFile && (
                 <span role="alert" className="mt-2 block text-sm">
-                  지원하는 형식의 비어 있지 않은 파일을 선택해 주세요.
+                  {tooLarge
+                    ? "파일은 4MB까지 올릴 수 있습니다. 큰 파일은 '본문 붙여넣기'로 올려 주세요."
+                    : "지원하는 형식의 비어 있지 않은 파일을 선택해 주세요."}
                 </span>
               )}
             </label>

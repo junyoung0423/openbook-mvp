@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Annotated
@@ -18,6 +19,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Response, U
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
+from starlette.concurrency import run_in_threadpool
 
 from openbook.api.deps import (
     DB,
@@ -40,7 +42,8 @@ from openbook.terms import LLMClient
 log = logging.getLogger(__name__)
 router = APIRouter(tags=["contracts"])
 
-MAX_FILE_BYTES = 20 * 1024 * 1024
+# Vercel 함수는 요청 본문을 4.5MB까지만 받는다. 로컬도 같게 4MB로 둔다 (큰 파일은 본문 붙여넣기).
+MAX_FILE_BYTES = 4 * 1024 * 1024
 MAX_TEXT_CHARS = 100_000
 STATUS_PROCESSING = "처리중"
 STATUS_FAILED = "처리 실패"
@@ -77,6 +80,19 @@ def _fail(sessions: sessionmaker[Session], contract_id: str) -> None:
         c = s.get(Contract, contract_id)
         if c is not None:
             c.status = STATUS_FAILED
+
+
+def inline_processing() -> bool:
+    """응답 뒤 작업(BackgroundTasks)이 끝까지 돈다는 보장이 없는 곳(Vercel)에서는 요청 안에서 처리를 끝낸다.
+
+    Vercel은 실행 중에 VERCEL=1을 넣어 준다. 로컬에서 같은 동작을 보려면 OPENBOOK_INLINE_PROCESSING=1.
+    """
+    return os.getenv("VERCEL") == "1" or os.getenv("OPENBOOK_INLINE_PROCESSING") == "1"
+
+
+def _after_inline(db: Session, contract: Contract) -> ContractOut:
+    db.refresh(contract)  # 처리는 다른 세션에서 저장했다
+    return ContractOut.of(contract)
 
 
 def run_processing(
@@ -125,11 +141,17 @@ async def upload_contract(
     if not content:
         raise api_error(422, "EMPTY_FILE", "빈 파일입니다.")
     if len(content) > MAX_FILE_BYTES:
-        raise api_error(413, "FILE_TOO_LARGE", "파일은 20MB까지 올릴 수 있습니다.")
+        raise api_error(
+            413,
+            "FILE_TOO_LARGE",
+            "파일은 4MB까지 올릴 수 있습니다. 큰 파일은 본문을 붙여넣어 주세요.",
+        )
     contract = _create(db, user_id, title or Path(name).stem or "계약서")
-    background.add_task(
-        run_processing, sessions, contract.id, llm, file=(name, content), parser=parser
-    )
+    job = (run_processing, sessions, contract.id, llm)
+    if inline_processing():
+        await run_in_threadpool(*job, file=(name, content), parser=parser)
+        return _after_inline(db, contract)
+    background.add_task(*job, file=(name, content), parser=parser)
     return ContractOut.of(contract)
 
 
@@ -146,6 +168,9 @@ def upload_contract_text(
         raise api_error(422, "EMPTY_TEXT", "계약서 본문과 제목을 입력해 주세요.")
     text = parse_pasted_text(body.text).text
     contract = _create(db, user_id, body.title)
+    if inline_processing():
+        run_processing(sessions, contract.id, llm, text=text)
+        return _after_inline(db, contract)
     background.add_task(run_processing, sessions, contract.id, llm, text=text)
     return ContractOut.of(contract)
 

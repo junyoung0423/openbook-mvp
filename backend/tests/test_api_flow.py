@@ -192,3 +192,25 @@ def test_statement_validation(env):
     assert client.post(f"/contracts/{cid}/statements", json=bad).status_code == 422
     missing = client.delete(f"/contracts/{cid}/statements/nope")
     assert missing.status_code == 404 and missing.json()["detail"]["code"] == "STATEMENT_NOT_FOUND"
+
+
+def test_inline_processing_finishes_before_response(env, monkeypatch):
+    # Vercel에서는 응답 뒤 작업이 보장되지 않아 요청 안에서 처리를 끝낸다
+    client, _, _ = env
+    monkeypatch.setenv("VERCEL", "1")
+    res = client.post("/contracts/text", json={"title": "가상 계약", "text": TEXT})
+    assert res.status_code == 202 and res.json()["status"] == "조건 확인 대기"
+
+    up = client.post(
+        "/contracts", files={"file": ("가상.pdf", TEXT.encode("utf-8"), "application/pdf")}
+    )
+    assert up.json()["status"] == "조건 확인 대기"
+    failed = client.post("/contracts", files={"file": ("b.pdf", b"x", "application/pdf")})
+    assert failed.json()["status"] == "처리 실패"
+
+
+def test_file_over_4mb_is_rejected(env):
+    client, _, _ = env
+    big = b"x" * (4 * 1024 * 1024 + 1)
+    res = client.post("/contracts", files={"file": ("a.pdf", big, "application/pdf")})
+    assert res.status_code == 413 and res.json()["detail"]["code"] == "FILE_TOO_LARGE"
