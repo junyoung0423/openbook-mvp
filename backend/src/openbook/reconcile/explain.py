@@ -92,6 +92,11 @@ def summary(r: PeriodReconciliation) -> str:
     return text if is_clean(text) else FALLBACK
 
 
+def same_deduction(reported: Decimal, exact_value: Decimal) -> bool:
+    """공제 항목은 정확한 값과 1원 미만 차이면 같은 것으로 본다 (버림·반올림·올림 모두 허용)."""
+    return abs(reported - exact_value) < 1
+
+
 def questions(
     r: PeriodReconciliation,
     statement_lines: Sequence[StatementLine],
@@ -109,19 +114,19 @@ def questions(
     if r.status == "unsupported" or r.diff:
         out.append(Q_BREAKDOWN_NO_MG if recoup is MgRecoup.SEPARATE else Q_BREAKDOWN)
 
-    computed = {  # 순매출 기준 계약이면 공제 단계가 없다 (R2)
-        s.label.removeprefix("공제: "): floor_won(s.value)
-        for s in r.breakdown
-        if s.key == "deduction"
+    computed = {  # 원 미만까지 정확한 값. 순매출 기준 계약이면 공제 단계가 없다 (R2)
+        s.label.removeprefix("공제: "): s.value for s in r.breakdown if s.key == "deduction"
     }
     for line in statement_lines:
         match = next((d for d in contract_deductions if _same_item(d.name, line.name)), None)
         if match is None:
             out.append(Q_UNKNOWN_DEDUCTION.format(name=line.name))
-        elif match.name in computed and computed[match.name] != line.amount:
+        elif match.name in computed and not same_deduction(line.amount, computed[match.name]):
             out.append(
                 Q_DEDUCTION_AMOUNT.format(
-                    name=line.name, reported=won(line.amount), computed=won(computed[match.name])
+                    name=line.name,
+                    reported=won(line.amount),
+                    computed=won(floor_won(computed[match.name])),
                 )
             )
 

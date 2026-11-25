@@ -25,6 +25,7 @@ from openbook.db import (
     create_db_engine,
     make_session_factory,
 )
+from openbook.engine.rules import RULES_VERSION
 from openbook.parsing import DocumentParseError, ParsedDocument
 
 TEXT = """웹툰 연재 계약서 (가상)
@@ -145,7 +146,7 @@ def test_full_flow_from_text(env):
     assert (m2["computed_payout"], m2["diff"]) == ("48350", "-8350")  # 정산서 − 계산, 문자열
     assert m2["summary"].startswith("계약서 기준으로 계산한 작가지급액(원천징수 뒤)은 48,350원")
     assert any("운영비" in q for q in m2["questions"])
-    assert report["rules_version"].startswith("draft") and report["unsupported_reason"] is None
+    assert report["rules_version"] == RULES_VERSION and report["unsupported_reason"] is None
 
     client.get(f"/contracts/{cid}/reconciliations")  # 다시 조회해도 결과가 쌓이지 않는다
     with sessions() as s:
