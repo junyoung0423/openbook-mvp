@@ -81,10 +81,10 @@ function TermsInner() {
 
         let cancelled = false;
 
-        api<{ clauses: Clause[] }>(`/contracts/${id}/clauses`).then(
+        api<Clause[]>(`/contracts/${id}/clauses`).then(
             (res) => {
                 if (cancelled) return;
-                setClauses(res.clauses);
+                setClauses(res);
                 setClauseError("");
                 setClausesContractId(id);
             },
@@ -99,7 +99,7 @@ function TermsInner() {
         return () => {
             cancelled = true;
         };
-    }, [id]);
+    }, [id, data]);
 
     function clauseLabel(clauseId: string | null | undefined) {
         if (!clauseId) return "연결된 조항 없음";

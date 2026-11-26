@@ -38,10 +38,10 @@ function ResultsInner() {
 
         let cancelled = false;
 
-        api<{ clauses: Clause[] }>(`/contracts/${id}/clauses`).then(
+        api<Clause[]>(`/contracts/${id}/clauses`).then(
             (res) => {
                 if (cancelled) return;
-                setClauses(res.clauses);
+                setClauses(res);
                 setClauseError("");
                 setClausesContractId(id);
             },
