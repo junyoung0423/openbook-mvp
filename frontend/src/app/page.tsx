@@ -178,15 +178,51 @@ export default function Home() {
           </label>
 
           {mode === "file" ? (
-            <label className="block">
+            <label
+              className="block rounded-lg border-2 border-dashed border-stone-300 p-4"
+              onDragOver={(event) => {
+                event.preventDefault();
+                if (!busy) event.dataTransfer.dropEffect = "copy";
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (busy) return;
+
+                const files = event.dataTransfer.files;
+                if (files.length !== 1) {
+                  setMessage("계약서 파일을 한 개씩 놓아 주세요.");
+                  return;
+                }
+
+                setFile(files[0]);
+                setFileInputKey((key) => key + 1);
+                setPendingContractId(null);
+                setUploadFailure(null);
+                setMessage("");
+              }}
+            >
               계약서 파일 <span className="text-sm text-stone-600">PDF, DOCX, HWP, 사진·스캔 이미지 (4MB까지)</span>
               <input
                 type="file"
                 key={fileInputKey}
                 className={field}
                 accept=".pdf,.doc,.docx,.hwp,.hwpx,.jpg,.jpeg,.png,.webp,.tif,.tiff,.bmp,.heic"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(event) => {
+                  setFile(event.target.files?.[0] ?? null);
+                  setPendingContractId(null);
+                  setUploadFailure(null);
+                  setMessage("");
+                }}
               />
+              <span className="mt-2 block text-sm text-stone-600">
+                이 영역에 파일 한 개를 끌어다 놓거나 파일 선택 버튼을 눌러 주세요.
+              </span>
+
+              {file && (
+                <span className="mt-2 block break-all text-sm">
+                  선택한 파일: {file.name}
+                </span>
+              )}
               {file && !validFile && (
                 <span role="alert" className="mt-2 block text-sm">
                   {tooLarge
