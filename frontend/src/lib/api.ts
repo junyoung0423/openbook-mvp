@@ -107,6 +107,13 @@ export type StatementBody = {
 };
 export type StatementOut = StatementBody & { id: string };
 export type StatementDraft = Partial<Omit<StatementBody, "deductions">> & {
+  rows?: {
+  line: number;
+  label: string;
+  value: string;
+  field: string | null;
+  note?: string | null;
+}[];
   deductions: { name: string; amount: string }[];
   missing: string[];
   warnings: string[];
