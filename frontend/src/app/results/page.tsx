@@ -187,7 +187,8 @@ function PeriodCard({
                     <span className="font-semibold">{s.label}</span>
                     <span className="num font-bold md:text-right">{won(s.value)}</span>
                     <span className="min-w-0 leading-[1.55] text-muted">
-                      {s.formula && <span className="num block break-words font-mono text-[12.5px]">{s.formula}</span>}
+                      {/* 서버가 주는 식 칸에는 한글 설명이 섞여 있어, 고정폭 글꼴 대신 일반 글꼴 + 같은 폭 숫자(num)로 보인다 */}
+                      {s.formula && <span className="num block break-words text-[13px]">{s.formula}</span>}
                       {s.source_clause_id &&
                         (clause ? (
                           <button
