@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoneyInput, percentToRate, rateToPercent, stripMoney, won } from "./format";
+import { formatMoneyInput, isZeroAmount, percentToRate, periodChip, periodTitle, rateToPercent, stripMoney, won } from "./format";
 
 describe("won", () => {
   it("콤마와 원을 붙이고 숫자는 그대로 둔다", () => {
@@ -102,5 +102,35 @@ describe("rateToPercent", () => {
     for (const p of ["0", "0.5", "6.5", "33.33", "60", "99.99", "100"]) {
       expect(rateToPercent(percentToRate(p) as string)).toBe(p);
     }
+  });
+});
+
+describe("isZeroAmount", () => {
+  it("0 모양의 문자열만 0으로 본다", () => {
+    for (const v of ["0", "-0", "0.00", "-0.0"]) expect(isZeroAmount(v)).toBe(true);
+    for (const v of ["-95000", "10", "0.5", "", null, undefined]) expect(isZeroAmount(v)).toBe(false);
+  });
+});
+
+describe("periodTitle / periodChip", () => {
+  it("한 달 전체면 읽기 쉽게", () => {
+    expect(periodTitle("2027-05-01", "2027-05-31")).toBe("2027년 5월");
+    expect(periodTitle("2027-12-01", "2027-12-31")).toBe("2027년 12월");
+    expect(periodChip("2027-05-01", "2027-05-31")).toBe("5월");
+    expect(periodChip("2027-05-01", "2027-05-31", true)).toBe("2027년 5월");
+  });
+  it("2월 말일(평년·윤년)도 한 달 전체로 본다", () => {
+    expect(periodTitle("2027-02-01", "2027-02-28")).toBe("2027년 2월");
+    expect(periodTitle("2028-02-01", "2028-02-29")).toBe("2028년 2월");
+    expect(periodTitle("2027-02-01", "2027-02-27")).toBe("2027-02-01 ~ 2027-02-27");
+  });
+  it("한 달 전체가 아니면 날짜를 그대로", () => {
+    expect(periodTitle("2027-05-01", "2027-05-20")).toBe("2027-05-01 ~ 2027-05-20");
+    expect(periodTitle("2027-05-02", "2027-05-31")).toBe("2027-05-02 ~ 2027-05-31");
+    expect(periodTitle("2027-04-01", "2027-05-31")).toBe("2027-04-01 ~ 2027-05-31");
+    expect(periodChip("2027-05-01", "2027-05-20")).toBe("05-01 ~ 05-20");
+  });
+  it("날짜 모양이 아니면 그대로", () => {
+    expect(periodTitle("abc", "def")).toBe("abc ~ def");
   });
 });

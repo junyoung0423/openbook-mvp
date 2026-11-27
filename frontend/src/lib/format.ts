@@ -58,3 +58,31 @@ export function rateToPercent(rate: string): string | null {
   const frac = trimZeros(padded.slice(2));
   return frac ? `${intPart}.${frac}` : intPart;
 }
+
+// 차이가 0인지는 문자열로만 본다(금액 계산 아님). "0", "-0", "0.00" 모두 0.
+export const isZeroAmount = (value: string | null | undefined): boolean => value != null && /^-?0(\.0+)?$/.test(value);
+
+const DATE = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+
+// 한 달 전체(1일 ~ 말일)면 그 달의 연·월을 돌려준다. 아니면 null.
+function wholeMonth(start: string, end: string): { year: string; month: string } | null {
+  if (!DATE.test(start) || !DATE.test(end)) return null;
+  if (!start.endsWith("-01") || start.slice(0, 7) !== end.slice(0, 7)) return null;
+  // 말일인지: 다음 날이 1일이면 말일이다 (날짜 비교일 뿐 금액과 무관)
+  const next = new Date(new Date(`${end}T00:00:00Z`).getTime() + 86_400_000);
+  if (next.getUTCDate() !== 1) return null;
+  return { year: start.slice(0, 4), month: start.slice(5, 7).replace(/^0/, "") };
+}
+
+// 기간 카드 제목: 한 달 전체면 "2027년 5월", 아니면 "2027-05-01 ~ 2027-05-20" 그대로
+export function periodTitle(start: string, end: string): string {
+  const m = wholeMonth(start, end);
+  return m ? `${m.year}년 ${m.month}월` : `${start} ~ ${end}`;
+}
+
+// 기간 바로가기 칩 이름: "5월" (여러 해에 걸치면 "2027년 5월"), 한 달 전체가 아니면 "05-01~05-20"
+export function periodChip(start: string, end: string, withYear = false): string {
+  const m = wholeMonth(start, end);
+  if (m) return withYear ? `${m.year}년 ${m.month}월` : `${m.month}월`;
+  return withYear ? `${start} ~ ${end}` : `${start.slice(5)} ~ ${end.slice(5)}`;
+}

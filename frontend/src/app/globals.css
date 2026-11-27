@@ -44,3 +44,10 @@ body {
   outline: 2px solid var(--color-brand);
   outline-offset: 2px;
 }
+
+/* 기간 바로가기 칩으로 이동할 때 부드럽게 (움직임을 줄인 설정이면 그대로 이동) */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
