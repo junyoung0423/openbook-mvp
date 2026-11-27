@@ -25,7 +25,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
 <main style="flex: 999 1 560px; min-width: 0; padding: 20px 24px 0; display: flex; flex-direction: column; gap: 18px">
 <div style="display: flex; flex-direction: column; gap: 6px">
-<p style="margin: 0; font-size: 13px; color: #6B7083">하늘숲미디어 · 웹툰 연재 계약 (데모용 가상 계약서)</p>
 <h1 style="margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -0.03em">데모1 새벽 정원</h1>
 </div>
 <nav aria-label="계약서 메뉴" style="align-self: flex-start; display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; background: #E7EAF3; border-radius: 9px; font-size: 14px; font-weight: 600">
@@ -77,7 +76,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 <label style="font-size: 12px; color: #6B7083">이름<input value="앱마켓 수수료" style="display: block; width: 100%; box-sizing: border-box; margin-top: 4px; height: 42px; border: 1px solid #DDE1EC; border-radius: 6px; padding: 0 12px; font-size: 14px"></label>
 <span role="group" aria-label="공제 방식" style="align-self: end; display: flex; padding: 3px; background: #EEF0F6; border-radius: 9px; font-size: 13px"><span style="padding: 8px 12px; border-radius: 6px; background: #FFFFFF; font-weight: 700">비율</span><span style="padding: 8px 12px; color: #4A4F63">금액</span></span>
 <label style="font-size: 12px; color: #6B7083">값<span style="display: flex; align-items: center; margin-top: 4px; height: 42px; border: 1px solid #DDE1EC; border-radius: 6px; padding: 0 12px"><input class="num" value="30" style="flex: 1; min-width: 0; border: 0; outline: none; text-align: right; font-size: 14px"><span style="margin-left: 4px; color: #6B7083">%</span></span></label>
-<button type="button" aria-label="앱마켓 수수료 삭제" style="align-self: end; width: 42px; height: 42px; border: 0; border-radius: 8px; background: transparent; color: #6B7083; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+<button type="button" aria-label="앱마켓 수수료 삭제" style="align-self: end; width: 42px; height: 42px; border: 0; border-radius: 8px; background: transparent; color: #6B7083; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
 </div>
 <button type="button" style="align-self: flex-start; padding: 8px 12px; border: 1px dashed #C9CEDC; border-radius: 8px; background: transparent; color: #4655E8; font-size: 13px; font-weight: 650; cursor: pointer">+ 공제 항목 추가</button>
 </div>
@@ -124,7 +123,7 @@ const REQ = [
   { key: 'mg', name: 'MG 금액', kind: 'money', status: 'extracted', src: '근거 · 제4조 (선급금)', quote: '① 갑은 을에게 선급금(MG) 3,000,000원을 계약 체결일로부터 14일 이내에 지급한다.' },
   { key: 'recoup', name: 'MG 회수 방식', kind: 'select', status: 'extracted', value: 'from_rs', options: [['', '선택해 주세요'], ['from_rs', 'RS에서 차감'], ['separate', '별도 처리'], ['unknown', '확인 필요']], src: '근거 · 제4조 (선급금)', quote: '② 선급금은 제5조에 따라 을에게 배분될 수익금에서 우선 차감하여 회수한다.' },
   { key: 'rs', name: 'RS 배분율', kind: 'rate', status: 'extracted', src: '근거 · 제5조 (수익배분)', quote: '을의 수익배분율은 순매출의 65%로 하고, 갑의 수익배분율은 순매출의 35%로 한다.' },
-  { key: 'base', name: '정산 기준 매출', kind: 'select', status: 'not_found', value: '', options: [['', '선택해 주세요'], ['gross', '총매출'], ['net', '순매출'], ['other', '기타']], src: '참고 · 제2조 (정의)', quote: '① "총매출"이란 이용자가 작품을 이용하기 위하여 지불한 금액의 합계를 말한다.\n② "순매출"이란 총매출에서 제6조의 공제 항목을 뺀 금액을 말한다.' },
+  { key: 'base', name: '정산 기준 매출', kind: 'select', status: 'not_found', value: '', options: [['', '선택해 주세요'], ['gross', '총매출'], ['net', '순매출'], ['other', '기타']], src: '근거 조항', quote: '연결된 근거 조항이 없습니다. 계약서 원문에서 매출 기준을 직접 확인해 주세요.' },
   { key: 'ded', name: '공제 항목', kind: 'ded', status: 'extracted', src: '근거 · 제6조 (공제)', quote: '갑은 정산할 때 총매출에서 앱마켓 수수료(총매출의 30%)를 공제한다. 이 밖의 비용은 을의 서면 동의 없이 공제하지 않는다.' }
 ];
 const OPT = [
