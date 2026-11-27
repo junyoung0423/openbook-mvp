@@ -58,3 +58,9 @@ export function rateToPercent(rate: string): string | null {
   const frac = trimZeros(padded.slice(2));
   return frac ? `${intPart}.${frac}` : intPart;
 }
+
+// 서버가 준 날짜시간 문자열("2026-11-27T03:30:53")을 "11월 27일"로 줄인다. 문자열 조작만 쓰고, 모양이 다르면 그대로 돌려준다.
+export function shortDate(iso: string): string {
+  const m = /^[0-9]{4}-([0-9]{2})-([0-9]{2})/.exec(iso);
+  return m ? `${m[1].replace(/^0/, "")}월 ${m[2].replace(/^0/, "")}일` : iso;
+}

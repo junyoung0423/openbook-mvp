@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api, errorText, setToken, type ContractOut, type UserOut } from "../lib/api";
+import { shortDate } from "../lib/format";
 import { buttonClass } from "../lib/ui";
 import { useContracts } from "./ShellContext";
 
@@ -52,7 +53,7 @@ export function Sidebar(props: Props) {
 
       <aside
         id="side-nav"
-        className={`${open ? "flex" : "hidden"} fixed inset-y-0 left-0 z-40 w-[300px] max-w-[85vw] flex-col overflow-y-auto rounded-r-card bg-card shadow-window md:static md:z-auto md:flex md:w-[240px] md:max-w-none md:shrink-0 md:overflow-visible md:rounded-card md:shadow-card lg:w-[280px]`}
+        className={`${open ? "flex" : "hidden"} fixed inset-y-0 left-0 z-40 w-[300px] max-w-[85vw] flex-col overflow-y-auto rounded-r-card bg-card shadow-window md:static md:z-auto md:flex md:w-[256px] md:max-w-none md:shrink-0 md:overflow-visible md:rounded-card md:shadow-card lg:w-[280px]`}
       >
         <SidebarBody {...props} onNavigate={() => setOpen(false)} />
       </aside>
@@ -101,7 +102,7 @@ function SidebarBody({ currentId = "", me = null, loading = false, onNavigate }:
   }
 
   return (
-    <div className="flex min-h-[860px] flex-1 flex-col gap-[18px] px-4 pb-4 pt-6 md:min-h-0">
+    <div className="flex min-h-[860px] flex-1 flex-col gap-[18px] px-4 pb-4 pt-6 md:min-h-0 md:px-3 lg:px-4">
       <Link href="/" onClick={onNavigate} className="flex items-baseline gap-2 px-2">
         <span className="text-[17px] font-extrabold tracking-[0.2em]">OPENBOOK</span>
         <span className="text-fine font-semibold text-muted">오픈북</span>
@@ -136,15 +137,15 @@ function SidebarBody({ currentId = "", me = null, loading = false, onNavigate }:
                     href={contractHref(c)}
                     onClick={onNavigate}
                     aria-current={current ? "page" : undefined}
-                    className={`flex min-w-0 flex-1 items-start gap-2.5 rounded-field py-2.5 pl-3 pr-10 ${
+                    className={`flex min-w-0 flex-1 items-start gap-2.5 rounded-field py-2.5 pl-3 pr-10 md:pl-2.5 md:pr-9 lg:pl-3 lg:pr-10 ${
                       current ? "bg-accent-soft text-accent" : "text-ink hover:bg-surface"
                     }`}
                   >
                     <FileText size={18} aria-hidden className="mt-0.5 shrink-0" />
                     <span className="flex min-w-0 flex-col gap-0.5">
                       <span className="truncate text-sm font-[650]">{c.title}</span>
-                      <span className={`num text-fine ${current ? "text-ink-2" : "text-muted"}`}>
-                        {c.status} · {c.uploaded_at.slice(0, 10)}
+                      <span className={`num whitespace-nowrap text-fine ${current ? "text-ink-2" : "text-muted"}`}>
+                        {c.status} · {shortDate(c.uploaded_at)} 올림
                       </span>
                     </span>
                   </Link>

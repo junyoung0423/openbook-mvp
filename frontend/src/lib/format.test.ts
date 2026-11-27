@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatMoneyInput, percentToRate, rateToPercent, stripMoney, won } from "./format";
+import { formatMoneyInput, percentToRate, rateToPercent, shortDate, stripMoney, won } from "./format";
 
 describe("won", () => {
   it("콤마와 원을 붙이고 숫자는 그대로 둔다", () => {
@@ -102,5 +102,18 @@ describe("rateToPercent", () => {
     for (const p of ["0", "0.5", "6.5", "33.33", "60", "99.99", "100"]) {
       expect(rateToPercent(percentToRate(p) as string)).toBe(p);
     }
+  });
+});
+
+describe("shortDate", () => {
+  it("날짜시간 문자열을 '11월 27일'로 줄인다", () => {
+    expect(shortDate("2026-11-27T03:30:53.771973")).toBe("11월 27일");
+    expect(shortDate("2027-03-02")).toBe("3월 2일");
+    expect(shortDate("2027-12-10T00:00:00")).toBe("12월 10일");
+    expect(shortDate("2027-01-01T09:00:00Z")).toBe("1월 1일");
+  });
+  it("모양이 다르면 그대로 돌려준다", () => {
+    expect(shortDate("")).toBe("");
+    expect(shortDate("어제")).toBe("어제");
   });
 });
