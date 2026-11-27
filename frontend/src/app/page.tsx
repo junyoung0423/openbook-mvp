@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   api,
+  ApiError,
   errorText,
   field,
   primary,
@@ -29,6 +30,10 @@ export default function Home() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [contracts, setContracts] = useState<ContractOut[]>([]);
+  const [uploadFailure, setUploadFailure] =
+    useState<"temporary" | "unreadable" | null>(null);
+  const [pendingContractId, setPendingContractId] = useState<string | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
 
   const tooLarge = (file?.size ?? 0) > MAX_FILE_BYTES;
   const validFile = Boolean(file?.size) && !tooLarge && FILE_TYPES.test(file?.name ?? "");
@@ -74,10 +79,13 @@ export default function Home() {
     event.preventDefault();
     if (!canSubmit) return;
     setBusy(true);
+    setUploadFailure(null);
     setMessage("계약서를 읽는 중입니다. 1~2분 걸릴 수 있습니다.");
     try {
       let created: ContractOut;
-      if (mode === "file" && file) {
+      if (pendingContractId) {
+        created = { id: pendingContractId } as ContractOut;
+      } else if (mode === "file" && file) {
         const form = new FormData();
         form.append("file", file);
         if (title.trim()) form.append("title", title.trim());
@@ -88,17 +96,31 @@ export default function Home() {
           body: JSON.stringify({ title: title.trim(), text }),
         });
       }
+      setPendingContractId(created.id);
       const done = await waitUntilProcessed(created.id);
-      if (done.status === "처리 실패") {
+      if (done.status.replace(/\s/g, "") === "처리실패") {
+        setPendingContractId(null);
+        setUploadFailure("unreadable");
         setMessage(
-          "계약서를 읽지 못했습니다. 다른 파일로 올리거나, 본문을 붙여넣어 다시 시도해 주세요.",
+          "계약서를 읽지 못했습니다. 다른 파일을 선택하거나 본문을 붙여넣어 주세요.",
         );
       } else {
+        setPendingContractId(null);
         router.push(`/terms?id=${done.id}`);
         return;
       }
     } catch (e) {
-      setMessage(e instanceof Error && e.message === "timeout" ? "처리가 늦어지고 있습니다. 목록에서 상태를 확인해 주세요." : errorText(e));
+      const temporary =
+        (e instanceof Error && e.message === "timeout") ||
+        (e instanceof ApiError &&
+          (e.code === "NETWORK" || e.status === 429 || e.status >= 500));
+
+      setUploadFailure(temporary ? "temporary" : null);
+      setMessage(
+        e instanceof Error && e.message === "timeout"
+          ? "처리가 늦어지고 있습니다. 다시 시도하면 처리 상태를 확인합니다."
+          : errorText(e),
+      );
     } finally {
       setBusy(false);
       void refresh();
@@ -156,14 +178,51 @@ export default function Home() {
           </label>
 
           {mode === "file" ? (
-            <label className="block">
+            <label
+              className="block rounded-lg border-2 border-dashed border-stone-300 p-4"
+              onDragOver={(event) => {
+                event.preventDefault();
+                if (!busy) event.dataTransfer.dropEffect = "copy";
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                if (busy) return;
+
+                const files = event.dataTransfer.files;
+                if (files.length !== 1) {
+                  setMessage("계약서 파일을 한 개씩 놓아 주세요.");
+                  return;
+                }
+
+                setFile(files[0]);
+                setFileInputKey((key) => key + 1);
+                setPendingContractId(null);
+                setUploadFailure(null);
+                setMessage("");
+              }}
+            >
               계약서 파일 <span className="text-sm text-stone-600">PDF, DOCX, HWP, 사진·스캔 이미지 (4MB까지)</span>
               <input
                 type="file"
+                key={fileInputKey}
                 className={field}
                 accept=".pdf,.doc,.docx,.hwp,.hwpx,.jpg,.jpeg,.png,.webp,.tif,.tiff,.bmp,.heic"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(event) => {
+                  setFile(event.target.files?.[0] ?? null);
+                  setPendingContractId(null);
+                  setUploadFailure(null);
+                  setMessage("");
+                }}
               />
+              <span className="mt-2 block text-sm text-stone-600">
+                이 영역에 파일 한 개를 끌어다 놓거나 파일 선택 버튼을 눌러 주세요.
+              </span>
+
+              {file && (
+                <span className="mt-2 block break-all text-sm">
+                  선택한 파일: {file.name}
+                </span>
+              )}
               {file && !validFile && (
                 <span role="alert" className="mt-2 block text-sm">
                   {tooLarge
@@ -200,6 +259,53 @@ export default function Home() {
             {busy ? "처리 중…" : "올리기"}
           </button>
           {message && <p role="status">{message}</p>}
+          {uploadFailure && (
+            <div className="flex flex-wrap gap-2">
+              {uploadFailure === "temporary" && (
+                <button
+                  type="submit"
+                  className={secondary}
+                  disabled={!canSubmit}
+                >
+                  다시 시도
+                </button>
+              )}
+
+              {uploadFailure === "unreadable" && (
+                <>
+                  <button
+                    type="button"
+                    className={secondary}
+                    disabled={busy}
+                    onClick={() => {
+                      setMode("file");
+                      setFile(null);
+                      setFileInputKey((key) => key + 1);
+                      setPendingContractId(null);
+                      setUploadFailure(null);
+                      setMessage("아래 파일 선택 칸에서 다른 파일을 선택해 주세요.");
+                    }}
+                  >
+                    다른 파일 선택
+                  </button>
+
+                  <button
+                    type="button"
+                    className={secondary}
+                    disabled={busy}
+                    onClick={() => {
+                      setMode("text");
+                      setPendingContractId(null);
+                      setUploadFailure(null);
+                      setMessage("계약서 이름과 본문을 입력한 뒤 올려 주세요.");
+                    }}
+                  >
+                    본문 붙여넣기
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </form>
 
         <section className="space-y-3 rounded-2xl bg-white p-6">
