@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
+import { AppShell } from "../../components/AppShell";
 import { api, errorText, field, primary, setToken, type LoginOut } from "../../lib/api";
 
 // 로그인 뒤 돌아갈 주소는 이 사이트 안의 경로만 받는다 (다른 사이트로 보내지 않음)
@@ -85,13 +86,10 @@ function LoginInner() {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-      <div className="mx-auto max-w-md space-y-5">
-        <header className="font-bold text-teal-900">오픈북</header>
-        <Suspense>
-          <LoginInner />
-        </Suspense>
-      </div>
-    </main>
+    <AppShell width="narrow" bare>
+      <Suspense>
+        <LoginInner />
+      </Suspense>
+    </AppShell>
   );
 }

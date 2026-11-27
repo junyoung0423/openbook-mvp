@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
+  devIndicators: false,
   partialPrefetching: true,
   turbopack: {
     root: resolve(__dirname, ".."),

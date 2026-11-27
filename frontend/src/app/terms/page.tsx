@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { AppShell } from "../../components/AppShell";
 import {
     api,
     CHOICES,
@@ -329,15 +330,10 @@ function TermsInner() {
 
 export default function TermsPage() {
     return (
-        <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-            <div className="mx-auto max-w-3xl space-y-5">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <TermsInner />
-                </Suspense>
-            </div>
-        </main>
+        <AppShell step="terms" width="default">
+            <Suspense>
+                <TermsInner />
+            </Suspense>
+        </AppShell>
     );
 }

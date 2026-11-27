@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
+import { AppShell } from "../../components/AppShell";
 import { api, errorText, field, primary, secondary, type QAResult } from "../../lib/api";
 
 const MAX_QUESTION = 500; // 백엔드 MAX_QUESTION과 같게
@@ -131,15 +132,10 @@ function QAInner() {
 
 export default function QAPage() {
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-10 text-stone-900">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <Link href="/" className="font-bold text-teal-900">
-          오픈북
-        </Link>
+    <AppShell step="qa" width="default">
         <Suspense>
-          <QAInner />
+            <QAInner />
         </Suspense>
-      </div>
-    </main>
+    </AppShell>
   );
 }

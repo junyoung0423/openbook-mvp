@@ -1,26 +1,46 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 디자인 토큰 — "펼친 장부". 다크 모드는 이번 범위가 아니다.
+   --color-error는 입력 오류·네트워크 오류 문구에만 쓴다. 금액·차이·조건 상태에는 쓰지 않는다. */
+@theme {
+  --color-paper: #f7f5f0;
+  --color-surface: #ffffff;
+  --color-line: #e5e1d8;
+  --color-ink: #1c1b19;
+  --color-muted: #6b675f;
+  --color-brand: #134e4a;
+  --color-brand-soft: #e7f0ee;
+  --color-quote: #faf8f3;
+  --color-error: #b42318;
+
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
+
+  --text-page: 1.75rem;
+  --text-section: 1.25rem;
+  --text-card: 1.0625rem;
+  --text-small: 0.875rem;
+  --text-fine: 0.8125rem;
+
+  --font-sans: var(--font-pretendard), "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 금액 칸: 자릿수가 세로로 맞는 고정폭 숫자 */
+@utility num {
+  font-variant-numeric: tabular-nums;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* 키보드로 이동할 때 포커스 위치가 항상 보이게 한다 */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
 }
