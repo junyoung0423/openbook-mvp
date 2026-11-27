@@ -1,5 +1,6 @@
 "use client";
 
+import Shell from "../../components/Shell";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState, type FormEvent } from "react";
@@ -156,11 +157,11 @@ function StatementsInner() {
     const setDed = (i: number, patch: Partial<{ name: string; amount: string }>) =>
         setForm((f) => ({ ...f, deductions: f.deductions.map((d, j) => (i === j ? { ...d, ...patch } : d)) }));
 
-    if (!id) return <p className="rounded-2xl bg-white p-6">계약서를 먼저 선택해 주세요.</p>;
+    if (!id) return <p className="card p-6">계약서를 먼저 선택해 주세요.</p>;
 
     return (
         <>
-            <section className="space-y-3 rounded-2xl bg-white p-6">
+            <section className="space-y-3 card p-6">
                 <h1 className="text-2xl font-bold">정산서 입력</h1>
                 <label className="block">
                     정산서 표 붙여넣기 (선택)
@@ -236,7 +237,7 @@ function StatementsInner() {
                 )}
             </section>
 
-            <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white p-6">
+            <form onSubmit={submit} className="space-y-4 card p-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                     <label>
                         정산 시작일
@@ -318,7 +319,7 @@ function StatementsInner() {
                 {message && <p role="status">{message}</p>}
             </form>
 
-            <section className="space-y-3 rounded-2xl bg-white p-6">
+            <section className="space-y-3 card p-6">
                 <h2 className="text-lg font-semibold">저장한 정산서</h2>
                 {saved.length === 0 && <p className="text-stone-600">아직 없습니다.</p>}
                 {saved.map((s) => (
@@ -345,16 +346,11 @@ function StatementsInner() {
 }
 
 export default function StatementsPage() {
-    return (
-        <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-            <div className="mx-auto max-w-3xl space-y-5">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <StatementsInner />
-                </Suspense>
-            </div>
-        </main>
-    );
+  return (
+    <Shell step="statements" width="3xl">
+      <Suspense>
+        <StatementsInner />
+      </Suspense>
+    </Shell>
+  );
 }

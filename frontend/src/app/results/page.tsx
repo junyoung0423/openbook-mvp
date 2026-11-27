@@ -1,5 +1,6 @@
 "use client";
 
+import Shell from "../../components/Shell";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -25,6 +26,18 @@ function rows(r: PeriodReconciliation) {
 
 // 원천징수는 정산서가 더 많아도 작가에게 불리하므로, 차이가 있으면 방향과 관계없이 같은 색으로 표시한다.
 const diffColor = (d: string | null) => (d == null || Number(d) === 0 ? "" : "text-red-700");
+
+type Verdict = "match" | "diff" | "unsupported";
+const hasDiff = (d: string | null) => d != null && Number(d) !== 0;
+function verdict(r: PeriodReconciliation): Verdict {
+    if (r.status !== "computed") return "unsupported";
+    return [r.diff, r.settlement_diff, r.withholding_diff].some(hasDiff) ? "diff" : "match";
+}
+const VERDICT = {
+    match: { label: "일치", chip: "chip bg-teal-50 text-teal-800 ring-1 ring-teal-200", bar: "border-l-teal-600" },
+    diff: { label: "차이 있음", chip: "chip bg-red-50 text-red-700 ring-1 ring-red-200", bar: "border-l-red-500" },
+    unsupported: { label: "계산 불가", chip: "chip bg-amber-50 text-amber-800 ring-1 ring-amber-200", bar: "border-l-amber-500" },
+} as const;
 
 function ResultsInner() {
     const id = useSearchParams().get("id") ?? "";
@@ -79,10 +92,10 @@ function ResultsInner() {
         );
     }, [id]);
 
-    if (!id) return <p className="rounded-2xl bg-white p-6">계약서를 먼저 선택해 주세요.</p>;
+    if (!id) return <p className="card p-6">계약서를 먼저 선택해 주세요.</p>;
     if (error)
         return (
-            <section className="space-y-3 rounded-2xl bg-white p-6">
+            <section className="space-y-3 card p-6">
                 <p role="alert">{error.text}</p>
                 {error.code === "TERMS_NOT_CONFIRMED" && (
                     <Link className={secondary + " inline-block"} href={`/terms?id=${id}`}>
@@ -91,12 +104,25 @@ function ResultsInner() {
                 )}
             </section>
         );
-    if (!report) return <p role="status" className="rounded-2xl bg-white p-6">계산 중…</p>;
+    if (!report) return <p role="status" className="card p-6">계산 중…</p>;
 
     return (
         <>
-            <section className="rounded-2xl bg-white p-6">
-                <h1 className="text-3xl font-bold">정산 대조 결과</h1>
+            <section className="card p-6">
+                <h1 className="text-3xl font-black tracking-tight">정산 대조 결과</h1>
+                {report.items.length > 0 && (
+                    <dl className="mt-4 grid grid-cols-3 gap-2 text-center">
+                        {(["match", "diff", "unsupported"] as const).map((v) => (
+                            <div key={v} className={"rounded-xl border-l-4 bg-stone-50 px-3 py-3 " + VERDICT[v].bar}>
+                                <dt className="text-sm text-stone-600">{VERDICT[v].label}</dt>
+                                <dd className="text-2xl font-black">
+                                    {report.items.filter((r) => verdict(r) === v).length}
+                                    <span className="ml-0.5 text-sm font-medium text-stone-500">개월</span>
+                                </dd>
+                            </div>
+                        ))}
+                    </dl>
+                )}
                 <p className="mt-3 text-stone-600">{report.diff_meaning}</p>
                 <p className="mt-2 text-sm text-stone-600">
                     원천징수는 사업소득 3.3%(소득세 3% + 지방소득세 0.3%, 각각 10원 미만 버림) 기준으로 계산합니다.
@@ -118,7 +144,7 @@ function ResultsInner() {
             )}
 
             {report.items.length === 0 && (
-                <section className="space-y-3 rounded-2xl bg-white p-6">
+                <section className="space-y-3 card p-6">
                     <p>아직 입력한 정산서가 없습니다.</p>
                     <Link className={secondary + " inline-block"} href={`/statements?id=${id}`}>
                         정산서 입력하러 가기
@@ -127,10 +153,13 @@ function ResultsInner() {
             )}
 
             {report.items.map((r) => (
-                <article key={r.statement_id} className="space-y-4 rounded-2xl bg-white p-6">
-                    <h2 className="text-xl font-bold">
-                        {r.period_start} ~ {r.period_end}
-                    </h2>
+                <article key={r.statement_id} className={"space-y-4 card border-l-4 p-6 " + VERDICT[verdict(r)].bar}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h2 className="text-xl font-bold">
+                            {r.period_start} ~ {r.period_end}
+                        </h2>
+                        <span className={VERDICT[verdict(r)].chip}>{VERDICT[verdict(r)].label}</span>
+                    </div>
                     <p className="text-lg">{r.summary}</p>
 
                     {r.status === "computed" && (
@@ -167,7 +196,7 @@ function ResultsInner() {
 
                     {r.breakdown.length > 0 && (
                         <details open>
-                            <summary className="cursor-pointer font-medium">계산 내역</summary>
+                            <summary className="cursor-pointer font-medium text-teal-900">계산 내역</summary>
                             <table className="mt-3 w-full text-left text-sm">
                                 <tbody>
                                     {r.breakdown.map((s, i) => (
@@ -186,9 +215,9 @@ function ResultsInner() {
                     )}
 
                     {r.questions.length > 0 && (
-                        <div>
+                        <div className="rounded-xl bg-stone-50 p-4 ring-1 ring-stone-200">
                             <h3 className="font-semibold">플랫폼에 확인할 질문</h3>
-                            <ul className="mt-2 list-disc space-y-1 pl-5">
+                            <ul className="mt-2 list-disc space-y-1 pl-5 text-stone-700">
                                 {r.questions.map((q) => (
                                     <li key={q}>{q}</li>
                                 ))}
@@ -198,7 +227,7 @@ function ResultsInner() {
                 </article>
             ))}
 
-            <section className="rounded-2xl bg-white p-6 text-stone-600">{report.notice}</section>
+            <section className="card p-6 text-stone-600">{report.notice}</section>
             <div className="flex flex-wrap gap-2">
                 <Link className={secondary} href={`/statements?id=${id}`}>
                     정산서 입력으로 돌아가기
@@ -212,16 +241,11 @@ function ResultsInner() {
 }
 
 export default function ResultsPage() {
-    return (
-        <main className="min-h-screen bg-stone-100 px-4 py-10 text-stone-900">
-            <div className="mx-auto max-w-5xl space-y-6">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <ResultsInner />
-                </Suspense>
-            </div>
-        </main>
-    );
+  return (
+    <Shell step="results" width="5xl">
+      <Suspense>
+        <ResultsInner />
+      </Suspense>
+    </Shell>
+  );
 }

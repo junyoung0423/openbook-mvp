@@ -1,5 +1,6 @@
 "use client";
 
+import Shell from "../../components/Shell";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { api, errorText, field, primary, setToken, type LoginOut } from "../../lib/api";
@@ -38,7 +39,7 @@ function LoginInner() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5 rounded-2xl bg-white p-6">
+    <form onSubmit={submit} className="space-y-5 card p-6">
       <h1 className="text-2xl font-bold">{mode === "login" ? "로그인" : "회원가입"}</h1>
       <label className="block">
         이메일
@@ -85,13 +86,10 @@ function LoginInner() {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-      <div className="mx-auto max-w-md space-y-5">
-        <header className="font-bold text-teal-900">오픈북</header>
-        <Suspense>
-          <LoginInner />
-        </Suspense>
-      </div>
-    </main>
+    <Shell width="md">
+      <Suspense>
+        <LoginInner />
+      </Suspense>
+    </Shell>
   );
 }

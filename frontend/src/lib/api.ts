@@ -210,7 +210,18 @@ export function won(value: string | null | undefined): string {
   return `${negative ? "-" : ""}${grouped}${fraction ? `.${fraction}` : ""}원`;
 }
 
-export const field = "mt-1 block w-full rounded-lg border border-stone-300 bg-white p-2";
+export const field =
+  "mt-1 block w-full rounded-xl border border-stone-300 bg-white px-3 py-2.5 shadow-sm transition placeholder:text-stone-400 hover:border-stone-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 focus:outline-none";
 export const primary =
-  "rounded-lg bg-teal-900 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50";
-export const secondary = "rounded-lg border border-stone-300 bg-white px-3 py-2";
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-teal-800 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-teal-900 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
+export const secondary =
+  "inline-flex items-center justify-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-sm font-medium text-stone-700 shadow-sm transition hover:border-stone-400 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50";
+
+/** 계약서 상태별 배지 색 */
+export function statusChip(status: string): string {
+  const s = status.replace(/\s/g, "");
+  if (s === "확정") return "chip bg-teal-50 text-teal-800 ring-1 ring-teal-200";
+  if (s === "처리중") return "chip bg-sky-50 text-sky-800 ring-1 ring-sky-200";
+  if (s === "처리실패") return "chip bg-red-50 text-red-700 ring-1 ring-red-200";
+  return "chip bg-amber-50 text-amber-800 ring-1 ring-amber-200";
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import Shell from "../../components/Shell";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
@@ -51,11 +52,11 @@ function QAInner() {
     }
   }
 
-  if (!id) return <p className="rounded-2xl bg-white p-6">계약서를 먼저 선택해 주세요.</p>;
+  if (!id) return <p className="card p-6">계약서를 먼저 선택해 주세요.</p>;
 
   return (
     <>
-      <form onSubmit={ask} className="space-y-4 rounded-2xl bg-white p-6">
+      <form onSubmit={ask} className="space-y-4 card p-6">
         <h1 className="text-2xl font-bold">계약서에 질문하기</h1>
         <p className="text-stone-600">
           계약서에서 관련 조항을 찾아 원문과 함께 보여 드립니다. 금액 계산은 정산 대조 화면에서 하세요.
@@ -85,7 +86,7 @@ function QAInner() {
       </form>
 
       {history.map((r, i) => (
-        <article key={history.length - i} className="space-y-4 rounded-2xl bg-white p-6">
+        <article key={history.length - i} className="space-y-4 card p-6">
           <p className="text-sm text-stone-600">질문</p>
           <p className="font-medium">{r.question}</p>
           <p className="text-sm text-stone-600">답</p>
@@ -131,15 +132,10 @@ function QAInner() {
 
 export default function QAPage() {
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-10 text-stone-900">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <Link href="/" className="font-bold text-teal-900">
-          오픈북
-        </Link>
-        <Suspense>
-          <QAInner />
-        </Suspense>
-      </div>
-    </main>
+    <Shell step="qa" width="3xl">
+      <Suspense>
+        <QAInner />
+      </Suspense>
+    </Shell>
   );
 }

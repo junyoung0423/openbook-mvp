@@ -1,5 +1,6 @@
 "use client";
 
+import Shell from "../../components/Shell";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
@@ -190,12 +191,12 @@ function TermsInner() {
         }
     }
 
-    if (!id) return <p className="rounded-2xl bg-white p-6">계약서를 먼저 선택해 주세요.</p>;
-    if (!data) return <p role="status" className="rounded-2xl bg-white p-6">{message || "불러오는 중…"}</p>;
+    if (!id) return <p className="card p-6">계약서를 먼저 선택해 주세요.</p>;
+    if (!data) return <p role="status" className="card p-6">{message || "불러오는 중…"}</p>;
 
     return (
         <>
-            <section className="space-y-2 rounded-2xl bg-white p-6">
+            <section className="space-y-2 card p-6">
                 <h1 className="text-2xl font-bold">조건 확인·수정</h1>
                 <p>계약서에서 찾은 정산 조건입니다. 원문과 비교해 값을 확인하고 체크해 주세요.</p>
                 <p>
@@ -209,7 +210,7 @@ function TermsInner() {
                 if (!d) return null;
                 const tiered = t.key === "rs_rate" && Array.isArray(t.value);
                 return (
-                    <article key={t.key} className="space-y-3 rounded-2xl bg-white p-6">
+                    <article key={t.key} className="space-y-3 card p-6">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <h2 className="text-lg font-semibold">
                                 {TERM_LABELS[t.key] ?? t.key}
@@ -312,7 +313,7 @@ function TermsInner() {
                 );
             })}
 
-            <section className="flex flex-wrap items-center gap-3 rounded-2xl bg-white p-6">
+            <section className="flex flex-wrap items-center gap-3 card p-6">
                 <button type="button" className={primary} disabled={saving} onClick={save}>
                     {saving ? "저장 중…" : "저장"}
                 </button>
@@ -328,16 +329,11 @@ function TermsInner() {
 }
 
 export default function TermsPage() {
-    return (
-        <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-            <div className="mx-auto max-w-3xl space-y-5">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <TermsInner />
-                </Suspense>
-            </div>
-        </main>
-    );
+  return (
+    <Shell step="terms" width="3xl">
+      <Suspense>
+        <TermsInner />
+      </Suspense>
+    </Shell>
+  );
 }

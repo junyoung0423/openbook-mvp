@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-noto-kr), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 화면은 밝은 테마 하나로 맞춘다 (카드가 흰 배경이라 다크 모드를 따로 두지 않는다) */
+body {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, rgb(204 251 241 / 0.55), transparent 60%),
+    radial-gradient(900px 400px at 100% 0%, rgb(254 243 199 / 0.45), transparent 60%),
+    #f6f5f2;
+  color: #1c1917;
+  font-family: var(--font-sans);
+  word-break: keep-all;
+}
+
+@layer components {
+  .card {
+    border-radius: 1rem;
+    background: #fff;
+    border: 1px solid rgb(231 229 228 / 0.9);
+    box-shadow: 0 1px 2px rgb(28 25 23 / 0.04), 0 4px 16px rgb(28 25 23 / 0.04);
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    padding: 0.125rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #115e59;
+}
+
+/* "불러오는 중…" 같은 대기 카드는 살짝 깜빡여 멈춘 화면이 아님을 보여 준다 */
+.card[role="status"] {
+  color: #78716c;
+  animation: ob-wait 1.4s ease-in-out infinite;
+}
+@keyframes ob-wait {
+  50% {
+    opacity: 0.55;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card[role="status"] {
+    animation: none;
+  }
 }
