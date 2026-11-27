@@ -161,7 +161,7 @@ function StatementsInner() {
     return (
         <>
             <section className="space-y-3 rounded-2xl bg-white p-6">
-                <h1 className="text-2xl font-bold">정산서 입력</h1>
+                <h2 className="text-2xl font-bold">정산서 입력</h2>
                 <label className="block">
                     정산서 표 붙여넣기 (선택)
                     <textarea className={field} rows={5} value={paste} onChange={(e) => setPaste(e.target.value)} />
@@ -346,15 +346,8 @@ function StatementsInner() {
 
 export default function StatementsPage() {
     return (
-        <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-            <div className="mx-auto max-w-3xl space-y-5">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <StatementsInner />
-                </Suspense>
-            </div>
-        </main>
+        <Suspense>
+            <StatementsInner />
+        </Suspense>
     );
 }

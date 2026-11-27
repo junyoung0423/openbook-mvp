@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>오픈북 · 사이드바</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Pretendard";src:url(/_blob/a0b6eede7164049974b6bcefd638c831) format("woff2");font-weight:45 920;font-display:swap}
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 100%; height: 100%; min-height: 860px; box-sizing: border-box; background: #FFFFFF; border-radius: 10px; padding: 24px 16px 16px; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.06); font-family: Pretendard, 'Apple SD Gothic Neo', system-ui, sans-serif; color: #14161F">
+<a href="Home.dc.html" style="padding: 0 8px; text-decoration: none; color: #14161F; display: flex; align-items: baseline; gap: 8px">
+<span style="font-size: 17px; font-weight: 800; letter-spacing: 0.2em">OPENBOOK</span>
+<span style="font-size: 12px; color: #6B7083; font-weight: 600">오픈북</span>
+</a>
+<div style="display: flex; gap: 8px; align-items: center">
+<a href="Home.dc.html" style="flex: 1; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; background: #4655E8; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 700">
+<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+계약서 올리기</a>
+<button type="button" aria-label="계약서 검색" style="width: 44px; height: 44px; border-radius: 8px; border: 0; background: #111318; color: #FFFFFF; display: grid; place-items: center; cursor: pointer">
+<svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+</button>
+</div>
+<div style="height: 1px; background: #EEF0F6"></div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 8px; font-size: 12px; color: #6B7083">
+<span style="font-weight: 600">내 계약서</span>
+<span>3건</span>
+</div>
+<nav aria-label="내 계약서" style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{items}}" as="it" hint-placeholder-count="3">
+<a href="{{it.href}}" aria-current="{{it.current}}" style="{{it.style}}">
+<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" style="flex: none; margin-top: 2px"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg>
+<span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 14px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{it.title}}</span>
+<span style="font-size: 12px; color: #6B7083">{{it.meta}}</span>
+</span>
+</a>
+</sc-for>
+</nav>
+<div style="flex: 1"></div>
+<div style="height: 1px; background: #EEF0F6"></div>
+<p style="margin: 0; padding: 0 8px; font-size: 12px; line-height: 1.55; color: #6B7083">계약서·정산서는 언제든 삭제할 수 있어요. 원본 파일은 서버에 보관하지 않습니다.</p>
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px; border: 1px solid #EEF0F6; border-radius: 7px">
+<span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 6px; background: #ECEEFE; color: #4655E8; display: grid; place-items: center; font-size: 13px; font-weight: 800">정</span>
+<span style="display: flex; flex-direction: column; min-width: 0">
+<span style="font-size: 13px; font-weight: 650">로컬 사용자</span>
+<span style="font-size: 12px; color: #6B7083">로컬 모드 · 로그인 꺼짐</span>
+</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"active":{"editor":"enum","options":["1","2","3","none"],"default":"1"},"$preview":{"width":280,"height":900}}'>
+const C = [
+  { title: '데모1 새벽 정원', meta: '확정 · 정산서 4건' },
+  { title: '데모2 바다 끝 우체국', meta: '확정 · 정산서 2건' },
+  { title: '데모3 여름의 끝에서', meta: '확정 · 정산서 1건' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const active = this.props.active ?? '1';
+    const items = C.map((c, i) => {
+      const on = String(i + 1) === active;
+      return {
+        title: c.title, meta: c.meta, href: 'Main.dc.html',
+        current: on ? 'page' : 'false',
+        style: 'display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 6px; text-decoration: none; ' + (on ? 'background: #ECEEFE; color: #4655E8' : 'background: transparent; color: #14161F')
+      };
+    });
+    return { items };
+  }
+}
+</script>
+</body>
+</html>

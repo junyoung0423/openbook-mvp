@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>오픈북 · 디자인 토큰과 공용 컴포넌트</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Pretendard";src:url(/_blob/a0b6eede7164049974b6bcefd638c831) format("woff2");font-weight:45 920;font-display:swap}
+body{margin:0}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<div style="width: 1280px; box-sizing: border-box; padding: 48px; background: #FFFFFF; color: #14161F; font-family: Pretendard, 'Apple SD Gothic Neo', system-ui, sans-serif; letter-spacing: -0.01em; display: flex; flex-direction: column; gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.03em">디자인 토큰 · 공용 컴포넌트</h1>
+<p style="margin: 0; font-size: 15px; color: #4A4F63">글꼴 Pretendard Variable · 금액은 tabular-nums · 강조색은 인디고 하나 · 판단을 암시하는 색(빨강·초록·노랑)은 쓰지 않음</p>
+<p style="margin: 0; font-size: 15px; color: #4A4F63">모서리: 앱 창 14 · 카드 10 · 작은 카드 7~8 · 입력 6 · 버튼 8 · 탭 바 9 / 탭 6 · 라벨 5 · 아이콘 버튼 8 · 완전한 원·알약 모양은 쓰지 않음</p>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 750">색</h2>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px">
+<sc-for list="{{colors}}" as="c" hint-placeholder-count="10">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="{{c.swatch}}"></div>
+<span style="font-size: 14px; font-weight: 700">{{c.name}} <span class="num" style="font-weight: 500; color: #6B7083">{{c.hex}}</span></span>
+<span style="font-size: 12px; color: #6B7083; line-height: 1.5">{{c.use}}</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px">
+<section style="display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 750">글자</h2>
+<p style="margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.035em">페이지 제목 30 / 800</p>
+<p style="margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -0.03em">계약서 이름 26 / 750</p>
+<p style="margin: 0; font-size: 20px; font-weight: 750">카드 제목 20 / 750</p>
+<p style="margin: 0; font-size: 15px; line-height: 1.7">본문 15–16 / 400, 줄 간격 1.7</p>
+<p style="margin: 0; font-size: 13px; color: #6B7083">보조 13 / muted</p>
+<p class="num" style="margin: 0; font-size: 28px; font-weight: 700">1,539,960원 <span style="font-size: 13px; font-weight: 500; color: #6B7083">금액 28 / 700 · tabular-nums</span></p>
+<p style="margin: 0; font-size: 15px; font-weight: 800; letter-spacing: 0.2em">OPENBOOK <span style="font-size: 13px; font-weight: 500; letter-spacing: 0; color: #6B7083">워드마크 · 자간 0.2em</span></p>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 750">버튼 · 탭 · 라벨</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<button type="button" style="min-height: 46px; padding: 0 22px; border: 0; border-radius: 8px; background: #4655E8; color: #FFFFFF; font-size: 15px; font-weight: 700">주요 동작</button>
+<button type="button" style="min-height: 46px; padding: 0 22px; border: 0; border-radius: 8px; background: #111318; color: #FFFFFF; font-size: 15px; font-weight: 700">보조 강한</button>
+<button type="button" style="min-height: 46px; padding: 0 22px; border: 1px solid #DDE1EC; border-radius: 8px; background: #FFFFFF; color: #14161F; font-size: 15px; font-weight: 700">보조</button>
+<button type="button" disabled style="min-height: 46px; padding: 0 22px; border: 0; border-radius: 8px; background: #C9CEDC; color: #FFFFFF; font-size: 15px; font-weight: 700">잠김</button>
+</div>
+<div style="align-self: flex-start; display: flex; gap: 2px; padding: 4px; background: #E7EAF3; border-radius: 9px; font-size: 14px; font-weight: 600">
+<span style="padding: 10px 18px; border-radius: 6px; background: #FFFFFF; color: #4655E8; font-weight: 750; box-shadow: 0 1px 3px rgba(20,22,31,0.08)">현재 탭</span><span style="padding: 10px 18px; color: #4A4F63">다른 탭</span><span style="padding: 10px 18px; color: #4A4F63">다른 탭</span>
+</div>
+<div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+<span style="padding: 4px 10px; border-radius: 5px; background: #EEF0F6; color: #4A4F63; font-size: 12px; font-weight: 650">추출됨</span>
+<span style="padding: 3px 9px; border-radius: 5px; border: 1.5px dashed #8A90A3; color: #4A4F63; font-size: 12px; font-weight: 650">찾지 못함</span>
+<span style="padding: 3px 9px; border-radius: 5px; border: 1.5px solid #4A4F63; color: #14161F; font-size: 12px; font-weight: 650">직접 입력</span>
+<span style="font-size: 12px; color: #6B7083">상태는 색이 아니라 모양(채움·점선·실선)으로 구분</span>
+</div>
+<div style="display: flex; gap: 10px; align-items: center">
+<span style="display: flex; align-items: center; width: 220px; height: 46px; border: 1px solid #DDE1EC; border-radius: 6px; padding: 0 14px; box-sizing: border-box"><span class="num" style="flex: 1; text-align: right; font-size: 16px">3,000,000</span><span style="margin-left: 6px; color: #6B7083">원</span></span>
+<span style="display: flex; align-items: center; width: 120px; height: 46px; border: 1px solid #DDE1EC; border-radius: 6px; padding: 0 14px; box-sizing: border-box"><span class="num" style="flex: 1; text-align: right; font-size: 16px">65</span><span style="margin-left: 6px; color: #6B7083">%</span></span>
+<span style="font-size: 12px; color: #6B7083; line-height: 1.5">화면은 콤마·%, 서버로는<br>"3000000"·"0.65"</span>
+</div>
+</section>
+</div>
+
+<section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px">
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 750">근거 원문</h2>
+<div style="background: #F6F7FB; border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; font-weight: 700; color: #4655E8">근거 · 제5조 (수익배분)</span><span style="font-size: 14px; line-height: 1.7">을의 수익배분율은 순매출의 65%로 하고, 갑의 수익배분율은 순매출의 35%로 한다.</span></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<h2 style="margin: 0; font-size: 18px; font-weight: 750">차이 표시</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 14px 16px; border-radius: 7px; background: #F4F6FB"><p style="margin: 0; font-size: 12px; color: #6B7083">차이</p><p class="num" style="margin: 6px 0 0; font-size: 24px; font-weight: 850">0원</p></div>
+<div style="padding: 14px 16px; border-radius: 7px; background: #F4F6FB"><p style="margin: 0; font-size: 12px; color: #6B7083">차이</p><p class="num" style="margin: 6px 0 0; font-size: 24px; font-weight: 850">-95,000원</p></div>
+</div>
+<span style="font-size: 12px; color: #6B7083">0원이든 아니든 같은 색·같은 모양. 강조는 크기와 굵기로만</span>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+const C = [
+  ['canvas', '#DCE4F3', '앱 바깥 배경'], ['surface', '#F4F6FB', '앱 창 안쪽'], ['card', '#FFFFFF', '카드·사이드바'], ['line', '#E6E9F2', '테두리·구분선'], ['quote', '#F6F7FB', '원문 인용 블록'],
+  ['ink', '#14161F', '본문 글자'], ['muted', '#6B7083', '보조 글자'], ['accent', '#4655E8', '주요 버튼·링크·현재 탭'], ['accent-soft', '#ECEEFE', '선택된 항목 배경'], ['black', '#111318', '보조 강한 버튼']
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { colors: C.map((c) => ({ name: c[0], hex: c[1], use: c[2], swatch: 'height: 64px; border-radius: 7px; border: 1px solid #E6E9F2; background: ' + c[1] })) };
+  }
+}
+</script>
+</body>
+</html>

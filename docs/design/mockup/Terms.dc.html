@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>오픈북 · 조건 확인</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Pretendard";src:url(/_blob/a0b6eede7164049974b6bcefd638c831) format("woff2");font-weight:45 920;font-display:swap}
+body{margin:0;background:#DCE4F3}
+a{color:#4655E8}
+.num{font-variant-numeric:tabular-nums}
+button,a,input,select{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #4655E8;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px; background: #DCE4F3; color: #14161F; font-family: Pretendard, 'Apple SD Gothic Neo', system-ui, sans-serif; letter-spacing: -0.01em">
+<div style="max-width: 1360px; margin: 0 auto; background: #F4F6FB; border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; box-shadow: 0 20px 60px rgba(40, 56, 110, 0.10)">
+<div style="flex: 0 1 280px; min-width: 240px; display: flex">
+<dc-import name="Sidebar" active="1" hint-size="280px,860px"></dc-import>
+</div>
+
+<main style="flex: 999 1 560px; min-width: 0; padding: 20px 24px 0; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<p style="margin: 0; font-size: 13px; color: #6B7083">하늘숲미디어 · 웹툰 연재 계약 (데모용 가상 계약서)</p>
+<h1 style="margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -0.03em">데모1 새벽 정원</h1>
+</div>
+<nav aria-label="계약서 메뉴" style="align-self: flex-start; display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; background: #E7EAF3; border-radius: 9px; font-size: 14px; font-weight: 600">
+<span aria-current="page" style="padding: 10px 18px; border-radius: 6px; background: #FFFFFF; color: #4655E8; font-weight: 750; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.08)">조건 확인</span>
+<a href="Statements.dc.html" style="padding: 10px 18px; border-radius: 6px; color: #4A4F63; text-decoration: none">정산서 입력</a>
+<a href="Main.dc.html" style="padding: 10px 18px; border-radius: 6px; color: #4A4F63; text-decoration: none">대조 결과</a>
+<a href="QA.dc.html" style="padding: 10px 18px; border-radius: 6px; color: #4A4F63; text-decoration: none">질문하기</a>
+</nav>
+
+<section style="background: #FFFFFF; border-radius: 10px; padding: 24px 28px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.05)">
+<div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 6px">
+<h2 style="margin: 0; font-size: 20px; font-weight: 750">조건 확인</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3A3F52">계약서에서 찾은 정산 조건입니다. 오른쪽 원문과 비교해 값을 확인해 주세요. <b>확인한 조건만 계산에 씁니다.</b></p>
+</div>
+<div style="flex: 0 1 260px; display: flex; flex-direction: column; gap: 8px">
+<p class="num" style="margin: 0; font-size: 14px; font-weight: 650">필수 조건 5개 중 {{doneCount}}개 확인</p>
+<div aria-hidden="true" style="height: 8px; background: #EEF0F6; border-radius: 3px; overflow: hidden"><div style="{{barStyle}}"></div></div>
+</div>
+</section>
+
+<h3 style="margin: 6px 4px 0; font-size: 16px; font-weight: 750">계산에 필요한 조건 <span style="font-size: 13px; color: #6B7083; font-weight: 500">필수</span></h3>
+<sc-for list="{{req}}" as="t" hint-placeholder-count="5">
+<article style="{{t.cardStyle}}">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<h4 style="margin: 0; font-size: 16px; font-weight: 700">{{t.name}}</h4>
+<span style="{{t.badgeStyle}}">{{t.badge}}</span>
+</div>
+<sc-if value="{{t.isMoney}}" hint-placeholder-val="{{false}}">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #6B7083">값
+<span style="display: flex; align-items: center; border: 1px solid #DDE1EC; border-radius: 6px; background: #FFFFFF; padding: 0 14px; height: 46px"><input class="num" value="3,000,000" style="flex: 1; min-width: 0; border: 0; outline: none; font-size: 16px; text-align: right; color: #14161F; background: transparent"><span style="margin-left: 6px; color: #6B7083; font-size: 15px">원</span></span>
+</label>
+</sc-if>
+<sc-if value="{{t.isRate}}" hint-placeholder-val="{{false}}">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #6B7083">값
+<span style="display: flex; align-items: center; border: 1px solid #DDE1EC; border-radius: 6px; background: #FFFFFF; padding: 0 14px; height: 46px; max-width: 200px"><input class="num" value="65" style="flex: 1; min-width: 0; border: 0; outline: none; font-size: 16px; text-align: right; color: #14161F; background: transparent"><span style="margin-left: 6px; color: #6B7083; font-size: 15px">%</span></span>
+</label>
+</sc-if>
+<sc-if value="{{t.isSelect}}" hint-placeholder-val="{{false}}">
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #6B7083">값
+<select value="{{t.value}}" onChange="{{t.change}}" style="height: 46px; border: 1px solid #DDE1EC; border-radius: 6px; background: #FFFFFF; padding: 0 12px; font-size: 15px; color: #14161F">
+<sc-for list="{{t.options}}" as="o" hint-placeholder-count="3"><option value="{{o.v}}">{{o.label}}</option></sc-for>
+</select>
+</label>
+</sc-if>
+<sc-if value="{{t.isDed}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr) auto; gap: 8px; align-items: center">
+<label style="font-size: 12px; color: #6B7083">이름<input value="앱마켓 수수료" style="display: block; width: 100%; box-sizing: border-box; margin-top: 4px; height: 42px; border: 1px solid #DDE1EC; border-radius: 6px; padding: 0 12px; font-size: 14px"></label>
+<span role="group" aria-label="공제 방식" style="align-self: end; display: flex; padding: 3px; background: #EEF0F6; border-radius: 9px; font-size: 13px"><span style="padding: 8px 12px; border-radius: 6px; background: #FFFFFF; font-weight: 700">비율</span><span style="padding: 8px 12px; color: #4A4F63">금액</span></span>
+<label style="font-size: 12px; color: #6B7083">값<span style="display: flex; align-items: center; margin-top: 4px; height: 42px; border: 1px solid #DDE1EC; border-radius: 6px; padding: 0 12px"><input class="num" value="30" style="flex: 1; min-width: 0; border: 0; outline: none; text-align: right; font-size: 14px"><span style="margin-left: 4px; color: #6B7083">%</span></span></label>
+<button type="button" aria-label="앱마켓 수수료 삭제" style="align-self: end; width: 42px; height: 42px; border: 0; border-radius: 8px; background: transparent; color: #6B7083; cursor: pointer"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+</div>
+<button type="button" style="align-self: flex-start; padding: 8px 12px; border: 1px dashed #C9CEDC; border-radius: 8px; background: transparent; color: #4655E8; font-size: 13px; font-weight: 650; cursor: pointer">+ 공제 항목 추가</button>
+</div>
+</sc-if>
+<sc-if value="{{t.notFound}}" hint-placeholder-val="{{false}}">
+<p style="margin: 0; font-size: 13px; line-height: 1.55; color: #4A4F63">계약서에서 이 조건을 찾지 못했습니다. 표준·일반 조건과 같다는 뜻이 아닙니다. 계약서 문구를 보고 직접 골라 주세요.</p>
+</sc-if>
+<label style="{{t.checkStyle}}">
+<input type="checkbox" checked="{{t.confirmed}}" disabled="{{t.locked}}" onChange="{{t.toggle}}" style="width: 18px; height: 18px; accent-color: #4655E8; margin: 0">
+<span>{{t.checkLabel}}</span>
+</label>
+</div>
+<div style="flex: 1 1 300px; min-width: 0; background: #F6F7FB; border-radius: 8px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 700; color: #4655E8">{{t.src}}</span>
+<p style="margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-wrap; color: #2A2E3D">{{t.quote}}</p>
+</div>
+</article>
+</sc-for>
+
+<h3 style="margin: 6px 4px 0; font-size: 16px; font-weight: 750">참고 조건 <span style="font-size: 13px; color: #6B7083; font-weight: 500">선택 · 계산에는 쓰지 않음</span></h3>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{opt}}" as="o" hint-placeholder-count="4">
+<article style="background: #FFFFFF; border-radius: 9px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.05)">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h4 style="margin: 0; font-size: 15px; font-weight: 700">{{o.name}}</h4><span style="padding: 4px 10px; border-radius: 5px; background: #EEF0F6; color: #4A4F63; font-size: 12px; font-weight: 650">추출됨</span></div>
+<p style="margin: 0; font-size: 15px; font-weight: 600">{{o.value}}</p>
+<p style="margin: 0; font-size: 13px; line-height: 1.6; color: #6B7083"><span style="color: #4655E8; font-weight: 700">{{o.src}}</span> · {{o.quote}}</p>
+</article>
+</sc-for>
+</div>
+
+<div style="position: sticky; bottom: 0; margin: 4px -12px 0; padding: 14px 16px; background: rgba(244, 246, 251, 0.94); border-top: 1px solid #E6E9F2; display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<span class="num" style="font-size: 14px; font-weight: 650">필수 {{doneCount}}/5 확인</span>
+<span style="font-size: 13px; color: #6B7083">{{nextHint}}</span>
+<span style="flex: 1"></span>
+<button type="button" style="min-height: 46px; padding: 0 22px; border: 1px solid #DDE1EC; border-radius: 8px; background: #FFFFFF; font-size: 15px; font-weight: 700; color: #14161F; cursor: pointer">저장</button>
+<a href="Statements.dc.html" aria-disabled="{{notReady}}" style="{{nextStyle}}">정산서 입력으로 →</a>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2100}}'>
+const REQ = [
+  { key: 'mg', name: 'MG 금액', kind: 'money', status: 'extracted', src: '근거 · 제4조 (선급금)', quote: '① 갑은 을에게 선급금(MG) 3,000,000원을 계약 체결일로부터 14일 이내에 지급한다.' },
+  { key: 'recoup', name: 'MG 회수 방식', kind: 'select', status: 'extracted', value: 'from_rs', options: [['', '선택해 주세요'], ['from_rs', 'RS에서 차감'], ['separate', '별도 처리'], ['unknown', '확인 필요']], src: '근거 · 제4조 (선급금)', quote: '② 선급금은 제5조에 따라 을에게 배분될 수익금에서 우선 차감하여 회수한다.' },
+  { key: 'rs', name: 'RS 배분율', kind: 'rate', status: 'extracted', src: '근거 · 제5조 (수익배분)', quote: '을의 수익배분율은 순매출의 65%로 하고, 갑의 수익배분율은 순매출의 35%로 한다.' },
+  { key: 'base', name: '정산 기준 매출', kind: 'select', status: 'not_found', value: '', options: [['', '선택해 주세요'], ['gross', '총매출'], ['net', '순매출'], ['other', '기타']], src: '참고 · 제2조 (정의)', quote: '① "총매출"이란 이용자가 작품을 이용하기 위하여 지불한 금액의 합계를 말한다.\n② "순매출"이란 총매출에서 제6조의 공제 항목을 뺀 금액을 말한다.' },
+  { key: 'ded', name: '공제 항목', kind: 'ded', status: 'extracted', src: '근거 · 제6조 (공제)', quote: '갑은 정산할 때 총매출에서 앱마켓 수수료(총매출의 30%)를 공제한다. 이 밖의 비용은 을의 서면 동의 없이 공제하지 않는다.' }
+];
+const OPT = [
+  { name: 'MG 지급 시점', value: '계약 체결일로부터 14일 이내', src: '제4조 ①', quote: '선급금(MG) 3,000,000원을 계약 체결일로부터 14일 이내에 지급한다.' },
+  { name: '미회수 MG 처리', value: '반환 요구 없음', src: '제4조 ③', quote: '회수되지 않은 선급금은 을에게 반환을 요구하지 않는다.' },
+  { name: '정산 주기', value: '월별', src: '제7조 ①', quote: '갑은 매월 1일부터 말일까지의 매출을 정산한다.' },
+  { name: '정산금 지급 시점', value: '다음 달 20일까지', src: '제7조 ②', quote: '정산금을 다음 달 20일까지 을의 계좌로 지급한다.' }
+];
+const BADGE = {
+  extracted: ['추출됨', 'padding: 4px 10px; border-radius: 5px; background: #EEF0F6; color: #4A4F63; font-size: 12px; font-weight: 650'],
+  not_found: ['찾지 못함', 'padding: 3px 9px; border-radius: 5px; border: 1.5px dashed #8A90A3; color: #4A4F63; font-size: 12px; font-weight: 650'],
+  user_input: ['직접 입력', 'padding: 3px 9px; border-radius: 5px; border: 1.5px solid #4A4F63; background: #FFFFFF; color: #14161F; font-size: 12px; font-weight: 650']
+};
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { ok: { mg: true, recoup: true, rs: true, base: false, ded: false }, base: '' }; }
+  renderVals() {
+    const st = this.state;
+    const req = REQ.map((t) => {
+      const isBase = t.key === 'base';
+      const status = isBase && st.base ? 'user_input' : t.status;
+      const empty = isBase && !st.base;
+      const confirmed = !!st.ok[t.key] && !empty;
+      return {
+        name: t.name, src: t.src, quote: t.quote,
+        isMoney: t.kind === 'money', isRate: t.kind === 'rate', isSelect: t.kind === 'select', isDed: t.kind === 'ded',
+        value: isBase ? st.base : t.value,
+        options: (t.options || []).map((o) => ({ v: o[0], label: o[1] })),
+        change: (e) => { if (isBase) this.setState({ base: e.target.value }); },
+        notFound: empty,
+        badge: BADGE[status][0], badgeStyle: BADGE[status][1],
+        confirmed, locked: empty,
+        toggle: () => this.setState({ ok: { ...st.ok, [t.key]: !st.ok[t.key] } }),
+        checkLabel: empty ? '값을 고르면 확인할 수 있어요' : (confirmed ? '확인했습니다' : '계약서와 이 값을 확인했습니다'),
+        checkStyle: 'align-self: flex-start; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 650; cursor: pointer; ' + (empty ? 'border: 1px solid #E6E9F2; color: #8A90A3; background: #FFFFFF; cursor: not-allowed' : confirmed ? 'border: 1px solid #4655E8; color: #4655E8; background: #ECEEFE' : 'border: 1px solid #DDE1EC; color: #14161F; background: #FFFFFF'),
+        cardStyle: 'background: #FFFFFF; border-radius: 10px; padding: 22px 24px; display: flex; flex-wrap: wrap; gap: 20px; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.05); ' + (empty ? 'border: 1.5px dashed #9AA0B2' : confirmed ? 'border: 1.5px solid #C9CEF8' : 'border: 1.5px solid transparent')
+      };
+    });
+    const done = req.filter((r) => r.confirmed).length;
+    const ready = done === 5;
+    return {
+      req, opt: OPT, doneCount: String(done),
+      barStyle: 'height: 100%; width: ' + (done * 20) + '%; background: #4655E8; border-radius: 8px',
+      notReady: ready ? 'false' : 'true',
+      nextHint: ready ? '모든 필수 조건을 확인했어요.' : '필수 조건을 모두 확인하고 저장하면 정산서 입력이 열립니다.',
+      nextStyle: 'display: inline-flex; align-items: center; min-height: 46px; padding: 0 22px; border-radius: 8px; font-size: 15px; font-weight: 700; text-decoration: none; ' + (ready ? 'background: #4655E8; color: #FFFFFF' : 'background: #C9CEDC; color: #FFFFFF; pointer-events: none')
+    };
+  }
+}
+</script>
+</body>
+</html>

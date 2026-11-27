@@ -96,7 +96,7 @@ function ResultsInner() {
     return (
         <>
             <section className="rounded-2xl bg-white p-6">
-                <h1 className="text-3xl font-bold">정산 대조 결과</h1>
+                <h2 className="text-3xl font-bold">정산 대조 결과</h2>
                 <p className="mt-3 text-stone-600">{report.diff_meaning}</p>
                 <p className="mt-2 text-sm text-stone-600">
                     원천징수는 사업소득 3.3%(소득세 3% + 지방소득세 0.3%, 각각 10원 미만 버림) 기준으로 계산합니다.
@@ -213,15 +213,8 @@ function ResultsInner() {
 
 export default function ResultsPage() {
     return (
-        <main className="min-h-screen bg-stone-100 px-4 py-10 text-stone-900">
-            <div className="mx-auto max-w-5xl space-y-6">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <ResultsInner />
-                </Suspense>
-            </div>
-        </main>
+        <Suspense>
+            <ResultsInner />
+        </Suspense>
     );
 }

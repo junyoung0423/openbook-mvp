@@ -196,7 +196,7 @@ function TermsInner() {
     return (
         <>
             <section className="space-y-2 rounded-2xl bg-white p-6">
-                <h1 className="text-2xl font-bold">조건 확인·수정</h1>
+                <h2 className="text-2xl font-bold">조건 확인·수정</h2>
                 <p>계약서에서 찾은 정산 조건입니다. 원문과 비교해 값을 확인하고 체크해 주세요.</p>
                 <p>
                     확인이 필요한 필수 조건 ·{" "}
@@ -329,15 +329,8 @@ function TermsInner() {
 
 export default function TermsPage() {
     return (
-        <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-            <div className="mx-auto max-w-3xl space-y-5">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <TermsInner />
-                </Suspense>
-            </div>
-        </main>
+        <Suspense>
+            <TermsInner />
+        </Suspense>
     );
 }
