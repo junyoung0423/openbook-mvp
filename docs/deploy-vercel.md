@@ -46,6 +46,7 @@ Vercel 함수는 서버가 계속 떠 있는 방식이 아니라서 로컬과 �
 5. **화면 프로젝트** 만들기: 같은 저장소로 Add New → Project
    - Root Directory: `frontend`
    - 환경변수 `NEXT_PUBLIC_API_URL` = API 주소, 예: `https://openbook-api.vercel.app` (빌드 때 들어가므로 바꾸면 다시 배포)
+   - 데모로 공개할 때만 `NEXT_PUBLIC_DEMO_MODE` = `1`: 모든 화면 위에 '데모 버전 · 가상 데이터' 띠가 나온다. 첫 화면의 '데모로 둘러보기'는 이 값과 상관없이 `데모1`·`데모2`·`데모3`으로 시작하는 확정 계약서가 있으면 나온다 (`backend/scripts/seed_demo.py`로 넣음)
 6. API 프로젝트의 `CORS_ORIGINS`에 화면 주소를 넣고 API 다시 배포
 7. **DB 테이블 만들기** (내 컴퓨터에서, Neon 주소로 한 번):
    ```powershell

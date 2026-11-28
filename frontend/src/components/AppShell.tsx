@@ -4,6 +4,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState, type ReactNode } from "react";
 import { api, type ContractOut, type UserOut } from "../lib/api";
 import { CONTRACT_PATHS, ContractHeader } from "./ContractHeader";
+import { DemoBanner } from "./DemoBanner";
 import { Sidebar } from "./Sidebar";
 import { ContractContext, ContractsContext } from "./ShellContext";
 
@@ -15,16 +16,19 @@ const PATH_WIDTH: Record<string, string> = { "/": "max-w-2xl", "/terms": "max-w-
 export function AppShell({ children }: { children: ReactNode }) {
   // useSearchParams는 Suspense 안에서만 쓸 수 있다. 읽기 전에는 사이드바 뼈대만 보인다
   return (
-    <Suspense fallback={<Frame sidebar={<Sidebar loading />}>{null}</Frame>}>
-      <ShellWithData>{children}</ShellWithData>
-    </Suspense>
+    <div className="flex min-h-screen flex-col">
+      <DemoBanner />
+      <Suspense fallback={<Frame sidebar={<Sidebar loading />}>{null}</Frame>}>
+        <ShellWithData>{children}</ShellWithData>
+      </Suspense>
+    </div>
   );
 }
 
 function Frame({ sidebar, children, width = "" }: { sidebar: ReactNode; children: ReactNode; width?: string }) {
   return (
-    <div className="min-h-screen bg-surface md:bg-canvas md:p-7">
-      <div className="mx-auto flex min-h-screen max-w-[1360px] flex-col px-4 md:min-h-[calc(100vh-3.5rem)] md:flex-row md:gap-3 md:rounded-window md:bg-surface md:p-3 md:shadow-window">
+    <div className="flex-1 bg-surface md:bg-canvas md:p-7">
+      <div className="mx-auto flex max-w-[1360px] flex-col px-4 md:min-h-[calc(100vh-3.5rem)] md:flex-row md:gap-3 md:rounded-window md:bg-surface md:p-3 md:shadow-window">
         {sidebar}
         <main className="min-w-0 flex-1 pb-10 pt-4 md:px-6 md:pt-5">
           <div className={`mx-auto flex w-full flex-col gap-[18px] ${width}`}>{children}</div>
@@ -65,7 +69,7 @@ function ShellWithData({ children }: { children: ReactNode }) {
 
   if (bare)
     return (
-      <div className="min-h-screen bg-canvas px-5 py-10">
+      <div className="flex-1 bg-canvas px-5 py-10">
         <div className="mx-auto max-w-md space-y-5">
           <p className="text-center text-[17px] font-extrabold tracking-[0.2em]">OPENBOOK</p>
           {children}

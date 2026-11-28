@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { DemoShortcuts } from "../components/DemoShortcuts";
 import { useContracts } from "../components/ShellContext";
 import {
   api,
@@ -39,6 +40,12 @@ export default function Home() {
   const validFile = Boolean(file?.size) && !tooLarge && FILE_TYPES.test(file?.name ?? "");
   const canSubmit =
     consent && !busy && (mode === "file" ? validFile : Boolean(text.trim() && title.trim()));
+
+  // 입력이 바뀌면 앞서 만든 계약서로 다시 시도하지 않는다
+  function resetPending() {
+    setPendingContractId(null);
+    setUploadFailure(null);
+  }
 
   async function refresh() {
     try {
@@ -129,28 +136,42 @@ export default function Home() {
 
   return (
     <>
+        <DemoShortcuts contracts={contracts} />
         <form onSubmit={submit} className="space-y-5 rounded-2xl bg-white p-6">
           <h1 className="text-2xl font-bold">계약서 올리기</h1>
 
           <fieldset className="flex flex-wrap gap-4">
             <legend className="mb-2 font-medium">입력 방식</legend>
             <label>
-              <input type="radio" name="mode" checked={mode === "file"} onChange={() => setMode("file")} /> 파일
+              <input type="radio" name="mode" checked={mode === "file"} onChange={() => {
+                  setMode("file");
+                  resetPending();
+                }}
+              />{" "}
+              파일
             </label>
             <label>
-              <input type="radio" name="mode" checked={mode === "text"} onChange={() => setMode("text")} /> 본문
-              붙여넣기
+              <input type="radio" name="mode" checked={mode === "text"} onChange={() => {
+                  setMode("text");
+                  resetPending();
+                }}
+              />{" "}
+              본문 붙여넣기
             </label>
           </fieldset>
 
           <label className="block">
             계약서 이름 {mode === "file" && <span className="text-sm text-stone-600">(비우면 파일 이름)</span>}
-            <input className={field} value={title} maxLength={255} onChange={(e) => setTitle(e.target.value)} />
+            <input className={field} value={title} maxLength={255} onChange={(e) => {
+                setTitle(e.target.value);
+                resetPending();
+              }}
+            />
           </label>
 
           {mode === "file" ? (
             <label
-              className="block rounded-lg border-2 border-dashed border-stone-300 p-4"
+              className="block cursor-pointer rounded-tile border-2 border-dashed border-field p-4 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent"
               onDragOver={(event) => {
                 event.preventDefault();
                 if (!busy) event.dataTransfer.dropEffect = "copy";
@@ -167,28 +188,24 @@ export default function Home() {
 
                 setFile(files[0]);
                 setFileInputKey((key) => key + 1);
-                setPendingContractId(null);
-                setUploadFailure(null);
+                resetPending();
                 setMessage("");
               }}
             >
-              계약서 파일 <span className="text-sm text-stone-600">PDF, DOCX, HWP, 사진·스캔 이미지 (4MB까지)</span>
+              {/* 브라우저 기본 파일 칸(영어)은 숨기고, 선택한 파일 이름은 아래에 직접 보여 준다 (끌어다 놓아도 같은 표시) */}
+              <span className="block font-medium">파일을 끌어다 놓거나 눌러서 선택</span>
+              <span className="block text-sm text-stone-600">PDF, DOCX, HWP, 사진·스캔 이미지 (4MB까지)</span>
               <input
                 type="file"
                 key={fileInputKey}
-                className={field}
+                className="sr-only"
                 accept=".pdf,.doc,.docx,.hwp,.hwpx,.jpg,.jpeg,.png,.webp,.tif,.tiff,.bmp,.heic"
                 onChange={(event) => {
                   setFile(event.target.files?.[0] ?? null);
-                  setPendingContractId(null);
-                  setUploadFailure(null);
+                  resetPending();
                   setMessage("");
                 }}
               />
-              <span className="mt-2 block text-sm text-stone-600">
-                이 영역에 파일 한 개를 끌어다 놓거나 파일 선택 버튼을 눌러 주세요.
-              </span>
-
               {file && (
                 <span className="mt-2 block break-all text-sm">
                   선택한 파일: {file.name}
@@ -205,7 +222,15 @@ export default function Home() {
           ) : (
             <label className="block">
               계약서 본문
-              <textarea className={field} rows={8} value={text} onChange={(e) => setText(e.target.value)} />
+              <textarea
+                className={field}
+                rows={8}
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  resetPending();
+                }}
+              />
             </label>
           )}
 
@@ -252,9 +277,8 @@ export default function Home() {
                       setMode("file");
                       setFile(null);
                       setFileInputKey((key) => key + 1);
-                      setPendingContractId(null);
-                      setUploadFailure(null);
-                      setMessage("아래 파일 선택 칸에서 다른 파일을 선택해 주세요.");
+                      resetPending();
+                      setMessage("위 파일 칸에서 다른 파일을 선택해 주세요.");
                     }}
                   >
                     다른 파일 선택
