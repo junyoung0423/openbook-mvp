@@ -582,13 +582,13 @@ function TermsInner() {
             {message}
           </p>
         )}
-        {/* 767px 이하에서는 설명 문장을 숨겨 한 줄(필수 n/5 · 저장 · 정산서 입력으로)로 줄인다 */}
-        <div className="flex items-center gap-x-2 md:flex-wrap md:gap-x-4 md:gap-y-2">
+        {/* 1024px 미만에서는 설명 문장을 숨겨 한 줄(필수 n/5 · 저장 · 정산서 입력으로)로 줄인다. 그 이상에서는 설명이 남는 폭 안에서 줄바꿈한다 */}
+        <div className="flex items-center gap-x-2 md:gap-x-4">
           <span className="num whitespace-nowrap text-[13px] font-[650] text-ink-2 md:text-sm">
             필수 {done}/{total} 확인
           </span>
-          <span className="hidden text-small text-muted md:inline">{ready ? "모든 필수 조건을 확인했어요." : "필수 조건을 모두 확인하고 저장하면 정산서 입력이 열립니다."}</span>
-          <span className="flex-1" />
+          <span className="hidden min-w-0 text-small text-muted lg:block lg:flex-1">{ready ? "모든 필수 조건을 확인했어요." : "필수 조건을 모두 확인하고 저장하면 정산서 입력이 열립니다."}</span>
+          <span className="flex-1 lg:hidden" />
           <button type="button" disabled={saving} onClick={save} className={`${buttonClass("secondary")} whitespace-nowrap md:min-w-24 max-md:flex-1 max-md:!px-3`}>
             {saving ? "저장 중…" : "저장"}
           </button>
