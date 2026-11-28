@@ -9,7 +9,7 @@ import { Sidebar } from "./Sidebar";
 import { ContractContext, ContractsContext } from "./ShellContext";
 
 // 화면(경로)마다 본문 폭. 화면을 새 시안으로 바꾸는 PR에서 그 화면의 값을 시안에 맞춘다
-const PATH_WIDTH: Record<string, string> = { "/": "max-w-2xl", "/statements": "max-w-3xl" };
+const PATH_WIDTH: Record<string, string> = { "/": "max-w-2xl" };
 
 // 모든 화면을 감싸는 틀: 바깥 canvas 배경 → 앱 창 → 왼쪽 사이드바 + 오른쪽 본문. app/layout.tsx에서 한 번만 쓴다.
 // 로그인 화면은 앱 창 없이 canvas 배경 가운데 카드만 둔다.

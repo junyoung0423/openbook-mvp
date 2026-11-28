@@ -1,7 +1,7 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 // 흰 카드 (모서리 10, 옅은 그림자)
-export function Card({ className = "", ...rest }: HTMLAttributes<HTMLElement>) {
+export function Card({ className = "", ...rest }: ComponentProps<"section">) {
   return <section className={`rounded-card bg-card p-5 shadow-card md:px-7 md:py-6 ${className}`} {...rest} />;
 }
 
