@@ -8,9 +8,6 @@ import { DemoBanner } from "./DemoBanner";
 import { Sidebar } from "./Sidebar";
 import { ContractContext, ContractsContext } from "./ShellContext";
 
-// 화면(경로)마다 본문 폭. 화면을 새 시안으로 바꾸는 PR에서 그 화면의 값을 시안에 맞춘다
-const PATH_WIDTH: Record<string, string> = { "/": "max-w-2xl" };
-
 // 모든 화면을 감싸는 틀: 바깥 canvas 배경 → 앱 창 → 왼쪽 사이드바 + 오른쪽 본문. app/layout.tsx에서 한 번만 쓴다.
 // 로그인 화면은 앱 창 없이 canvas 배경 가운데 카드만 둔다.
 export function AppShell({ children }: { children: ReactNode }) {
@@ -25,13 +22,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-function Frame({ sidebar, children, width = "" }: { sidebar: ReactNode; children: ReactNode; width?: string }) {
+function Frame({ sidebar, children }: { sidebar: ReactNode; children: ReactNode }) {
   return (
     <div className="flex-1 bg-surface md:bg-canvas md:p-7">
       <div className="mx-auto flex max-w-[1360px] flex-col px-4 md:min-h-[calc(100vh-3.5rem)] md:flex-row md:gap-3 md:rounded-window md:bg-surface md:p-3 md:shadow-window">
         {sidebar}
         <main className="min-w-0 flex-1 pb-10 pt-4 md:px-6 md:pt-5">
-          <div className={`mx-auto flex w-full flex-col gap-[18px] ${width}`}>{children}</div>
+          <div className="mx-auto flex w-full flex-col gap-[18px]">{children}</div>
         </main>
       </div>
     </div>
@@ -80,7 +77,7 @@ function ShellWithData({ children }: { children: ReactNode }) {
   return (
     <ContractsContext.Provider value={{ contracts, reloadContracts }}>
       <ContractContext.Provider value={{ contract: current, reload }}>
-        <Frame width={PATH_WIDTH[pathname] ?? ""} sidebar={<Sidebar currentId={id} me={me} />}>
+        <Frame sidebar={<Sidebar currentId={id} me={me} />}>
           {id && CONTRACT_PATHS.includes(pathname) && <ContractHeader contractId={id} />}
           {children}
         </Frame>
