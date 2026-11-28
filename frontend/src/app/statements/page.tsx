@@ -261,16 +261,17 @@ function StatementsInner() {
                           <table className="w-full border-collapse text-left text-[13px]">
                             <thead>
                               <tr className="bg-quote text-muted">
-                                <th scope="col" className="px-3 py-2 font-semibold">
+                                {/* 머리글은 줄바꿈하지 않고, 원본 줄 칸은 최소 폭을 둔다 (긴 줄이 와도 "원/본/줄"로 깨지지 않게) */}
+                                <th scope="col" className="min-w-[4.5rem] whitespace-nowrap px-3 py-2 font-semibold">
                                   원본 줄
                                 </th>
-                                <th scope="col" className="px-3 py-2 font-semibold">
+                                <th scope="col" className="whitespace-nowrap px-3 py-2 font-semibold">
                                   항목
                                 </th>
-                                <th scope="col" className="px-3 py-2 font-semibold">
+                                <th scope="col" className="whitespace-nowrap px-3 py-2 font-semibold">
                                   원본 값
                                 </th>
-                                <th scope="col" className="px-3 py-2 font-semibold">
+                                <th scope="col" className="whitespace-nowrap px-3 py-2 font-semibold">
                                   안내·처리 이유
                                 </th>
                               </tr>
@@ -278,10 +279,11 @@ function StatementsInner() {
                             <tbody>
                               {group.rows.map((row, index) => (
                                 <tr key={`${row.line}-${index}`} className="border-t border-line-soft">
-                                  <td className="num px-3 py-2">{row.line}</td>
-                                  <td className="whitespace-pre-wrap px-3 py-2">{row.label}</td>
-                                  <td className="num whitespace-pre-wrap px-3 py-2">{row.value}</td>
-                                  <td className="whitespace-pre-wrap px-3 py-2 text-ink-2">{row.note || "—"}</td>
+                                  <td className="num whitespace-nowrap px-3 py-2 align-top">{row.line}</td>
+                                  {/* 나머지 칸은 길면 표 안에서 줄바꿈한다 (띄어쓰기 없는 긴 글도 칸 폭에서 꺾임) */}
+                                  <td className="whitespace-pre-wrap px-3 py-2 align-top [overflow-wrap:anywhere]">{row.label}</td>
+                                  <td className="num whitespace-pre-wrap px-3 py-2 align-top [overflow-wrap:anywhere]">{row.value}</td>
+                                  <td className="whitespace-pre-wrap px-3 py-2 align-top text-ink-2 [overflow-wrap:anywhere]">{row.note || "—"}</td>
                                 </tr>
                               ))}
                             </tbody>
