@@ -52,7 +52,7 @@ function LoginInner() {
         />
       </label>
       <label className="block">
-        비밀번호 {mode === "signup" && <span className="text-sm text-stone-600">(8자 이상)</span>}
+        비밀번호 {mode === "signup" && <span className="text-sm text-muted">(8자 이상)</span>}
         <input
           className={field}
           type="password"
