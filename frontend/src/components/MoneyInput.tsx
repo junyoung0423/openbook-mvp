@@ -18,7 +18,7 @@ export function MoneyInput({ value, onChange, allowNegative = false, size = "md"
   const lg = size === "lg";
   return (
     <span
-      className={`mt-1.5 flex items-center rounded-field bg-card focus-within:ring-2 focus-within:ring-accent ${
+      className={`mt-1.5 flex w-full min-w-0 max-w-full items-center rounded-field bg-card focus-within:ring-2 focus-within:ring-accent ${
         lg ? "min-h-[54px] border-[1.5px] border-accent px-4" : "min-h-[46px] border border-field px-3.5"
       } ${className}`}
     >

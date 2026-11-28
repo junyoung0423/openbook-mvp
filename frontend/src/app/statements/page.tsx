@@ -81,7 +81,7 @@ function Tabs({ mode, onChange }: { mode: "paste" | "manual"; onChange: (m: "pas
 
 function Field({ label, required, hint, note, children }: { label: string; required?: boolean; hint?: string; note?: string; children: ReactNode }) {
   return (
-    <label className="block text-[13px] font-semibold">
+    <label className="block min-w-0 text-[13px] font-semibold">
       {label} {required && <span className="font-medium text-muted">필수</span>}
       {children}
       {hint && <span className="mt-1.5 block text-fine font-medium text-muted">{hint}</span>}
@@ -205,7 +205,7 @@ function StatementsInner() {
     );
 
   const title = form.period_start && form.period_end ? `${periodTitle(form.period_start, form.period_end)} 정산서` : "이 달 정산서";
-  const dateInput = "num mt-1.5 block min-h-[46px] w-full rounded-field border border-field bg-card px-3.5 text-[15px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+  const dateInput = "num mt-1.5 block min-h-[46px] w-full min-w-0 max-w-full rounded-field border border-field bg-card px-3.5 text-[15px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent";
 
   return (
     <div className="flex flex-wrap items-start gap-4">
@@ -225,7 +225,7 @@ function StatementsInner() {
                 rows={6}
                 value={paste}
                 onChange={(e) => setPaste(e.target.value)}
-                className="w-full rounded-tile border border-field bg-[#f9fafd] px-4 py-3.5 font-mono text-[13.5px] leading-[1.6] text-[#2a2e3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="w-full min-w-0 rounded-tile border border-field bg-[#f9fafd] px-4 py-3.5 font-mono text-[13.5px] leading-[1.6] text-[#2a2e3d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               />
               <div className="flex flex-wrap items-center gap-2.5">
                 <button type="button" disabled={!paste.trim()} onClick={readPaste} className={buttonClass("dark")}>
@@ -312,7 +312,7 @@ function StatementsInner() {
         <Card className="!px-5 !py-6 md:!px-[26px]" ref={formCard}>
           <form onSubmit={submit} className="flex flex-col gap-4">
             <h3 className="text-[17px] font-[750]">{title}</h3>
-            <div className="grid gap-3.5 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3.5 md:grid-cols-2">
               <Field label="정산 시작일" required note={missingMessage("period_start")}>
                 <input type="date" className={dateInput} value={form.period_start} onChange={(e) => setForm({ ...form, period_start: e.target.value })} />
               </Field>
@@ -326,15 +326,15 @@ function StatementsInner() {
               ))}
             </div>
 
-            <fieldset className="flex flex-col gap-2 rounded-field border border-line px-4 py-3.5">
+            <fieldset className="flex min-w-0 flex-col gap-2 rounded-field border border-line px-4 py-3.5">
               <legend className="px-1.5 text-[13px] font-[650]">
                 정산서 공제 항목 <span className="font-medium text-muted">적혀 있으면</span>
               </legend>
               {form.deductions.map((d, i) => (
-                <div key={i} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto]">
+                <div key={i} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto]">
                   <input
                     aria-label="공제 항목 이름"
-                    className={`${fieldClass} !mt-0 !min-h-[42px] !text-sm max-md:col-span-2`}
+                    className={`${fieldClass} !mt-0 !min-h-[42px] min-w-0 !text-sm max-md:col-span-2`}
                     placeholder="항목 이름"
                     value={d.name}
                     onChange={(e) => setDed(i, { name: e.target.value })}
@@ -360,7 +360,7 @@ function StatementsInner() {
               </button>
             </fieldset>
 
-            <label className="block rounded-tile bg-quote px-[18px] py-4 text-sm font-bold">
+            <label className="block min-w-0 rounded-tile bg-quote px-[18px] py-4 text-sm font-bold">
               작가지급액 <span className="font-medium text-muted">필수 · 원천징수 뒤 실제로 받는 금액</span>
               <MoneyInput size="lg" className="!mt-2" value={form.reported_payout} onChange={(v) => setForm({ ...form, reported_payout: v })} />
               {missingMessage("reported_payout") && <span className="mt-1.5 block text-small font-medium text-ink-2">{missingMessage("reported_payout")}</span>}
@@ -392,8 +392,9 @@ function StatementsInner() {
               <li key={s.id} className="flex items-center gap-2.5 rounded-field border border-line-soft px-3.5 py-3">
                 <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                   <span className="text-sm font-bold">{name}</span>
-                  <span className="num text-fine text-muted">
-                    매출 {won(s.gross)} · 지급 {won(s.reported_payout)}
+                  <span className="num flex flex-col text-fine text-muted">
+                    <span>매출 {won(s.gross)}</span>
+                    <span>지급 {won(s.reported_payout)}</span>
                   </span>
                 </span>
                 <button
