@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>오픈북 · 정산 대조 결과</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face{font-family:"Pretendard";src:url(/_blob/a0b6eede7164049974b6bcefd638c831) format("woff2");font-weight:45 920;font-display:swap}
+body{margin:0;background:#DCE4F3}
+a{color:#4655E8}a:hover{color:#3240C9}
+.num{font-variant-numeric:tabular-nums}
+button,a{font-family:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid #4655E8;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; padding: 28px; background: #DCE4F3; color: #14161F; font-family: Pretendard, 'Apple SD Gothic Neo', system-ui, sans-serif; letter-spacing: -0.01em">
+<div style="max-width: 1360px; margin: 0 auto; background: #F4F6FB; border-radius: 14px; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; box-shadow: 0 20px 60px rgba(40, 56, 110, 0.10)">
+<div style="flex: 0 1 280px; min-width: 240px; display: flex">
+<dc-import name="Sidebar" active="1" hint-size="280px,860px"></dc-import>
+</div>
+
+<main style="flex: 999 1 560px; min-width: 0; padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -0.03em">데모1 새벽 정원</h1>
+</div>
+<nav aria-label="계약서 메뉴" style="align-self: flex-start; display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; background: #E7EAF3; border-radius: 9px; font-size: 14px; font-weight: 600">
+<a href="Terms.dc.html" style="padding: 10px 18px; border-radius: 6px; color: #4A4F63; text-decoration: none">조건 확인</a>
+<a href="Statements.dc.html" style="padding: 10px 18px; border-radius: 6px; color: #4A4F63; text-decoration: none">정산서 입력</a>
+<span aria-current="page" style="padding: 10px 18px; border-radius: 6px; background: #FFFFFF; color: #4655E8; font-weight: 750; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.08)">대조 결과</span>
+<a href="QA.dc.html" style="padding: 10px 18px; border-radius: 6px; color: #4A4F63; text-decoration: none">질문하기</a>
+</nav>
+
+<section style="background: #FFFFFF; border-radius: 10px; padding: 24px 28px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.05)">
+<h2 style="margin: 0; font-size: 20px; font-weight: 750">정산 대조 결과</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3A3F52">차이는 정산서에 적힌 금액에서 계약서 기준으로 계산한 금액을 뺀 값입니다. 음수면 정산서 금액이 계산보다 적습니다.</p>
+<details style="font-size: 14px; color: #6B7083">
+<summary style="cursor: pointer; color: #4655E8; font-weight: 600">계산 기준 보기</summary>
+<p style="margin: 8px 0 0; line-height: 1.6">원천징수는 사업소득 3.3%(소득세 3% + 지방소득세 0.3%, 각각 10원 미만 버림) 기준으로 계산합니다. 기타소득(8.8%) 등 다른 방식으로 떼는 계약이면 원천징수와 작가지급액에 차이가 날 수 있습니다.</p>
+</details>
+</section>
+
+<div role="tablist" aria-label="정산 기간" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<button type="button" role="tab" aria-selected="{{t.selected}}" onClick="{{t.pick}}" style="{{t.style}}">
+<span style="display: block; font-size: 15px; font-weight: 700">{{t.label}}</span>
+<span class="num" style="display: block; margin-top: 3px; font-size: 13px; color: #6B7083">차이 {{t.diff}}</span>
+</button>
+</sc-for>
+</div>
+
+<article style="background: #FFFFFF; border-radius: 10px; padding: 26px 28px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 1px 3px rgba(20, 22, 31, 0.05)">
+<div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+<h3 style="margin: 0; font-size: 20px; font-weight: 750">{{cur.title}}</h3>
+<span class="num" style="font-size: 13px; color: #6B7083">{{cur.range}}</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 18px 20px; border: 1px solid #E6E9F2; border-radius: 8px">
+<p style="margin: 0; font-size: 13px; color: #6B7083">작가지급액 · 계약서 기준</p>
+<p class="num" style="margin: 8px 0 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">{{cur.c}}</p>
+</div>
+<div style="padding: 18px 20px; border: 1px solid #E6E9F2; border-radius: 8px">
+<p style="margin: 0; font-size: 13px; color: #6B7083">작가지급액 · 정산서</p>
+<p class="num" style="margin: 8px 0 0; font-size: 28px; font-weight: 700; letter-spacing: -0.02em">{{cur.r}}</p>
+</div>
+<div style="padding: 18px 20px; border-radius: 8px; background: #F4F6FB">
+<p style="margin: 0; font-size: 13px; color: #6B7083">차이</p>
+<p class="num" style="margin: 8px 0 0; font-size: 28px; font-weight: 850; letter-spacing: -0.02em">{{cur.d}}</p>
+</div>
+</div>
+
+<p style="margin: 0; font-size: 15px; line-height: 1.7; color: #2A2E3D">{{cur.summary}}</p>
+
+<div style="display: flex; flex-direction: column; gap: 6px">
+<h4 style="margin: 0; font-size: 14px; font-weight: 700">세부 대조</h4>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px">
+<thead>
+<tr style="color: #6B7083; font-size: 12px; text-align: right">
+<th scope="col" style="text-align: left; font-weight: 500; padding: 8px 0">항목</th>
+<th scope="col" style="font-weight: 500; padding: 8px 0">계약서 기준</th>
+<th scope="col" style="font-weight: 500; padding: 8px 0">정산서</th>
+<th scope="col" style="font-weight: 500; padding: 8px 0">차이</th>
+</tr>
+</thead>
+<tbody>
+<sc-for list="{{cur.rows}}" as="row" hint-placeholder-count="2">
+<tr style="border-top: 1px solid #EEF0F6">
+<th scope="row" style="text-align: left; font-weight: 500; padding: 11px 0">{{row.label}}</th>
+<td class="num" style="text-align: right; padding: 11px 0">{{row.c}}</td>
+<td class="num" style="text-align: right; padding: 11px 0">{{row.r}}</td>
+<td class="num" style="text-align: right; padding: 11px 0; font-weight: 700">{{row.d}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<p class="num" style="margin: 0; font-size: 13px; color: #6B7083">이 기간 뒤 남은 MG · {{cur.mg}}</p>
+</div>
+
+<div style="border-top: 1px solid #EEF0F6; padding-top: 16px">
+<button type="button" aria-expanded="{{open}}" onClick="{{toggle}}" style="min-height: 42px; padding: 0 18px; border: 1px solid #E6E9F2; border-radius: 8px; background: #FFFFFF; font-size: 14px; font-weight: 650; color: #14161F; cursor: pointer">{{toggleLabel}}</button>
+<sc-if value="{{open}}" hint-placeholder-val="{{false}}">
+<ol style="list-style: none; margin: 12px 0 0; padding: 0; border: 1px solid #E6E9F2; border-radius: 8px; overflow: hidden">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="8">
+<li style="border-top: 1px solid #EEF0F6; padding: 12px 16px; display: grid; grid-template-columns: 180px 130px minmax(0, 1fr); gap: 16px; align-items: start; font-size: 14px">
+<span style="font-weight: 600">{{s.label}}</span>
+<span class="num" style="text-align: right; font-weight: 700">{{s.value}}</span>
+<span style="color: #6B7083; line-height: 1.55">
+<span class="num" style="font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12.5px">{{s.formula}}</span>
+<sc-if value="{{s.hasClause}}" hint-placeholder-val="{{false}}">
+<button type="button" onClick="{{s.pick}}" aria-expanded="{{s.shown}}" style="display: inline-flex; margin-top: 6px; padding: 4px 10px; border: 0; border-radius: 5px; background: #ECEEFE; color: #4655E8; font-size: 12px; font-weight: 650; cursor: pointer">근거 · {{s.clauseName}}</button>
+</sc-if>
+<sc-if value="{{s.shown}}" hint-placeholder-val="{{false}}">
+<span style="display: block; margin-top: 8px; padding: 12px 14px; background: #F6F7FB; border-radius: 6px; color: #14161F; white-space: pre-wrap; line-height: 1.6">{{s.quote}}</span>
+</sc-if>
+</span>
+</li>
+</sc-for>
+</ol>
+</sc-if>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+<h4 style="margin: 0; font-size: 16px; font-weight: 700">플랫폼에 확인할 질문 <span class="num" style="color: #6B7083; font-weight: 500">{{cur.qCount}}</span></h4>
+<button type="button" onClick="{{copy}}" style="min-height: 40px; padding: 0 16px; border: 0; border-radius: 8px; background: #111318; font-size: 13px; font-weight: 650; color: #FFFFFF; cursor: pointer">{{copyLabel}}</button>
+</div>
+<ol style="margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.6">
+<sc-for list="{{cur.questions}}" as="q" hint-placeholder-count="3">
+<li>{{q}}</li>
+</sc-for>
+</ol>
+</div>
+</article>
+
+<p style="margin: 0; padding: 0 4px; font-size: 13px; color: #6B7083; line-height: 1.6">이 결과는 사용자가 확정한 조건으로 계산한 것입니다. 법률·세무 자문이 아닙니다. 계약서 문구의 해석이 필요하면 전문가와 상담해 주세요. <span class="num">계산 규칙 2026-11-25-r13 · 원천징수 사업소득 3.3% 기준</span></p>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1400}}'>
+const Q_MG = '이 정산 기간 뒤 남은 MG(선급금) 금액을 알려 주실 수 있을까요?';
+const Q_STEP = '작가지급액이 어떤 순서로 계산되었는지 항목별 내역(MG 공제 포함)을 받을 수 있을까요?';
+const CL = {
+  c2: ['제2조 (정의)', '② "순매출"이란 총매출에서 제6조의 공제 항목을 뺀 금액을 말한다.'],
+  c5: ['제5조 (수익배분)', '을의 수익배분율은 순매출의 65%로 하고, 갑의 수익배분율은 순매출의 35%로 한다.'],
+  c4: ['제4조 (선급금)', '① 갑은 을에게 선급금(MG) 3,000,000원을 계약 체결일로부터 14일 이내에 지급한다.\n② 선급금은 제5조에 따라 을에게 배분될 수익금에서 우선 차감하여 회수한다.']
+};
+const M = [
+  { tab: '3월', title: '2027년 3월', range: '2027-03-01 ~ 2027-03-31', G: '1,400,000', S: '910,000', before: '3,000,000', first: true, P: '0', after: '2,090,000', tax: '0', local: '0', wt: '0', c: '0원', r: '0원', d: '0원', sR: '910,000원', sD: '0원', wR: '0원', wD: '0원', questions: [Q_MG] },
+  { tab: '4월', title: '2027년 4월', range: '2027-04-01 ~ 2027-04-30', G: '2,100,000', S: '1,365,000', before: '2,090,000', P: '0', after: '725,000', tax: '0', local: '0', wt: '0', c: '0원', r: '0원', d: '0원', sR: '1,365,000원', sD: '0원', wR: '0원', wD: '0원', questions: [Q_MG] },
+  { tab: '5월', title: '2027년 5월', range: '2027-05-01 ~ 2027-05-31', G: '2,800,000', S: '1,820,000', before: '725,000', P: '1,095,000', after: '0', tax: '32,850', local: '3,280', wt: '36,130', c: '1,058,870원', r: '963,870원', d: '-95,000원', sR: '1,820,000원', sD: '0원', wR: '36,130원', wD: '0원', questions: [Q_STEP, Q_MG] },
+  { tab: '6월', title: '2027년 6월', range: '2027-06-01 ~ 2027-06-30', G: '2,450,000', S: '1,592,500', before: '0', P: '1,592,500', after: '0', tax: '47,770', local: '4,770', wt: '52,540', c: '1,539,960원', r: '1,477,100원', d: '-62,860원', sR: '1,527,500원', sD: '-65,000원', wR: '50,400원', wD: '-2,140원', extra: ' 정산액(작가 몫)은 계약서 기준 1,592,500원, 정산서 1,527,500원으로 차이는 -65,000원입니다. 원천징수는 계약서 기준(3.3%) 52,540원, 정산서 50,400원으로 차이는 -2,140원입니다.', questions: ['정산액이 어떻게 계산되었는지 적용된 배분율과 공제 항목별 금액을 알려 주실 수 있을까요?', '원천징수 금액이 어떻게 계산되었는지 세율과 기준 금액을 알려 주실 수 있을까요?', Q_STEP, "정산서의 '운영 대행 비용' 공제는 계약서의 어느 조항에 근거한 것인지 알려 주실 수 있을까요?", Q_MG] }
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { m: 3, open: false, clause: -1, copied: false }; }
+  renderVals() {
+    const st = this.state;
+    const m = M[st.m];
+    const tabs = M.map((x, i) => ({
+      label: x.tab, diff: x.d, selected: i === st.m ? 'true' : 'false',
+      style: 'min-height: 62px; padding: 10px 16px; text-align: left; border-radius: 8px; cursor: pointer; color: #14161F; ' + (i === st.m ? 'background: #FFFFFF; border: 1.5px solid #4655E8; box-shadow: 0 2px 8px rgba(70, 85, 232, 0.12)' : 'background: #FFFFFF; border: 1.5px solid transparent'),
+      pick: () => this.setState({ m: i, clause: -1, copied: false })
+    }));
+    const raw = [
+      ['매출 G (순매출 기준)', m.G + '원', '정산서 회사입금액. 순매출 기준 계약이라 공제 목록은 쓰지 않습니다 (이중 차감 방지).', 'c2'],
+      ['작가 몫 S (정산액)', m.S + '원', m.G + ' × 0.65 = ' + m.S, 'c5'],
+      ['이 기간 전 남은 MG', m.before + '원', m.first ? 'MG 금액 (첫 정산서부터 회수가 시작된 것으로 계산)' : '앞 기간 계산에서 이어받음', 'c4'],
+      ['지급액 P (세전)', m.P + '원', 'max(0, ' + m.S + ' − ' + m.before + ') = ' + m.P, 'c4'],
+      ['이 기간 뒤 남은 MG', m.after + '원', 'max(0, ' + m.before + ' − ' + m.S + ') = ' + m.after, ''],
+      ['소득세', m.tax + '원', m.P + ' × 3.00% → 10원 미만 버림 = ' + m.tax, ''],
+      ['지방소득세', m.local + '원', m.tax + ' × 10% → 10원 미만 버림 = ' + m.local, ''],
+      ['작가지급액', m.c, m.P + ' − ' + m.wt + ' = ' + m.c.replace('원', ''), '']
+    ];
+    const steps = raw.map((s, i) => ({
+      label: s[0], value: s[1], formula: s[2], hasClause: !!s[3],
+      clauseName: s[3] ? CL[s[3]][0] : '', quote: s[3] ? CL[s[3]][1] : '',
+      shown: st.clause === i,
+      pick: () => this.setState({ clause: st.clause === i ? -1 : i })
+    }));
+    const cur = {
+      title: m.title, range: m.range, c: m.c, r: m.r, d: m.d, mg: m.after + '원',
+      summary: '계약서 기준으로 계산한 작가지급액(원천징수 뒤)은 ' + m.c + ', 정산서에는 ' + m.r + ', 차이는 ' + m.d + '입니다.' + (m.extra || ''),
+      rows: [
+        { label: '정산액 (작가 몫)', c: m.S + '원', r: m.sR, d: m.sD },
+        { label: '원천징수 (3.3%)', c: m.wt + '원', r: m.wR, d: m.wD }
+      ],
+      questions: m.questions, qCount: m.questions.length + '개'
+    };
+    return {
+      tabs, cur, steps, open: st.open,
+      toggleLabel: st.open ? '계산 내역 접기' : '계산 내역 8단계 보기',
+      toggle: () => this.setState({ open: !st.open }),
+      copyLabel: st.copied ? '복사했습니다' : '질문 복사',
+      copy: () => {
+        try { navigator.clipboard.writeText(m.questions.join('\n')); } catch (e) {}
+        this.setState({ copied: true });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

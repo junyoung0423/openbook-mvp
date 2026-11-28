@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
+import { useContracts } from "../components/ShellContext";
 import {
   api,
   ApiError,
@@ -10,9 +11,7 @@ import {
   field,
   primary,
   secondary,
-  setToken,
   type ContractOut,
-  type UserOut,
 } from "../lib/api";
 
 const FILE_TYPES = /\.(pdf|docx?|hwp|hwpx|jpe?g|png|webp|tiff?|bmp|heic)$/i;
@@ -22,6 +21,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export default function Home() {
   const router = useRouter();
+  const { reloadContracts } = useContracts();
   const [mode, setMode] = useState<"file" | "text">("file");
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -40,23 +40,11 @@ export default function Home() {
   const canSubmit =
     consent && !busy && (mode === "file" ? validFile : Boolean(text.trim() && title.trim()));
 
-  const [me, setMe] = useState<UserOut | null>(null);
-
   async function refresh() {
     try {
-      setMe(await api<UserOut>("/auth/me")); // 로그인하지 않았으면 로그인 화면으로 이동
       setContracts(await api<ContractOut[]>("/contracts"));
     } catch (e) {
       setMessage(errorText(e));
-    }
-  }
-
-  async function logout() {
-    try {
-      await api("/auth/logout", { method: "POST" });
-    } finally {
-      setToken(null);
-      router.push("/login");
     }
   }
 
@@ -124,6 +112,7 @@ export default function Home() {
     } finally {
       setBusy(false);
       void refresh();
+      void reloadContracts().catch(() => {});
     }
   }
 
@@ -132,32 +121,14 @@ export default function Home() {
     try {
       await api(`/contracts/${c.id}`, { method: "DELETE" });
       await refresh();
+      void reloadContracts().catch(() => {});
     } catch (e) {
       setMessage(errorText(e));
     }
   }
 
   return (
-    <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-      <div className="mx-auto max-w-2xl space-y-5">
-        <header className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-bold text-teal-900">오픈북</span>
-          {me && (
-            <span className="flex items-center gap-3 text-sm">
-              {me.auth_disabled ? (
-                <span className="rounded border border-stone-300 px-2 py-1">로컬 모드 · 로그인 꺼짐</span>
-              ) : (
-                <>
-                  {me.email}
-                  <button type="button" className={secondary} onClick={logout}>
-                    로그아웃
-                  </button>
-                </>
-              )}
-            </span>
-          )}
-        </header>
-
+    <>
         <form onSubmit={submit} className="space-y-5 rounded-2xl bg-white p-6">
           <h1 className="text-2xl font-bold">계약서 올리기</h1>
 
@@ -333,7 +304,6 @@ export default function Home() {
             </div>
           ))}
         </section>
-      </div>
-    </main>
+    </>
   );
 }

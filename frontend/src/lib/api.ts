@@ -1,3 +1,5 @@
+import { buttonClass, fieldClass } from "./ui";
+
 // 오픈북 API 클라이언트. 금액·비율은 항상 문자열로 주고받는다.
 // 로그인하면 받은 토큰을 Authorization: Bearer로 보낸다. 토큰이 없거나 만료되면 로그인 화면으로 보낸다.
 
@@ -202,15 +204,9 @@ export const MONEY = /^[0-9]+(\.[0-9]+)?$/;
 export const SIGNED_MONEY = /^-?[0-9]+(\.[0-9]+)?$/;
 export const RATE = /^(0(\.[0-9]+)?|1(\.0+)?)$/;
 
-export function won(value: string | null | undefined): string {
-  if (value == null) return "—";
-  const negative = value.startsWith("-");
-  const [whole, fraction] = value.replace("-", "").split(".");
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${negative ? "-" : ""}${grouped}${fraction ? `.${fraction}` : ""}원`;
-}
+export { won } from "./format";
 
-export const field = "mt-1 block w-full rounded-lg border border-stone-300 bg-white p-2";
-export const primary =
-  "rounded-lg bg-teal-900 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50";
-export const secondary = "rounded-lg border border-stone-300 bg-white px-3 py-2";
+// 아직 옛 방식으로 쓰는 화면용 별칭. 새 화면은 components/Button과 lib/ui를 쓴다.
+export const field = fieldClass;
+export const primary = buttonClass("primary");
+export const secondary = buttonClass("secondary");

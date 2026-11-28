@@ -85,13 +85,8 @@ function LoginInner() {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-      <div className="mx-auto max-w-md space-y-5">
-        <header className="font-bold text-teal-900">오픈북</header>
-        <Suspense>
-          <LoginInner />
-        </Suspense>
-      </div>
-    </main>
+    <Suspense>
+      <LoginInner />
+    </Suspense>
   );
 }

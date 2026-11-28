@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { useContract, useContracts } from "../../components/ShellContext";
 import {
     api,
     CHOICES,
@@ -69,6 +70,9 @@ function problem(key: string, value: unknown): string {
 
 function TermsInner() {
     const id = useSearchParams().get("id") ?? "";
+    // 상태가 바뀌면 탭 바(흐림)와 사이드바(상태)를 새로고침 없이 맞춘다
+    const { reload: reloadContract } = useContract();
+    const { reloadContracts } = useContracts();
     const [data, setData] = useState<TermsResponse | null>(null);
     const [drafts, setDrafts] = useState<Record<string, Draft>>({});
     const [message, setMessage] = useState("");
@@ -125,11 +129,17 @@ function TermsInner() {
         // 계약서를 아직 읽는 중이면 조건이 비어 있고 저장도 막혀 있으므로(409), 끝날 때까지 기다렸다가 불러온다.
         (async () => {
             try {
+                let waited = false;
                 for (let i = 0; i < 90; i++) {
                     const c = await api<ContractOut>(`/contracts/${id}`);
                     if (stop) return;
-                    if (c.status === "처리 실패") return setMessage("계약서를 읽지 못했습니다. 첫 화면에서 다시 올려 주세요.");
+                    if (c.status === "처리 실패") {
+                        reloadContract();
+                        void reloadContracts().catch(() => {});
+                        return setMessage("계약서를 읽지 못했습니다. 첫 화면에서 다시 올려 주세요.");
+                    }
                     if (c.status !== "처리중") break;
+                    waited = true;
                     setMessage("계약서를 읽는 중입니다. 1~2분 걸릴 수 있고, 끝나면 조건이 자동으로 나타납니다.");
                     await new Promise((r) => setTimeout(r, 2000));
                 }
@@ -137,6 +147,11 @@ function TermsInner() {
                 if (!stop) {
                     setMessage("");
                     load(res);
+                    if (waited) {
+                        // 읽는 중이던 계약서가 끝났으니 상태를 맞춘다
+                        reloadContract();
+                        void reloadContracts().catch(() => {});
+                    }
                 }
             } catch (e) {
                 if (!stop) setMessage(errorText(e));
@@ -145,7 +160,7 @@ function TermsInner() {
         return () => {
             stop = true;
         };
-    }, [id, load]);
+    }, [id, load, reloadContract, reloadContracts]);
 
     const set = (key: string, patch: Partial<Draft>) =>
         setDrafts((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
@@ -182,6 +197,10 @@ function TermsInner() {
                 body: JSON.stringify({ terms: updates }),
             });
             load(res);
+            if (res.all_confirmed) {
+                reloadContract();
+                void reloadContracts().catch(() => {});
+            }
             setMessage(res.all_confirmed ? "저장했습니다. 이제 정산서를 입력할 수 있습니다." : "저장했습니다.");
         } catch (e) {
             setMessage(errorText(e));
@@ -196,7 +215,7 @@ function TermsInner() {
     return (
         <>
             <section className="space-y-2 rounded-2xl bg-white p-6">
-                <h1 className="text-2xl font-bold">조건 확인·수정</h1>
+                <h2 className="text-2xl font-bold">조건 확인·수정</h2>
                 <p>계약서에서 찾은 정산 조건입니다. 원문과 비교해 값을 확인하고 체크해 주세요.</p>
                 <p>
                     확인이 필요한 필수 조건 ·{" "}
@@ -329,15 +348,8 @@ function TermsInner() {
 
 export default function TermsPage() {
     return (
-        <main className="min-h-screen bg-stone-100 px-5 py-10 text-stone-900">
-            <div className="mx-auto max-w-3xl space-y-5">
-                <Link href="/" className="font-bold text-teal-900">
-                    오픈북
-                </Link>
-                <Suspense>
-                    <TermsInner />
-                </Suspense>
-            </div>
-        </main>
+        <Suspense>
+            <TermsInner />
+        </Suspense>
     );
 }
